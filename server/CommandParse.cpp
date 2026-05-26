@@ -1,19 +1,19 @@
 #include <sstream>
-#include "Cliente.hpp"
+#include "Client.hpp"
 #include <iostream>
 #include <unistd.h>
 #include <sys/socket.h>
 
-void print_message(int fd_cliente, const std::string& message)
+void print_message(int fd_client, const std::string& message)
 {
     std::string complete_message = message + "\r\n";
 
-    ssize_t n_bytes = send(fd_cliente, complete_message.c_str(), complete_message.size(), 0);
+    ssize_t n_bytes = send(fd_client, complete_message.c_str(), complete_message.size(), 0);
     if (n_bytes == -1)
-        std::cerr << "Error al enviar datos al socket " << fd_cliente << std::endl;
+        std::cerr << "Error al enviar datos al socket " << fd_client << std::endl;
 }
 
-void commandParse(const std::string& line, Cliente& cliente)
+void commandParse(const std::string& line, Client& client)
 {
     if (line.empty())
         return ;
@@ -29,25 +29,25 @@ void commandParse(const std::string& line, Cliente& cliente)
         {
             if (password == "1234")
             {
-                cliente.setHasPass(true);
-                std::cout << "[SERVER] Contraseña correcta para el socket " << cliente.getFd() << "\n";
+                client.setHasPass(true);
+                std::cout << "[SERVER] Contraseña correcta para el socket " << client.getFd() << "\n";
             }
             else
             {
-                print_message(cliente.getFd(), ":my_serv_irc 464 * :Password incorrect.");
-                std::cout << "[SERVER] Contraseña INCORRECTA en el socket " << cliente.getFd() << "\n";
+                print_message(client.getFd(), ":my_serv_irc 464 * :Password incorrect.");
+                std::cout << "[SERVER] Contraseña INCORRECTA en el socket " << client.getFd() << "\n";
             }
         }
     }
-    else if (command == "NICK" && cliente.getHasPass() != false)
+    else if (command == "NICK" && client.getHasPass() != false)
     {
         std::string nickname;
         iss >> nickname;
         if (nickname.empty())
             return;
-        cliente.setNickname(nickname);
+        client.setNickname(nickname);
     }
-    else if (command == "USER" && cliente.getHasPass() != false)
+    else if (command == "USER" && client.getHasPass() != false)
     {
         std::string username;
         std::string mode;
@@ -70,8 +70,8 @@ void commandParse(const std::string& line, Cliente& cliente)
         if (username.empty() || realname.empty())
             return;
 
-        cliente.setUser(username);
-        cliente.setRealname(realname);
+        client.setUser(username);
+        client.setRealname(realname);
     }
     else
         return;
@@ -79,9 +79,9 @@ void commandParse(const std::string& line, Cliente& cliente)
 
     // --- BLOQUE DE VERIFICACIÓN (Añade esto al final de la función) ---
     std::cout << "\n=========================================\n";
-    std::cout << " ESTADO DEL CLIENTE (Socket " << cliente.getFd() << "):\n";
-    std::cout << "  - Nickname: [" << cliente.getNickname() << "]\n";
-    std::cout << "  - Username: [" << cliente.getUser() << "]\n"; // Usa el getter real de tu clase
-    std::cout << "  - Realname: [" << cliente.getRealname() << "]\n";
+    std::cout << " ESTADO DEL CLIENTE (Socket " << client.getFd() << "):\n";
+    std::cout << "  - Nickname: [" << client.getNickname() << "]\n";
+    std::cout << "  - Username: [" << client.getUser() << "]\n"; // Usa el getter real de tu clase
+    std::cout << "  - Realname: [" << client.getRealname() << "]\n";
     std::cout << "=========================================\n\n";
 }

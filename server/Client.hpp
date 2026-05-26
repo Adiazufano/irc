@@ -1,8 +1,8 @@
-#ifndef CLIENTE_HPP
-#define CLIENTE_HPP
+#ifndef CLIENT_HPP
+#define CLIENT_HPP
 #include <string>
 
-class Cliente
+class Client
 {
     private:
         int _fd;
@@ -14,11 +14,11 @@ class Cliente
 
     public:
         std::string buffer;
-        Cliente();
-        Cliente(int fd);
-        Cliente(const Cliente& other);
-        Cliente& operator=(const Cliente& other);
-        ~Cliente();
+        Client();
+        Client(int fd);
+        Client(const Client& other);
+        Client& operator=(const Client& other);
+        ~Client();
         int getFd() const;
         void setNickname(const std::string& nick);
         std::string getNickname() const;
@@ -31,6 +31,6 @@ class Cliente
         void setHasPass(const bool& has_pass);
         bool getHasPass() const;
 };
-void commandParse(const std::string& line, Cliente& cliente);
-void print_message(int fd_cliente, const std::string& message);
+void commandParse(const std::string& line, Client& client);
+void print_message(int fd_client, const std::string& message);
 #endif
