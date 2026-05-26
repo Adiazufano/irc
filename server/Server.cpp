@@ -14,14 +14,9 @@ Server::~Server()
 Server::Server(char *port, char* password)
 {
 	_serv_socket = -1;
-	// MUY IMPORTANTE:
-	// Para validar el puerto y la contraseña (pasados por argumentos de programa)
-	// hay que modificar este if:
-	if (true) //validate arguments
-	{
-		_port = port;
-		_password = password;
-	}
+
+	_port = port;
+	_password = password;
 }
 
 bool Server::_run_server = true;
