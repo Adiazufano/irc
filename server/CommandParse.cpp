@@ -41,6 +41,8 @@ void commandParse(const std::string& line, Client& client, std::string pass)
             }
         }
     }
+    else if (command == "PASS" && client.getHasPass() != false)
+        std::cout << "Password already validated: " << std::endl;
     else if (command == "NICK" && client.getHasPass() != false)
     {
         std::string nickname;

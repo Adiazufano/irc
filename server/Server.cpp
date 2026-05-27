@@ -173,6 +173,7 @@ void Server::run()
 							std::cout << "Mensaje completo: " << mensaje << "\n";
 							//parseo de comandos de autentificacion
 							commandParse(mensaje, _clients[_arr[i].fd], _password);
+							// To Do: No hay que dejar validar comandos hasta que no hayamos confirmado correctamente la conexión del usuario.
 							validate_command(mensaje);
 						}
 						//si autentificacionmandarmensajes
