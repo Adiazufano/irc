@@ -20,8 +20,9 @@ void commandParse(const std::string& line, Client& client)
     std::istringstream iss(line);
     std::string command;
 
-    iss >> command >> std::uppercase;
-
+    iss >> command;
+    for(unsigned long i = 0; i < command.length(); i++)
+        command[i] = std::toupper(command[i]);
     if (command == "PASS")
     {
         std::string password;
@@ -57,7 +58,7 @@ void commandParse(const std::string& line, Client& client)
         iss >> username >> mode >> desuso;
         std::string resto;
         std::getline(iss, resto);
-
+        
         if (!resto.empty())
         {
             size_t colon_pos = resto.find(':');
@@ -66,10 +67,10 @@ void commandParse(const std::string& line, Client& client)
             else
                 realname = resto;
         }
-
+        
         if (username.empty() || realname.empty())
             return;
-
+        
         client.setUser(username);
         client.setRealname(realname);
     }

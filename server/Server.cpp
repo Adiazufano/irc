@@ -1,4 +1,9 @@
 #include "Server.hpp"
+#include <sstream>
+#include "Client.hpp"
+#include <iostream>
+#include <unistd.h>
+#include <sys/socket.h>
 
 // Default constructor
 Server::Server() {}
@@ -28,6 +33,54 @@ void sigint_handler(int signal)
 	Server::_run_server = false;
 }
 
+
+int command_level(std::string cmd)
+{
+	if(cmd == "/KICK")
+		return(1);
+	else if(cmd == "/INVITE")
+		return(2);
+	else if(cmd == "/TOPIC")
+		return(3);
+	else if(cmd == "/MODE")
+		return(4);
+	else
+		return(0);
+}
+
+void validate_command(const std::string& cmd)
+{
+    if (cmd.empty())
+        return ;
+    std::istringstream str(cmd);
+    std::string command;
+
+	str >> command;
+	for(unsigned long i = 0; i < command.length(); i++)
+		command[i] = std::toupper(command[i]);	
+	int level = command_level(command); 
+
+	switch(level)
+	{
+		case 1:
+			std::cout << "Kick him" << std::endl;
+			break;
+		case 2:
+			std::cout << "Invite him" << std::endl;
+			break;
+		case 3:
+			std::cout << "Topic him" << std::endl;
+			break;
+		case 4:
+			std::cout << "Mode him" << std::endl;
+			break;
+		default:
+			std::cout << "End him" << std::endl;
+			break;
+	}
+}
+
+
 void Server::init()
 {
 	signal(SIGINT, sigint_handler);
@@ -50,7 +103,8 @@ void Server::init()
 		throw std::runtime_error("Error socket");
 
 	// TO DO:
-	//setsockopt(serv_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+	//setsockopt(_serv_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+	
 	if (bind(_serv_socket, res->ai_addr, res->ai_addrlen) < 0)
 		throw std::runtime_error("Error bind");
 
@@ -116,6 +170,7 @@ void Server::run()
 							std::cout << "Mensaje completo: " << mensaje << "\n";
 							//parseo de comandos de autentificacion
 							commandParse(mensaje, _clients[_arr[i].fd]);
+							validate_command(mensaje);
 						}
 						//si autentificacionmandarmensajes
 						Client &cli = _clients[_arr[i].fd];
