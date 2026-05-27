@@ -3,6 +3,7 @@
 #include <iostream>
 #include <unistd.h>
 #include <sys/socket.h>
+#include "Server.hpp"
 
 void print_message(int fd_client, const std::string& message)
 {
@@ -13,7 +14,7 @@ void print_message(int fd_client, const std::string& message)
         std::cerr << "Error al enviar datos al socket " << fd_client << std::endl;
 }
 
-void commandParse(const std::string& line, Client& client)
+void commandParse(const std::string& line, Client& client, std::string pass)
 {
     if (line.empty())
         return ;
@@ -28,7 +29,7 @@ void commandParse(const std::string& line, Client& client)
         std::string password;
         if (iss >> password)
         {
-            if (password == "1234")
+            if (password == pass)
             {
                 client.setHasPass(true);
                 std::cout << "[SERVER] Contraseña correcta para el socket " << client.getFd() << "\n";
@@ -61,7 +62,15 @@ void commandParse(const std::string& line, Client& client)
         
         if (!resto.empty())
         {
-            size_t colon_pos = resto.find(':');
+            size_t colon_pos = 0;
+            size_t index = 0;
+            while (index < resto.length())
+            {
+                if (isspace(resto[index]))
+                    colon_pos++;
+                index++;
+            }
+            colon_pos += resto.find(':');
             if (colon_pos != std::string::npos)
                 realname = resto.substr(colon_pos + 1);
             else

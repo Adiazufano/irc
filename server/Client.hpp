@@ -9,6 +9,7 @@ class Client
         std::string _nick;
         std::string _user;
         std::string _realname;
+        std::string _pass;
         bool _authenticated;
         bool _has_pass;
 
@@ -31,6 +32,6 @@ class Client
         void setHasPass(const bool& has_pass);
         bool getHasPass() const;
 };
-void commandParse(const std::string& line, Client& client);
+void commandParse(const std::string& line, Client& client, std::string pass);
 void print_message(int fd_client, const std::string& message);
 #endif

@@ -93,6 +93,7 @@ void Server::init()
 	hints.ai_family = AF_INET;			// IPv4
 	hints.ai_socktype = SOCK_STREAM;	// TCP stream sockets
 	hints.ai_flags = AI_PASSIVE;		// localhost
+	int opt = 1;
 
 	if (getaddrinfo(0, _port.data(), &hints, &res) < 0)
 		throw std::runtime_error("Error getaddrinfo");
@@ -103,7 +104,7 @@ void Server::init()
 		throw std::runtime_error("Error socket");
 
 	// TO DO:
-	//setsockopt(_serv_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+	setsockopt(_serv_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 	
 	if (bind(_serv_socket, res->ai_addr, res->ai_addrlen) < 0)
 		throw std::runtime_error("Error bind");
@@ -169,7 +170,7 @@ void Server::run()
 							buf.erase(0, pos + 2);
 							std::cout << "Mensaje completo: " << mensaje << "\n";
 							//parseo de comandos de autentificacion
-							commandParse(mensaje, _clients[_arr[i].fd]);
+							commandParse(mensaje, _clients[_arr[i].fd], _password);
 							validate_command(mensaje);
 						}
 						//si autentificacionmandarmensajes
