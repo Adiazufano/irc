@@ -24,7 +24,7 @@ void commandParse(const std::string& line, Client& client, std::string pass)
     iss >> command;
     for(unsigned long i = 0; i < command.length(); i++)
         command[i] = std::toupper(command[i]);
-    if (command == "PASS")
+    if (command == "PASS" && client.getHasPass() != true)
     {
         std::string password;
         if (iss >> password)
@@ -64,14 +64,17 @@ void commandParse(const std::string& line, Client& client, std::string pass)
         {
             size_t colon_pos = 0;
             size_t index = 0;
+            bool flag = 0;
             while (index < resto.length())
             {
-                if (isspace(resto[index]))
+                if (isspace(resto[index]) && flag == 0)
                     colon_pos++;
+                else
+                    flag = 1;
                 index++;
             }
             colon_pos += resto.find(':');
-            if (colon_pos != std::string::npos)
+            if (colon_pos  != std::string::npos)
                 realname = resto.substr(colon_pos + 1);
             else
                 realname = resto;

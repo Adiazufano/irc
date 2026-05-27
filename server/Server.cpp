@@ -44,6 +44,8 @@ int command_level(std::string cmd)
 		return(3);
 	else if(cmd == "/MODE")
 		return(4);
+	else if(cmd == "/JOIN")
+		return(5);
 	else
 		return(0);
 }
