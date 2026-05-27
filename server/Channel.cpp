@@ -12,6 +12,7 @@ Channel::Channel(std::string name, std::string topic, std::string mode, Client* 
     if(_clients.empty())
         _clients.push_back(_admin);
 
+    std::cout << "Te has unido al canal: Name " << _name << " Topic: " << _topic << " Mode: " << _mode << " Admin: " << _admin->getUser() << std::endl; 
 }
 
 Channel::Channel(const Channel& copy) : _name(copy._name), _topic(copy._topic), _mode(copy._mode), _admin(copy._admin){}
@@ -84,4 +85,4 @@ void Channel::removeClient(Client * client)
         if((*it)->getUser() == client->getUser())
             _clients.erase(it);
     }
-} 
+}

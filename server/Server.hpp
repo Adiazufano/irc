@@ -1,6 +1,9 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
+#include "Channel.hpp"
+#include "Client.hpp"
+
 #include <string>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -12,19 +15,23 @@
 #include <vector>
 #include <map>
 #include <exception>
-#include "Client.hpp"
 #include <signal.h>
+#include <iterator>
 
 //bool g_run_server;
 
 class Server
 {
+	typedef std::vector<Channel *>::iterator channel_iterator;
+
 	private:
 		std::string					_port;
 		std::string					_password;
 		int							_serv_socket;
 		std::vector<struct pollfd>	_arr;
+		std::vector<Channel *>		_channels;
 		std::map<int, Client>		_clients;
+
 		
 	public:
 		static bool	_run_server;

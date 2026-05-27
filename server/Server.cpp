@@ -1,6 +1,7 @@
 #include "Server.hpp"
-#include <sstream>
 #include "Client.hpp"
+#include "Channel.hpp"
+#include <sstream>
 #include <iostream>
 #include <unistd.h>
 #include <sys/socket.h>
@@ -50,14 +51,16 @@ int command_level(std::string cmd)
 		return(0);
 }
 
-void validate_command(const std::string& cmd)
+void validate_command(const std::string& cmd, Client &client, std::vector<Channel *> channels)
 {
     if (cmd.empty())
         return ;
     std::istringstream str(cmd);
     std::string command;
+	std::string line;
 
 	str >> command;
+	std::getline(str, line);
 	for(unsigned long i = 0; i < command.length(); i++)
 		command[i] = std::toupper(command[i]);	
 	int level = command_level(command); 
@@ -76,6 +79,9 @@ void validate_command(const std::string& cmd)
 		case 4:
 			std::cout << "Mode him" << std::endl;
 			break;
+		case 5:
+			joinChannel(client, line, channels);
+			break;		
 		default:
 			std::cout << "End him" << std::endl;
 			break;
@@ -174,7 +180,7 @@ void Server::run()
 							//parseo de comandos de autentificacion
 							commandParse(mensaje, _clients[_arr[i].fd], _password);
 							// To Do: No hay que dejar validar comandos hasta que no hayamos confirmado correctamente la conexión del usuario.
-							validate_command(mensaje);
+							validate_command(mensaje, _clients[_arr[i].fd], _channels);
 						}
 						//si autentificacionmandarmensajes
 						Client &cli = _clients[_arr[i].fd];

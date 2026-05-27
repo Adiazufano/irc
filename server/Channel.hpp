@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <vector>
+#include <iterator>
 
 class Channel
 {
@@ -34,5 +35,7 @@ class Channel
         void addClient(Client * client);
         void removeClient(Client * client); 
 };
+
+void joinChannel(Client& client, std::string line, std::vector<Channel *> &channels);
 
 #endif
