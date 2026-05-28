@@ -44,5 +44,7 @@ class Server
 	
 //void stop_server();
 //void sigint_handler(int signal);
+void ft_toupper(std::string &str);
+
 
 #endif

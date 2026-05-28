@@ -66,8 +66,7 @@ void validate_command(const std::string& cmd, Client &client, std::vector<Channe
 
 	str >> command;
 	std::getline(str, line);
-	for(unsigned long i = 0; i < command.length(); i++)
-		command[i] = std::toupper(command[i]);	
+	ft_toupper(command);
 	int level = command_level(command); 
 
 	switch(level)
