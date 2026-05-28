@@ -29,7 +29,7 @@ void commandParse(const std::string& line, Client& client, std::string pass)
         std::string password;
         if (iss >> password)
         {
-            if (password == pass)
+            if (password == pass && !pass.empty())
             {
                 client.setHasPass(true);
                 std::cout << "[SERVER] Contraseña correcta para el socket " << client.getFd() << "\n";
@@ -39,6 +39,10 @@ void commandParse(const std::string& line, Client& client, std::string pass)
                 print_message(client.getFd(), ":my_serv_irc 464 * :Password incorrect.");
                 std::cout << "[SERVER] Contraseña INCORRECTA en el socket " << client.getFd() << "\n";
             }
+        }
+        else
+        {
+            print_message(client.getFd(), ":my_serv_irc 461 * PASS :Not enough parameters");
         }
     }
     else if (command == "PASS" && client.getHasPass() != false)
@@ -77,7 +81,7 @@ void commandParse(const std::string& line, Client& client, std::string pass)
             }
             colon_pos += resto.find(':');
             if (colon_pos  != std::string::npos)
-                realname = resto.substr(colon_pos + 1);
+                realname = resto.substr(colon_pos);
             else
                 realname = resto;
         }
@@ -88,15 +92,39 @@ void commandParse(const std::string& line, Client& client, std::string pass)
         client.setUser(username);
         client.setRealname(realname);
     }
+    else if (command == "CAP")
+    {
+        std::string subcommand;
+        if (!(iss >> subcommand))
+        {
+            print_message(client.getFd(), ":my_serv_irc 461 * CAP :Not enough parameters");
+            return;
+        }
+        for (unsigned long i = 0; i < subcommand.length(); i++)
+            subcommand[i] = std::toupper(subcommand[i]);
+        if (subcommand == "LS")
+        {
+            print_message(client.getFd(), ":my_serv_irc CAP * LS :");
+        }
+        else if (subcommand == "REQ")
+        {
+            std::string resto;
+            std::getline(iss, resto);
+            print_message(client.getFd(), ":my_serv_irc CAP * NAK " +  resto);
+        }
+        else if (subcommand == "END")
+        {
+            std::cout << "[SERVER] Negociación CAP finalizada." << std::endl;
+            client.setAuthenticated(true);
+        }
+    }
     else
         return;
-    // ... todo tu código de parseo que ya tienes ...
-
     // --- BLOQUE DE VERIFICACIÓN (Añade esto al final de la función) ---
     std::cout << "\n=========================================\n";
     std::cout << " ESTADO DEL CLIENTE (Socket " << client.getFd() << "):\n";
     std::cout << "  - Nickname: [" << client.getNickname() << "]\n";
-    std::cout << "  - Username: [" << client.getUser() << "]\n"; // Usa el getter real de tu clase
+    std::cout << "  - Username: [" << client.getUser() << "]\n";
     std::cout << "  - Realname: [" << client.getRealname() << "]\n";
     std::cout << "=========================================\n\n";
 }

@@ -39,7 +39,7 @@ void sigint_handler(int signal)
 	Server::_run_server = false;
 }
 
-
+//Importante quitar </> por lo visto </> solo se usa en hexchat para diferenciar entre comando y mensaje y se envia sin </>
 int command_level(std::string cmd)
 {
 	if(cmd == "/KICK")
@@ -189,10 +189,8 @@ void Server::run()
 						}
 						//si autentificacionmandarmensajes
 						Client &cli = _clients[_arr[i].fd];
-						if (!cli.getAuthenticated() && !cli.getNickname().empty() && !cli.getUser().empty())
-						{
-							cli.setAuthenticated(true);
-							
+						if (cli.getHasPass() && !cli.getNickname().empty() && !cli.getUser().empty() && cli.getAuthenticated())
+						{	
 							std::string nick = cli.getNickname();
 							print_message(_arr[i].fd, ":my_serv_irc 001 " + nick + " :Welcome to the IRC Network, " + nick);
 							
