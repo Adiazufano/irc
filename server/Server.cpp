@@ -13,6 +13,11 @@ Server::Server() {}
 Server::~Server()
 {
 	std::cout << "Closing server...\n";
+	for(unsigned int i = 0; i < _channels.size(); i++)
+	{
+		delete (_channels[i]);
+	}
+	_channels.clear();
 	close(_serv_socket);
 	std::cout << "Closed" << '\n';
 }
@@ -51,7 +56,7 @@ int command_level(std::string cmd)
 		return(0);
 }
 
-void validate_command(const std::string& cmd, Client &client, std::vector<Channel *> channels)
+void validate_command(const std::string& cmd, Client &client, std::vector<Channel *> &channels)
 {
     if (cmd.empty())
         return ;

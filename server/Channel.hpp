@@ -9,17 +9,16 @@
 
 class Channel
 {
-    typedef std::vector<Client *>::iterator client_iterator;
     private:
         std::string _name;
         std::string _topic;
         std::string _mode;
-        Client*     _admin;
-        std::vector<Client *> _clients;
+        int         _admin_fd;  // En lugar de guardar el cliente guardaremos el fd y lo buscaremos despues. Ya que los contenedores pueden mover su memoria al crecer y generar SEGV
+        std::vector<int> _clients_fd;
     
     public:
         Channel();
-        Channel(std::string name, std::string topic, std::string mode, Client* _admin);
+        Channel(std::string name, std::string topic, std::string mode, int admin_fd);
         Channel(const Channel& copy);
         Channel& operator=(const Channel& other);
         ~Channel();
@@ -30,10 +29,10 @@ class Channel
         void setChannelTopic(const std::string topic);
         std::string getChannelMode() const;
         void setChannelMode(const std::string mode);
-        std::vector<Client *> getChannelClients() const;
 
-        void addClient(Client * client);
-        void removeClient(Client * client); 
+        void addClient(int fd);
+        void removeClient(int fd);
+
 };
 
 void joinChannel(Client& client, std::string line, std::vector<Channel *> &channels);

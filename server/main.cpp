@@ -11,6 +11,10 @@
 #include "Server.hpp"
 #include "Client.hpp"
 #include <sstream>
+#include <iostream>
+#include <string>
+#include <cstdio>
+#include <cstdlib>
 
 int validate_args(char **argv)
 {
@@ -62,6 +66,5 @@ int	main(int argc, char **argv)
 		std::cerr << e.what() << '\n';
 		return (1);
 	}
-	
 	return (0);
 }

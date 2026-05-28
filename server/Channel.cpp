@@ -4,18 +4,19 @@
 Channel::Channel()
 {}
 
-Channel::Channel(std::string name, std::string topic, std::string mode, Client* _admin)
+Channel::Channel(std::string name, std::string topic, std::string mode, int admin_fd)
 {
     _name = name;
     _topic = topic;
     _mode = mode;
-    if(_clients.empty())
-        _clients.push_back(_admin);
+    _admin_fd = admin_fd;
+    if(_clients_fd.empty())
+        _clients_fd.push_back(admin_fd);
 
-    std::cout << "Te has unido al canal: Name " << _name << " Topic: " << _topic << " Mode: " << _mode << " Admin: " << _admin->getUser() << std::endl; 
+    // std::cout << "Te has unido al canal: Name " << _name << " Topic: " << _topic << " Mode: " << _mode << " Admin: " << _admin_fd->getUser() << std::endl; 
 }
 
-Channel::Channel(const Channel& copy) : _name(copy._name), _topic(copy._topic), _mode(copy._mode), _admin(copy._admin){}
+Channel::Channel(const Channel& copy) : _name(copy._name), _topic(copy._topic), _mode(copy._mode), _admin_fd(copy._admin_fd){}
 
 Channel& Channel::operator=(const Channel& other)
 {
@@ -24,7 +25,7 @@ Channel& Channel::operator=(const Channel& other)
         _name = other._name;
         _topic = other._topic;
         _mode = other._mode;
-        _admin = other._admin;
+        _admin_fd = other._admin_fd;
     }
     return (*this);
 }
@@ -58,31 +59,28 @@ void Channel::setChannelMode(const std::string mode)
 {
     _mode = mode;
 }
-std::vector<Client *> Channel::getChannelClients() const
+
+
+
+
+void Channel::addClient(int fd)
 {
-    return(_clients);
+    for (size_t i = 0; i < _clients_fd.size(); i++)
+        if (_clients_fd[i] == fd)
+            return;
+    _clients_fd.push_back(fd);
 }
 
 
 
-void Channel::addClient(Client * client)
+void Channel::removeClient(int fd)
 {
-    
-    for(std::vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+    for (std::vector<int>::iterator it = _clients_fd.begin(); it != _clients_fd.end(); ++it)
     {
-        if((*it)->getUser() == client->getUser())
-            return ;
-    }
-    _clients.push_back(client);
-}
-
-
-
-void Channel::removeClient(Client * client)
-{
-    for(std::vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it)
-    {
-        if((*it)->getUser() == client->getUser())
-            _clients.erase(it);
+        if (*it == fd)
+        {
+            _clients_fd.erase(it);
+            return;
+        }
     }
 }

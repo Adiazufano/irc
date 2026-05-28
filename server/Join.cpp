@@ -23,11 +23,11 @@ void joinChannel(Client& client, std::string line, std::vector<Channel *> &_chan
         if((*it)->getChannelName() == name)
         {
             std::cout << "Nos unimos al canal" << std::endl;
-            (*it)->addClient(&client);
+            (*it)->addClient(client.getFd());
             return ;
         }
     }
-    // Puede ser Channel* ch = new Channel(name, "default", "default", &client) valorar en profundidad
-    Channel ch(name, "default", "default", &client);
-    _channels.push_back(&ch);
+    Channel* ch = new Channel (name, "default", "default", client.getFd());
+    _channels.push_back(ch);
+    std::cout << "Hemos creado el canal nuevo" << std::endl;
 }
