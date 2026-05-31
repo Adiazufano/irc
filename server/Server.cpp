@@ -5,6 +5,9 @@
 #include <iostream>
 #include <unistd.h>
 #include <sys/socket.h>
+#include <errno.h>
+
+bool Server::run_server = true;
 
 // Default constructor
 Server::Server() {}
@@ -13,32 +16,20 @@ Server::Server() {}
 Server::~Server()
 {
 	std::cout << "Closing server...\n";
-	for(unsigned int i = 0; i < _channels.size(); i++)
-	{
-		delete (_channels[i]);
-	}
-	_channels.clear();
+	freeaddrinfo(_addr_lst);
 	close(_serv_socket);
-	std::cout << "Closed" << '\n';
+	std::cout << "Closed" << std::endl;
 }
 
-Server::Server(char *port, char* password)
-{
-	_serv_socket = -1;
-
-	_port = port;
-	_password = password;
-}
-
-bool Server::_run_server = true;
+// Parameterized constructor
+Server::Server(char *port, char* password) : _port(port), _password(password), _serv_socket(-1), _addr_lst(NULL)
+{}
 
 void sigint_handler(int signal)
 {
 	(void)signal;
-	std::cout << "Signal " << signal << '\n';
-	Server::_run_server = false;
+	Server::run_server = false;
 }
-
 
 int command_level(std::string cmd)
 {
@@ -56,7 +47,7 @@ int command_level(std::string cmd)
 		return(0);
 }
 
-void validate_command(const std::string& cmd, Client &client, std::vector<Channel *> &channels)
+void validate_command(const std::string& cmd, Client &client, std::vector<Channel *> channels)
 {
     if (cmd.empty())
         return ;
@@ -100,7 +91,7 @@ void Server::init()
 
 	// Network address
 	struct addrinfo hints;
-	struct addrinfo *res;
+	//struct addrinfo *res;
 
 	std::memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_INET;			// IPv4
@@ -108,23 +99,19 @@ void Server::init()
 	hints.ai_flags = AI_PASSIVE;		// localhost
 	int opt = 1;
 
-	if (getaddrinfo(0, _port.data(), &hints, &res) < 0)
-		throw std::runtime_error("Error getaddrinfo");
+	if (getaddrinfo(0, _port.data(), &hints, &_addr_lst) < 0)
+		throw std::runtime_error(strerror(errno));
 	
 	// Server socket
-	_serv_socket = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+	_serv_socket = socket(_addr_lst->ai_family, _addr_lst->ai_socktype, _addr_lst->ai_protocol);
 	if (_serv_socket < 0)
-		throw std::runtime_error("Error socket");
+		throw std::runtime_error(strerror(errno));
 
 	// TO DO:
 	setsockopt(_serv_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 	
-	if (bind(_serv_socket, res->ai_addr, res->ai_addrlen) < 0)
-		throw std::runtime_error("Error bind");
-
-	// TO DO:
-	// Si ocurre un error antes hay que llamar a freeaddrinfo de alguna manera
-	freeaddrinfo(res);
+	if (bind(_serv_socket, _addr_lst->ai_addr, _addr_lst->ai_addrlen) < 0)
+		throw std::runtime_error(strerror(errno));
 
 	struct pollfd serv_pfd = { _serv_socket, POLLIN, 0 };
 	_arr.push_back(serv_pfd);
@@ -132,14 +119,14 @@ void Server::init()
 	// Listen
 	// To do: ¿Qué número hay que pasar como segundo parámetro?
 	if (listen(_serv_socket, 10) <0)
-		throw std::runtime_error("Error listen");
+		throw std::runtime_error(strerror(errno));
 
 	std::cout << "Server listening on port " << _port.data() << '\n';
 }
 
 void Server::run()
 {
-	while (Server::_run_server)
+	while (Server::run_server)
 	{
 		std::vector<struct pollfd> new_clients;
 		std::vector<struct pollfd> disconnected_clients;
@@ -147,7 +134,7 @@ void Server::run()
 		int poll_result = poll(_arr.data(), _arr.size(), -1);
 		std::cout << "poll_result: " << poll_result << '\n';
 		
-		while (poll_result > 0 && Server::_run_server)
+		while (poll_result > 0 && Server::run_server)
 		{
 			for (size_t i = 0; i < _arr.size(); i++)
 			{
