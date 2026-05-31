@@ -15,7 +15,7 @@ Server::Server() {}
 // Destructor
 Server::~Server()
 {
-	std::cout << "Closing server...\n";
+	std::cout << "\nClosing server...\n";
 	freeaddrinfo(_addr_lst);
 	close(_serv_socket);
 	std::cout << "Closed" << std::endl;
@@ -176,64 +176,72 @@ void Server::handle_errors(int i)
 	std::cout << "There was an error at socket " << _pfd_arr[i].fd << "\n";
 }
 
+void Server::add_clients()
+{
+	std::cout << "Adding " << _accepted_clients.size() << " new clients" << '\n';
+	for (size_t i = 0; i < _accepted_clients.size(); i++)
+	{
+		struct pollfd pfd = { _accepted_clients[i], POLLIN, 0 };
+		_pfd_arr.push_back(pfd);
+		_clients.insert(std::make_pair(_accepted_clients[i], Client(_accepted_clients[i])));
+	}
+	_accepted_clients.clear();
+}
+
+void Server::disconnect_clients()
+{
+	std::cout << "Removing " << _disconnected_clients.size() << " disconnected clients" << '\n';
+	for (size_t i = 0; i < _disconnected_clients.size(); i++)
+	{
+		std::vector<struct pollfd>::iterator it = _pfd_arr.begin();
+		while (it != _pfd_arr.end())
+		{
+			if (_disconnected_clients[i] == it->fd)
+			{
+				close(it->fd); // Mejor llamar a close desde el destructor del cliente??
+				_clients.erase(it -> fd);
+				it = _pfd_arr.erase(it);
+				break;
+			}
+			it++;
+		}
+	}
+	_disconnected_clients.clear();
+}
+
 void Server::run()
 {
 	while (Server::run_server)
 	{
 		std::cout << _pfd_arr.size() - 1 << " connected clients. Waiting for events...\n";
 		int poll_result = poll(_pfd_arr.data(), _pfd_arr.size(), -1);
-		std::cout << "poll_result: " << poll_result << '\n';
-		
-		while (poll_result > 0 && Server::run_server)
+		if (poll_result < 0)
+			break;
+		std::cout << "Events: " << poll_result << std::endl;
+
+		for (size_t i = 0; i < _pfd_arr.size(); i++)
 		{
-			for (size_t i = 0; i < _pfd_arr.size(); i++)
-			{
-				// New incoming connection
-				if (_pfd_arr[i].revents == POLLIN && _pfd_arr[i].fd == _serv_socket)
-					accept_client();
-				// Event from known client (message or disconnection)
-				else if (_pfd_arr[i].revents == POLLIN)
-					client_event(i);
-				// Errors
-				else if (_pfd_arr[i].revents == POLLERR || _pfd_arr[i].revents == POLLHUP || _pfd_arr[i].revents == POLLNVAL)
-					handle_errors(i);
-				poll_result--;
-			}
+			// New incoming connection
+			if (_pfd_arr[i].revents == POLLIN && _pfd_arr[i].fd == _serv_socket)
+				accept_client();
+			// Event from known client (message or disconnection)
+			else if (_pfd_arr[i].revents == POLLIN)
+				client_event(i);
+			// Errors
+			else if (_pfd_arr[i].revents == POLLERR || _pfd_arr[i].revents == POLLHUP || _pfd_arr[i].revents == POLLNVAL)
+				handle_errors(i);
+			if (_pfd_arr[i].revents != 0)
+				--poll_result;
+			if (!poll_result)
+				break;
 		}
 
 		// Add new clients
 		if (_accepted_clients.size() > 0)
-		{
-			std::cout << "Adding " << _accepted_clients.size() << " new clients" << '\n';
-			for (size_t i = 0; i < _accepted_clients.size(); i++)
-			{
-				struct pollfd pfd = { _accepted_clients[i], POLLIN, 0 };
-				_pfd_arr.push_back(pfd);
-				_clients.insert(std::make_pair(_accepted_clients[i], Client(_accepted_clients[i])));
-			}
-			_accepted_clients.clear();
-		}
+			add_clients();
 	
 		// Close and remove disconnected clients
 		if (_disconnected_clients.size() > 0)
-		{
-			std::cout << "Removing " << _disconnected_clients.size() << " disconnected clients" << '\n';
-			for (size_t i = 0; i < _disconnected_clients.size(); i++)
-			{
-				std::vector<struct pollfd>::iterator it = _pfd_arr.begin();
-				while (it != _pfd_arr.end())
-				{
-					if (_disconnected_clients[i] == it->fd)
-					{
-						close(it->fd); // Mejor llamar a close desde el destructor del cliente??
-						_clients.erase(it -> fd);
-						it = _pfd_arr.erase(it);
-						break;
-					}
-					it++;
-				}
-			}
-			_disconnected_clients.clear();
-		}
+			disconnect_clients();
 	}
 }

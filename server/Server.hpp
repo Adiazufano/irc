@@ -35,6 +35,8 @@ class Server
 		void						accept_client();
 		void						client_event(int i);
 		void						handle_errors(int i);
+		void						add_clients();
+		void						disconnect_clients();
 
 	public:
 		static bool	run_server;
