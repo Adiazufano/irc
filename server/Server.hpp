@@ -28,10 +28,13 @@ class Server
 		int							_serv_socket;
 		struct addrinfo				*_addr_lst;
 		std::vector<struct pollfd>	_arr;
-		//std::vector<int>			_new_clients;
-		//std::vector<int>			_disconnected_clients;
+		std::vector<struct pollfd>	_new_clients;
+		std::vector<int>			_disconnected_clients;
 		std::vector<Channel *>		_channels;
 		std::map<int, Client>		_clients;
+		void						add_new_client_pfd();
+		void						client_event(int i);
+		void						handle_errors(int i);
 
 	public:
 		static bool	run_server;

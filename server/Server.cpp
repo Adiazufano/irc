@@ -124,13 +124,69 @@ void Server::init()
 	std::cout << "Server listening on port " << _port.data() << '\n';
 }
 
+void Server::add_new_client_pfd()
+{
+	int new_client = accept(_serv_socket, 0, 0);
+	_clients.insert(std::make_pair(new_client, Client(new_client)));
+	struct pollfd pfd = { new_client, POLLIN, 0 };
+	_new_clients.push_back(pfd);
+	std::cout << "New connection accepted: Socket " << new_client << '\n';
+}
+
+void Server::client_event(int i)
+{
+	char buffer[512] = { 0 };
+	ssize_t n_bytes = recv(_arr[i].fd, buffer, sizeof(buffer), 0);
+	if (n_bytes == 0)
+	{
+		std::cout << "Client at socket " << _arr[i].fd << " disconnected\n";
+		_disconnected_clients.push_back(_arr[i].fd);
+	}
+	else if (n_bytes > 0)
+	{
+		//buffer acumulativo para cada cliente
+		_clients[_arr[i].fd].buffer += std::string(buffer, n_bytes);
+		std::string &buf = _clients[_arr[i].fd].buffer;
+		size_t pos;
+		//no considerar mensaje completo hasta encontrar "\r\n"
+		while ((pos = buf.find("\r\n")) != std::string::npos)
+		{
+			std::string mensaje = buf.substr(0, pos);
+			buf.erase(0, pos + 2);
+			std::cout << "Mensaje completo: " << mensaje << "\n";
+			//parseo de comandos de autentificacion
+			commandParse(mensaje, _clients[_arr[i].fd], _password);
+			// To Do: No hay que dejar validar comandos hasta que no hayamos confirmado correctamente la conexión del usuario.
+			validate_command(mensaje, _clients[_arr[i].fd], _channels);
+		}
+		//si autentificacion mandar mensajes
+		Client &cli = _clients[_arr[i].fd];
+		if (!cli.getAuthenticated() && !cli.getNickname().empty() && !cli.getUser().empty())
+		{
+			cli.setAuthenticated(true);
+			std::string nick = cli.getNickname();
+			print_message(_arr[i].fd, ":my_serv_irc 001 " + nick + " :Welcome to the IRC Network, " + nick);
+			print_message(_arr[i].fd, ":my_serv_irc 002 " + nick + " :Your host is my_serv_irc, running version 1.0");
+			print_message(_arr[i].fd, ":my_serv_irc 003 " + nick + " :This server was created May 2026");
+			print_message(_arr[i].fd, ":my_serv_irc 004 " + nick + " my_serv_irc 1.0 o itkol");
+			std::cout << "[SERVER] Bienvenido enviado de forma segura.\n";
+		}
+	}
+}
+
+void Server::handle_errors(int i)
+{
+	// TO DO: Handle errors
+	std::cout << "There was an error at socket " << _arr[i].fd << "\n";
+}
+
 void Server::run()
 {
 	while (Server::run_server)
 	{
-		std::vector<struct pollfd> new_clients;
-		std::vector<struct pollfd> disconnected_clients;
-		std::cout << "Waiting for events... Known clients: " << _arr.size() << '\n';
+		//std::vector<struct pollfd> new_clients;
+		// std::vector<int> disconnected_clients;
+		std::cout << _arr.size() - 1 << " connected clients. Waiting for events...\n";
 		int poll_result = poll(_arr.data(), _arr.size(), -1);
 		std::cout << "poll_result: " << poll_result << '\n';
 		
@@ -138,92 +194,40 @@ void Server::run()
 		{
 			for (size_t i = 0; i < _arr.size(); i++)
 			{
-				// New incoming conection
+				// New incoming connection
 				if (_arr[i].revents == POLLIN && _arr[i].fd == _serv_socket)
-				{
-					int new_client = accept(_serv_socket, 0, 0);
-					_clients.insert(std::make_pair(new_client, Client(new_client)));
-					struct pollfd pfd = { new_client, POLLIN, 0 };
-					new_clients.push_back(pfd);
-					std::cout << "New connection accepted: Socket " << new_client << '\n';
-				}
+					add_new_client_pfd();
 				// Event from known client (message or disconnection)
 				else if (_arr[i].revents == POLLIN)
-				{
-					char buffer[512] = { 0 };
-					ssize_t n_bytes = recv(_arr[i].fd, buffer, sizeof(buffer), 0);
-					if (n_bytes == 0)
-					{
-						std::cout << "Client at socket " << _arr[i].fd << " disconnected\n";
-						disconnected_clients.push_back(_arr[i]);
-					}
-					else if (n_bytes > 0)
-					{
-						//buffer acumulativo ara cada cliente
-						_clients[_arr[i].fd].buffer += std::string(buffer, n_bytes);
-						std::string &buf = _clients[_arr[i].fd].buffer;
-						size_t pos;
-						//no considerar mensaje completo hasta encontrar "\r\n"
-						while ((pos = buf.find("\r\n")) != std::string::npos)
-						{
-							std::string mensaje = buf.substr(0, pos);
-							buf.erase(0, pos + 2);
-							std::cout << "Mensaje completo: " << mensaje << "\n";
-							//parseo de comandos de autentificacion
-							commandParse(mensaje, _clients[_arr[i].fd], _password);
-							// To Do: No hay que dejar validar comandos hasta que no hayamos confirmado correctamente la conexión del usuario.
-							validate_command(mensaje, _clients[_arr[i].fd], _channels);
-						}
-						//si autentificacionmandarmensajes
-						Client &cli = _clients[_arr[i].fd];
-						if (!cli.getAuthenticated() && !cli.getNickname().empty() && !cli.getUser().empty())
-						{
-							cli.setAuthenticated(true);
-							
-							std::string nick = cli.getNickname();
-							print_message(_arr[i].fd, ":my_serv_irc 001 " + nick + " :Welcome to the IRC Network, " + nick);
-							
-							print_message(_arr[i].fd, ":my_serv_irc 002 " + nick + " :Your host is my_serv_irc, running version 1.0");
-							
-							print_message(_arr[i].fd, ":my_serv_irc 003 " + nick + " :This server was created May 2026");
-							
-							print_message(_arr[i].fd, ":my_serv_irc 004 " + nick + " my_serv_irc 1.0 o itkol");
-							std::cout << "[SERVER] Bienvenido enviado de forma segura.\n";
-						}
-					}
-					// Errors
-					else if (_arr[i].revents == POLLERR || _arr[i].revents == POLLHUP || _arr[i].revents == POLLNVAL)
-					{
-						// TO DO: Handle errors
-						std::cout << "There was an error at socket " << _arr[i].fd << "\n";
-					}
-				}
+					client_event(i);
+				// Errors
+				else if (_arr[i].revents == POLLERR || _arr[i].revents == POLLHUP || _arr[i].revents == POLLNVAL)
+					handle_errors(i);
 				poll_result--;
 			}
 		}
 
 		// Add new clients
-		if (new_clients.size() > 0)
+		if (_new_clients.size() > 0)
 		{
-			std::cout << "Adding " << new_clients.size() << " new clients" << '\n';
-			for (size_t i = 0; i < new_clients.size(); i++)
-			{
-				_arr.push_back(new_clients[i]);
-			}
+			std::cout << "Adding " << _new_clients.size() << " new clients" << '\n';
+			for (size_t i = 0; i < _new_clients.size(); i++)
+				_arr.push_back(_new_clients[i]);
+			_new_clients.clear();
 		}
 	
 		// Close and remove disconnected clients
-		if (disconnected_clients.size() > 0)
+		if (_disconnected_clients.size() > 0)
 		{
-			std::cout << "Removing " << disconnected_clients.size() << " disconnected clients" << '\n';
-			for (size_t i = 0; i < disconnected_clients.size(); i++)
+			std::cout << "Removing " << _disconnected_clients.size() << " disconnected clients" << '\n';
+			for (size_t i = 0; i < _disconnected_clients.size(); i++)
 			{
 				std::vector<struct pollfd>::iterator it = _arr.begin();
 				while (it != _arr.end())
 				{
-					if (disconnected_clients[i].fd == it->fd)
+					if (_disconnected_clients[i] == it->fd)
 					{
-						close(it->fd);
+						close(it->fd); // Mejor llamar a close desde el destructor del cliente??
 						_clients.erase(it -> fd);
 						it = _arr.erase(it);
 						break;
@@ -231,6 +235,7 @@ void Server::run()
 					it++;
 				}
 			}
+			_disconnected_clients.clear();
 		}
 	}
 }
