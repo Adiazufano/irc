@@ -8,8 +8,8 @@
 #include <vector>
 #include <map>
 #include <signal.h>
-#include "Server.hpp"
-#include "Client.hpp"
+#include "../include/Server.hpp"
+#include "../include/Client.hpp"
 #include <sstream>
 #include <iostream>
 #include <string>

@@ -1,9 +1,9 @@
 #include <sstream>
-#include "Client.hpp"
+#include "../include/Client.hpp"
 #include <iostream>
 #include <unistd.h>
 #include <sys/socket.h>
-#include "Server.hpp"
+#include "../include/Server.hpp"
 
 void print_message(int fd_client, const std::string& message)
 {

@@ -1,5 +1,5 @@
-#include "Channel.hpp"
-#include "Client.hpp"
+#include "../include/Channel.hpp"
+#include "../include/Client.hpp"
 
 Channel::Channel()
 {}
@@ -30,7 +30,9 @@ Channel& Channel::operator=(const Channel& other)
     return (*this);
 }
 
-Channel::~Channel(){}
+Channel::~Channel()
+{
+}
 
 std::string Channel::getChannelName() const
 {
