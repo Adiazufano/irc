@@ -5,6 +5,9 @@
 #include <iostream>
 #include <unistd.h>
 #include <sys/socket.h>
+#include <errno.h>
+
+bool Server::run_server = true;
 
 // Default constructor
 Server::Server() {}
@@ -12,33 +15,21 @@ Server::Server() {}
 // Destructor
 Server::~Server()
 {
-	std::cout << "Closing server...\n";
-	for(unsigned int i = 0; i < _channels.size(); i++)
-	{
-		delete (_channels[i]);
-	}
-	_channels.clear();
+	std::cout << "\nClosing server...\n";
+	freeaddrinfo(_addr_lst);
 	close(_serv_socket);
-	std::cout << "Closed" << '\n';
+	std::cout << "Closed" << std::endl;
 }
 
-Server::Server(char *port, char* password)
-{
-	_serv_socket = -1;
-
-	_port = port;
-	_password = password;
-}
-
-bool Server::_run_server = true;
+// Parameterized constructor
+Server::Server(char *port, char* password) : _port(port), _password(password), _serv_socket(-1), _addr_lst(NULL)
+{}
 
 void sigint_handler(int signal)
 {
 	(void)signal;
-	std::cout << "Signal " << signal << '\n';
-	Server::_run_server = false;
+	Server::run_server = false;
 }
-
 
 int command_level(std::string cmd)
 {
@@ -56,7 +47,7 @@ int command_level(std::string cmd)
 		return(0);
 }
 
-void validate_command(const std::string& cmd, Client &client, std::vector<Channel *> &channels)
+void validate_command(const std::string& cmd, Client &client, std::vector<Channel *> channels)
 {
     if (cmd.empty())
         return ;
@@ -100,150 +91,161 @@ void Server::init()
 
 	// Network address
 	struct addrinfo hints;
-	struct addrinfo *res;
-
 	std::memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_INET;			// IPv4
 	hints.ai_socktype = SOCK_STREAM;	// TCP stream sockets
 	hints.ai_flags = AI_PASSIVE;		// localhost
 	int opt = 1;
 
-	if (getaddrinfo(0, _port.data(), &hints, &res) < 0)
-		throw std::runtime_error("Error getaddrinfo");
-	
+	if (getaddrinfo(0, _port.data(), &hints, &_addr_lst) < 0)
+		throw std::runtime_error(strerror(errno));
+
 	// Server socket
-	_serv_socket = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+	_serv_socket = socket(_addr_lst->ai_family, _addr_lst->ai_socktype, _addr_lst->ai_protocol);
 	if (_serv_socket < 0)
-		throw std::runtime_error("Error socket");
-
-	// TO DO:
-	setsockopt(_serv_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-	
-	if (bind(_serv_socket, res->ai_addr, res->ai_addrlen) < 0)
-		throw std::runtime_error("Error bind");
-
-	// TO DO:
-	// Si ocurre un error antes hay que llamar a freeaddrinfo de alguna manera
-	freeaddrinfo(res);
+		throw std::runtime_error(strerror(errno));
+	if (setsockopt(_serv_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
+		throw std::runtime_error(strerror(errno));
+	if (bind(_serv_socket, _addr_lst->ai_addr, _addr_lst->ai_addrlen) < 0)
+		throw std::runtime_error(strerror(errno));
 
 	struct pollfd serv_pfd = { _serv_socket, POLLIN, 0 };
-	_arr.push_back(serv_pfd);
+	_pfd_arr.push_back(serv_pfd);
 
 	// Listen
-	// To do: ¿Qué número hay que pasar como segundo parámetro?
-	if (listen(_serv_socket, 10) <0)
-		throw std::runtime_error("Error listen");
+	if (listen(_serv_socket, SOMAXCONN) < 0)
+		throw std::runtime_error(strerror(errno));
 
-	std::cout << "Server listening on port " << _port.data() << '\n';
+	std::cout << "Server listening on port " << _port.c_str() << '\n';
+}
+
+void Server::accept_client()
+{
+	int fd = accept(_serv_socket, 0, 0);
+	if (fd > 0)
+	{
+		_accepted_clients.push_back(fd);
+		std::cout << "New connection accepted: Socket " << fd << '\n';
+	}
+}
+
+void Server::client_event(int i)
+{
+	char buffer[512] = { 0 };
+	ssize_t n_bytes = recv(_pfd_arr[i].fd, buffer, sizeof(buffer), 0);
+	if (n_bytes < 0)
+	{
+		// TO DO: Handle recv error
+		std::cout << "recv error: " << strerror(errno) << std::endl;
+	}
+	else if (n_bytes == 0)
+	{
+		std::cout << "Client at socket " << _pfd_arr[i].fd << " disconnected\n";
+		_disconnected_clients.push_back(_pfd_arr[i].fd);
+	}
+	else if (n_bytes > 0)
+	{
+		//buffer acumulativo para cada cliente
+		_clients[_pfd_arr[i].fd].buffer += std::string(buffer, n_bytes);
+		std::string &buf = _clients[_pfd_arr[i].fd].buffer;
+		size_t pos;
+		//no considerar mensaje completo hasta encontrar "\r\n"
+		while ((pos = buf.find("\r\n")) != std::string::npos)
+		{
+			std::string mensaje = buf.substr(0, pos);
+			buf.erase(0, pos + 2);
+			std::cout << "Mensaje completo: " << mensaje << "\n";
+			//parseo de comandos de autentificacion
+			commandParse(mensaje, _clients[_pfd_arr[i].fd], _password);
+			// To Do: No hay que dejar validar comandos hasta que no hayamos confirmado correctamente la conexión del usuario.
+			validate_command(mensaje, _clients[_pfd_arr[i].fd], _channels);
+		}
+		//si autentificacion mandar mensajes
+		Client &cli = _clients[_pfd_arr[i].fd];
+		if (!cli.getAuthenticated() && !cli.getNickname().empty() && !cli.getUser().empty())
+		{
+			cli.setAuthenticated(true);
+			std::string nick = cli.getNickname();
+			print_message(_pfd_arr[i].fd, ":my_serv_irc 001 " + nick + " :Welcome to the IRC Network, " + nick);
+			print_message(_pfd_arr[i].fd, ":my_serv_irc 002 " + nick + " :Your host is my_serv_irc, running version 1.0");
+			print_message(_pfd_arr[i].fd, ":my_serv_irc 003 " + nick + " :This server was created May 2026");
+			print_message(_pfd_arr[i].fd, ":my_serv_irc 004 " + nick + " my_serv_irc 1.0 o itkol");
+			std::cout << "[SERVER] Bienvenido enviado de forma segura.\n";
+		}
+	}
+}
+
+void Server::handle_errors(int i)
+{
+	// TO DO: Handle errors
+	std::cout << "There was an error at socket " << _pfd_arr[i].fd << "\n";
+}
+
+void Server::add_clients()
+{
+	std::cout << "Adding " << _accepted_clients.size() << " new clients" << '\n';
+	for (size_t i = 0; i < _accepted_clients.size(); i++)
+	{
+		struct pollfd pfd = { _accepted_clients[i], POLLIN, 0 };
+		_pfd_arr.push_back(pfd);
+		_clients.insert(std::make_pair(_accepted_clients[i], Client(_accepted_clients[i])));
+	}
+	_accepted_clients.clear();
+}
+
+void Server::disconnect_clients()
+{
+	std::cout << "Removing " << _disconnected_clients.size() << " disconnected clients" << '\n';
+	for (size_t i = 0; i < _disconnected_clients.size(); i++)
+	{
+		std::vector<struct pollfd>::iterator it = _pfd_arr.begin();
+		while (it != _pfd_arr.end())
+		{
+			if (_disconnected_clients[i] == it->fd)
+			{
+				close(it->fd); // Mejor llamar a close desde el destructor del cliente??
+				_clients.erase(it -> fd);
+				it = _pfd_arr.erase(it);
+				break;
+			}
+			it++;
+		}
+	}
+	_disconnected_clients.clear();
 }
 
 void Server::run()
 {
-	while (Server::_run_server)
+	while (Server::run_server)
 	{
-		std::vector<struct pollfd> new_clients;
-		std::vector<struct pollfd> disconnected_clients;
-		std::cout << "Waiting for events... Known clients: " << _arr.size() << '\n';
-		int poll_result = poll(_arr.data(), _arr.size(), -1);
-		std::cout << "poll_result: " << poll_result << '\n';
-		
-		while (poll_result > 0 && Server::_run_server)
+		std::cout << _pfd_arr.size() - 1 << " connected clients. Waiting for events...\n";
+		int poll_result = poll(_pfd_arr.data(), _pfd_arr.size(), -1);
+		if (poll_result < 0)
+			break;
+		std::cout << "Events: " << poll_result << std::endl;
+
+		for (size_t i = 0; i < _pfd_arr.size(); i++)
 		{
-			for (size_t i = 0; i < _arr.size(); i++)
-			{
-				// New incoming conection
-				if (_arr[i].revents == POLLIN && _arr[i].fd == _serv_socket)
-				{
-					int new_client = accept(_serv_socket, 0, 0);
-					_clients.insert(std::make_pair(new_client, Client(new_client)));
-					struct pollfd pfd = { new_client, POLLIN, 0 };
-					new_clients.push_back(pfd);
-					std::cout << "New connection accepted: Socket " << new_client << '\n';
-				}
-				// Event from known client (message or disconnection)
-				else if (_arr[i].revents == POLLIN)
-				{
-					char buffer[512] = { 0 };
-					ssize_t n_bytes = recv(_arr[i].fd, buffer, sizeof(buffer), 0);
-					if (n_bytes == 0)
-					{
-						std::cout << "Client at socket " << _arr[i].fd << " disconnected\n";
-						disconnected_clients.push_back(_arr[i]);
-					}
-					else if (n_bytes > 0)
-					{
-						//buffer acumulativo ara cada cliente
-						_clients[_arr[i].fd].buffer += std::string(buffer, n_bytes);
-						std::string &buf = _clients[_arr[i].fd].buffer;
-						size_t pos;
-						//no considerar mensaje completo hasta encontrar "\r\n"
-						while ((pos = buf.find("\r\n")) != std::string::npos)
-						{
-							std::string mensaje = buf.substr(0, pos);
-							buf.erase(0, pos + 2);
-							std::cout << "Mensaje completo: " << mensaje << "\n";
-							//parseo de comandos de autentificacion
-							commandParse(mensaje, _clients[_arr[i].fd], _password);
-							// To Do: No hay que dejar validar comandos hasta que no hayamos confirmado correctamente la conexión del usuario.
-							validate_command(mensaje, _clients[_arr[i].fd], _channels);
-						}
-						//si autentificacionmandarmensajes
-						Client &cli = _clients[_arr[i].fd];
-						if (!cli.getAuthenticated() && !cli.getNickname().empty() && !cli.getUser().empty())
-						{
-							cli.setAuthenticated(true);
-							
-							std::string nick = cli.getNickname();
-							print_message(_arr[i].fd, ":my_serv_irc 001 " + nick + " :Welcome to the IRC Network, " + nick);
-							
-							print_message(_arr[i].fd, ":my_serv_irc 002 " + nick + " :Your host is my_serv_irc, running version 1.0");
-							
-							print_message(_arr[i].fd, ":my_serv_irc 003 " + nick + " :This server was created May 2026");
-							
-							print_message(_arr[i].fd, ":my_serv_irc 004 " + nick + " my_serv_irc 1.0 o itkol");
-							std::cout << "[SERVER] Bienvenido enviado de forma segura.\n";
-						}
-					}
-					// Errors
-					else if (_arr[i].revents == POLLERR || _arr[i].revents == POLLHUP || _arr[i].revents == POLLNVAL)
-					{
-						// TO DO: Handle errors
-						std::cout << "There was an error at socket " << _arr[i].fd << "\n";
-					}
-				}
-				poll_result--;
-			}
+			// New incoming connection
+			if (_pfd_arr[i].revents == POLLIN && _pfd_arr[i].fd == _serv_socket)
+				accept_client();
+			// Event from known client (message or disconnection)
+			else if (_pfd_arr[i].revents == POLLIN)
+				client_event(i);
+			// Errors
+			else if (_pfd_arr[i].revents == POLLERR || _pfd_arr[i].revents == POLLHUP || _pfd_arr[i].revents == POLLNVAL)
+				handle_errors(i);
+			// Break loop if no more events
+			if (_pfd_arr[i].revents != 0 && !--poll_result)
+				break;
 		}
 
 		// Add new clients
-		if (new_clients.size() > 0)
-		{
-			std::cout << "Adding " << new_clients.size() << " new clients" << '\n';
-			for (size_t i = 0; i < new_clients.size(); i++)
-			{
-				_arr.push_back(new_clients[i]);
-			}
-		}
+		if (_accepted_clients.size() > 0)
+			add_clients();
 	
 		// Close and remove disconnected clients
-		if (disconnected_clients.size() > 0)
-		{
-			std::cout << "Removing " << disconnected_clients.size() << " disconnected clients" << '\n';
-			for (size_t i = 0; i < disconnected_clients.size(); i++)
-			{
-				std::vector<struct pollfd>::iterator it = _arr.begin();
-				while (it != _arr.end())
-				{
-					if (disconnected_clients[i].fd == it->fd)
-					{
-						close(it->fd);
-						_clients.erase(it -> fd);
-						it = _arr.erase(it);
-						break;
-					}
-					it++;
-				}
-			}
-		}
+		if (_disconnected_clients.size() > 0)
+			disconnect_clients();
 	}
 }

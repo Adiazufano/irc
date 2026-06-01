@@ -18,8 +18,6 @@
 #include <signal.h>
 #include <iterator>
 
-//bool g_run_server;
-
 class Server
 {
 	typedef std::vector<Channel *>::iterator channel_iterator;
@@ -28,21 +26,25 @@ class Server
 		std::string					_port;
 		std::string					_password;
 		int							_serv_socket;
-		std::vector<struct pollfd>	_arr;
+		struct addrinfo				*_addr_lst;
+		std::vector<struct pollfd>	_pfd_arr;
+		std::vector<int>			_accepted_clients;
+		std::vector<int>			_disconnected_clients;
 		std::vector<Channel *>		_channels;
 		std::map<int, Client>		_clients;
+		void						accept_client();
+		void						client_event(int i);
+		void						handle_errors(int i);
+		void						add_clients();
+		void						disconnect_clients();
 
-		
 	public:
-		static bool	_run_server;
+		static bool	run_server;
 		Server();
 		Server(char *port, char *password);
 		~Server();
 		void init();
 		void run();
 };
-	
-//void stop_server();
-//void sigint_handler(int signal);
 
 #endif
