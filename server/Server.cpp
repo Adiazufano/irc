@@ -99,7 +99,7 @@ void Server::init()
 
 	if (getaddrinfo(0, _port.data(), &hints, &_addr_lst) < 0)
 		throw std::runtime_error(strerror(errno));
-	
+
 	// Server socket
 	_serv_socket = socket(_addr_lst->ai_family, _addr_lst->ai_socktype, _addr_lst->ai_protocol);
 	if (_serv_socket < 0)
@@ -133,7 +133,12 @@ void Server::client_event(int i)
 {
 	char buffer[512] = { 0 };
 	ssize_t n_bytes = recv(_pfd_arr[i].fd, buffer, sizeof(buffer), 0);
-	if (n_bytes == 0)
+	if (n_bytes < 0)
+	{
+		// TO DO: Handle recv error
+		std::cout << "recv error: " << strerror(errno) << std::endl;
+	}
+	else if (n_bytes == 0)
 	{
 		std::cout << "Client at socket " << _pfd_arr[i].fd << " disconnected\n";
 		_disconnected_clients.push_back(_pfd_arr[i].fd);
@@ -230,9 +235,8 @@ void Server::run()
 			// Errors
 			else if (_pfd_arr[i].revents == POLLERR || _pfd_arr[i].revents == POLLHUP || _pfd_arr[i].revents == POLLNVAL)
 				handle_errors(i);
-			if (_pfd_arr[i].revents != 0)
-				--poll_result;
-			if (!poll_result)
+			// Break loop if no more events
+			if (_pfd_arr[i].revents != 0 && !--poll_result)
 				break;
 		}
 
