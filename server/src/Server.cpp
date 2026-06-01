@@ -1,6 +1,6 @@
-#include "Server.hpp"
-#include "Client.hpp"
-#include "Channel.hpp"
+#include "../include/Server.hpp"
+#include "../include/Client.hpp"
+#include "../include/Channel.hpp"
 #include <sstream>
 #include <iostream>
 #include <unistd.h>
@@ -57,8 +57,7 @@ void validate_command(const std::string& cmd, Client &client, std::vector<Channe
 
 	str >> command;
 	std::getline(str, line);
-	for(unsigned long i = 0; i < command.length(); i++)
-		command[i] = std::toupper(command[i]);	
+	ft_toupper(command);
 	int level = command_level(command); 
 
 	switch(level)
@@ -162,7 +161,7 @@ void Server::client_event(int i)
 		}
 		//si autentificacion mandar mensajes
 		Client &cli = _clients[_pfd_arr[i].fd];
-		if (!cli.getAuthenticated() && !cli.getNickname().empty() && !cli.getUser().empty())
+		if (cli.getHasPass() && !cli.getNickname().empty() && !cli.getUser().empty() && cli.getAuthenticated())\
 		{
 			cli.setAuthenticated(true);
 			std::string nick = cli.getNickname();
