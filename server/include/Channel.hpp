@@ -30,6 +30,7 @@ class Channel
         void setChannelTopic(const std::string topic);
         std::string getChannelMode() const;
         void setChannelMode(const std::string mode);
+        std::vector<int> getClientsArray();
 
         void addClient(int fd);
         void addAdmind(int fd);

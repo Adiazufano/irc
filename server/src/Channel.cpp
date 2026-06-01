@@ -63,6 +63,11 @@ void Channel::setChannelMode(const std::string mode)
 }
 
 
+std::vector<int> Channel::getClientsArray()
+{
+    return(_clients_fd);
+}
+
 
 
 void Channel::addClient(int fd)
