@@ -4,19 +4,19 @@
 Channel::Channel()
 {}
 
-Channel::Channel(std::string name, std::string topic, std::string mode, int admin_fd)
+Channel::Channel(std::string name, std::string topic, std::string mode, int user_fd)
 {
     _name = name;
     _topic = topic;
     _mode = mode;
-    _admin_fd = admin_fd;
+    _user_fd = user_fd;
     if(_clients_fd.empty())
-        _clients_fd.push_back(admin_fd);
+        _clients_fd.push_back(user_fd);
 
-    // std::cout << "Te has unido al canal: Name " << _name << " Topic: " << _topic << " Mode: " << _mode << " Admin: " << _admin_fd->getUser() << std::endl; 
+    // std::cout << "Te has unido al canal: Name " << _name << " Topic: " << _topic << " Mode: " << _mode << " user: " << _user_fd->getUser() << std::endl; 
 }
 
-Channel::Channel(const Channel& copy) : _name(copy._name), _topic(copy._topic), _mode(copy._mode), _admin_fd(copy._admin_fd){}
+Channel::Channel(const Channel& copy) : _name(copy._name), _topic(copy._topic), _mode(copy._mode), _user_fd(copy._user_fd){}
 
 Channel& Channel::operator=(const Channel& other)
 {
@@ -25,7 +25,7 @@ Channel& Channel::operator=(const Channel& other)
         _name = other._name;
         _topic = other._topic;
         _mode = other._mode;
-        _admin_fd = other._admin_fd;
+        _user_fd = other._user_fd;
     }
     return (*this);
 }
@@ -71,6 +71,13 @@ void Channel::addClient(int fd)
     _clients_fd.push_back(fd);
 }
 
+void Channel::addAdmind(int fd)
+{
+    for(size_t i = 0; i < _admind_fd.size(); i++)
+        if(_admind_fd[i] == fd)
+            return;
+    _admind_fd.push_back(fd);
+}
 
 
 void Channel::removeClient(int fd)

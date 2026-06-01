@@ -42,15 +42,15 @@ void sigint_handler(int signal)
 
 int command_level(std::string cmd)
 {
-	if(cmd == "/KICK")
+	if(cmd == "KICK")
 		return(1);
-	else if(cmd == "/INVITE")
+	else if(cmd == "INVITE")
 		return(2);
-	else if(cmd == "/TOPIC")
+	else if(cmd == "TOPIC")
 		return(3);
-	else if(cmd == "/MODE")
+	else if(cmd == "MODE")
 		return(4);
-	else if(cmd == "/JOIN")
+	else if(cmd == "JOIN")
 		return(5);
 	else
 		return(0);

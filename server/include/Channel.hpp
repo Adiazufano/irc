@@ -1,7 +1,7 @@
 #ifndef CHANNEL_HPP
 #define CHANNEL_HPP
 
-#include "Client.hpp"
+#include "../include/Client.hpp"
 
 #include <iostream>
 #include <vector>
@@ -13,7 +13,8 @@ class Channel
         std::string _name;
         std::string _topic;
         std::string _mode;
-        int         _admin_fd;  // En lugar de guardar el cliente guardaremos el fd y lo buscaremos despues. Ya que los contenedores pueden mover su memoria al crecer y generar SEGV
+        int         _user_fd;  // En lugar de guardar el cliente guardaremos el fd y lo buscaremos después. Ya que los contenedores pueden mover su memoria al crecer y generar SEGV
+        std::vector<int> _admind_fd;
         std::vector<int> _clients_fd;
     
     public:
@@ -31,6 +32,7 @@ class Channel
         void setChannelMode(const std::string mode);
 
         void addClient(int fd);
+        void addAdmind(int fd);
         void removeClient(int fd);
 
 };

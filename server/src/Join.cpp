@@ -28,6 +28,7 @@ void joinChannel(Client& client, std::string line, std::vector<Channel *> &_chan
         }
     }
     Channel* ch = new Channel (name, "default", "default", client.getFd());
+    ch->addAdmind(client.getFd());
     _channels.push_back(ch);
     std::cout << "Hemos creado el canal nuevo" << std::endl;
 }

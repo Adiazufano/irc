@@ -1,8 +1,8 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
-#include "Channel.hpp"
-#include "Client.hpp"
+#include "../include/Channel.hpp"
+#include "../include/Client.hpp"
 
 #include <string>
 #include <sys/types.h>
