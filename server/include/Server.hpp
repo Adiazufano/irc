@@ -30,7 +30,7 @@ class Server
 		std::vector<struct pollfd>	_pfd_arr;
 		std::vector<int>			_accepted_clients;
 		std::vector<int>			_disconnected_clients;
-		std::vector<Channel *>		_channels;
+		std::map<std::string, Channel *>		_channels;
 		std::map<int, Client>		_clients;
 		void						accept_client();
 		void						client_event(int i);

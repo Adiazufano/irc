@@ -18,7 +18,7 @@ void joinMessages(std::string name, std::string _topic, std::vector<int> _client
 }
 
 
-void joinChannel(Client& client, std::string line, std::vector<Channel *> &_channels)
+void joinChannel(Client& client, std::string line, std::map<std::string, Channel*> &_channels)
 {
     std::istringstream str(line);
     std::string name;
@@ -30,18 +30,17 @@ void joinChannel(Client& client, std::string line, std::vector<Channel *> &_chan
         return;
     }
     std::cout << "Nombre del canal" << name << std::endl;
-    for(std::vector<Channel *>::iterator it = _channels.begin(); it != _channels.end(); ++it)
+    std::map<std::string, Channel*>::iterator it = _channels.find(name);
+    if (it != _channels.end())
     {
-        std::cout << (*it)->getChannelName() << std::endl;
-        if((*it)->getChannelName() == name)
-        {
-            joinMessages(client.getNickname(), (*it)->getChannelTopic(), (*it)->getClientsArray());
-            (*it)->addClient(client.getFd());
-            return ;
-        }
+        Channel* channel = it->second;
+        std::cout << channel->getChannelName() << std::endl;
+        joinMessages(client.getNickname(), channel->getChannelTopic(), channel->getClientsArray());
+        channel->addClient(client.getFd());
+        return;
     }
     Channel* ch = new Channel (name, "", "", client.getFd());
     ch->addAdmind(client.getFd());
-    _channels.push_back(ch);
+    _channels.insert(std::make_pair(name, ch));
     std::cout << "Hemos creado el canal nuevo" << std::endl;
 }

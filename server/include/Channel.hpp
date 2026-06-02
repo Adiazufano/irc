@@ -6,6 +6,8 @@
 #include <iostream>
 #include <vector>
 #include <iterator>
+#include <map>
+#include <sstream>
 
 class Channel
 {
@@ -38,6 +40,7 @@ class Channel
 
 };
 
-void joinChannel(Client& client, std::string line, std::vector<Channel *> &channels);
+void joinChannel(Client& client, std::string line, std::map<std::string, Channel *> &channels);
+void channelTopic(std::string line, std::map<std::string, Channel *> &_channels, Client &client);
 
 #endif
