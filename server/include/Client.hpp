@@ -13,6 +13,7 @@ class Client
         std::string _pass;
         bool _authenticated;
         bool _has_pass;
+        bool _registered;
 
     public:
         std::string buffer;
@@ -32,6 +33,8 @@ class Client
         bool getAuthenticated() const;
         void setHasPass(const bool& has_pass);
         bool getHasPass() const;
+        void setRegistered(const bool& registered);
+        bool getRegistered() const;
 };
 void commandParse(const std::string& line, Client& client, std::string pass);
 void print_message(int fd_client, const std::string& message);

@@ -87,7 +87,7 @@ std::vector<std::pair<std::string, std::string> > getChData(std::string names, s
 }
 
 
-void joinChannel(Client& client, std::string line, std::vector<Channel *> &_channels, std::map<int, Client> _clientsMap)
+void joinChannel(Client& client, std::string line, std::map<std::string, Channel *> &_channels, std::map<int, Client> _clientsMap)
 {
     std::istringstream str(line);
     std::string _chName;
@@ -101,26 +101,20 @@ void joinChannel(Client& client, std::string line, std::vector<Channel *> &_chan
     if(_chData.empty())
         return;
 
-    for(std::vector<std::pair<std::string, std::string> >::iterator mt = _chData.begin(); mt != _chData.end(); ++mt)
+    for(std::vector<std::pair<std::string, std::string> >::iterator it = _chData.begin(); it != _chData.end(); ++it)
     {
-        std::string name = mt->first;
-        bool found = false;
-        for(std::vector<Channel *>::iterator it = _channels.begin(); it != _channels.end(); ++it)
+        std::string name = it->first;
+
+        if (_channels.count(name))
         {
-            std::cout << (*it)->getChannelName() << std::endl;
-            if((*it)->getChannelName() == name)
-            {
-                joinMessages(client, name, (*it)->getChannelTopic(), (*it)->getClientsArray(), _clientsMap);
-                (*it)->addClient(client.getFd());
-                found = true;
-                break ;
-            }
+            joinMessages(client, _channels[name]->getChannelName(), _channels[name]->getChannelTopic(), _channels[name]->getClientsArray(), _clientsMap);
+            _channels[name]->addClient(client.getFd());
         }
-        if(found == false)
+        else
         {
             Channel* ch = new Channel (name, "", "", client.getFd());
             ch->addAdmind(client.getFd());
-            _channels.push_back(ch);
+            _channels[name] = ch;
             std::cout << "Hemos creado el canal nuevo" << std::endl;
         }
     }

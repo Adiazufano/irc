@@ -19,10 +19,9 @@ Server::~Server()
 	freeaddrinfo(_addr_lst);
 	close(_serv_socket);
 	std::cout << "Closed" << std::endl;
-	for(size_t i = 0; i < _channels.size(); i++)
-	{
-		delete(_channels[i]);
-	}
+	std::map<std::string, Channel*>::iterator it;
+	for(it = _channels.begin(); it != _channels.end(); ++it)
+		delete it->second;
 	_channels.clear();
 }
 
@@ -52,7 +51,7 @@ int command_level(std::string cmd)
 		return(0);
 }
 
-void validate_command(const std::string& cmd, Client &client, std::vector<Channel *> &channels, std::map<int, Client> _clientsMap)
+void validate_command(const std::string& cmd, Client &client, std::map<std::string, Channel*> &channels, std::map<int, Client> _clientsMap)
 {
     if (cmd.empty())
         return ;
@@ -74,7 +73,7 @@ void validate_command(const std::string& cmd, Client &client, std::vector<Channe
 			std::cout << "Invite him" << std::endl;
 			break;
 		case 3:
-			std::cout << "Topic him" << std::endl;
+			channelTopic(line, channels, client);
 			break;
 		case 4:
 			std::cout << "Mode him" << std::endl;
@@ -167,7 +166,7 @@ void Server::client_event(int i)
 				validate_command(mensaje, cli, _channels, _clients);
 		}
 		//si autentificacion mandar mensajes
-		if (cli.getHasPass() && !cli.getNickname().empty() && !cli.getUser().empty() && cli.getAuthenticated())
+		if (cli.getHasPass() && !cli.getNickname().empty() && !cli.getUser().empty() && cli.getAuthenticated() && !cli.getRegistered())
 		{
 			std::string nick = cli.getNickname();
 			print_message(_pfd_arr[i].fd, ":my_serv_irc 001 " + nick + " :Welcome to the IRC Network, " + nick);
@@ -175,6 +174,7 @@ void Server::client_event(int i)
 			print_message(_pfd_arr[i].fd, ":my_serv_irc 003 " + nick + " :This server was created May 2026");
 			print_message(_pfd_arr[i].fd, ":my_serv_irc 004 " + nick + " my_serv_irc 1.0 o itkol");
 			std::cout << "[SERVER] Bienvenido enviado de forma segura.\n";
+			cli.setRegistered(true);
 		}
 	}
 }

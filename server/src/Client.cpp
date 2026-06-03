@@ -1,10 +1,10 @@
 #include "../include/Client.hpp"
 
-Client::Client() : _fd(-1), _authenticated(false), _has_pass(false){}
+Client::Client() : _fd(-1), _authenticated(false), _has_pass(false), _registered(false){}
 
-Client::Client(int fd) : _fd(fd), _authenticated(false), _has_pass(false){}
+Client::Client(int fd) : _fd(fd), _authenticated(false), _has_pass(false), _registered(false){}
 
-Client::Client(const Client& other) : _fd(other._fd), _authenticated(other._authenticated), _has_pass(other._has_pass){}
+Client::Client(const Client& other) : _fd(other._fd), _authenticated(other._authenticated), _has_pass(other._has_pass), _registered(other._registered){}
 
 Client& Client::operator=(const Client& other)
 {
@@ -17,6 +17,7 @@ Client& Client::operator=(const Client& other)
         this -> _user = other._user;
         this -> _realname = other._realname;
         this -> _has_pass = other._has_pass;
+        this -> _registered = other._registered;
     }
     return (*this);
 }
@@ -78,3 +79,12 @@ bool Client::getHasPass() const
     return _has_pass;
 }
 
+void Client::setRegistered(const bool& registered)
+{
+    _registered = registered;
+}
+
+bool Client::getRegistered() const
+{
+    return (_registered);
+}

@@ -5,7 +5,7 @@ OBJ_DIR     := obj
 INC_DIR     := include
 DEP_DIR     := deps
 
-SRCS        := main.cpp Client.cpp CommandParse.cpp Server.cpp Channel.cpp Join.cpp
+SRCS        := main.cpp Client.cpp CommandParse.cpp Server.cpp Channel.cpp Join.cpp Topic.cpp
 SRCS        := $(addprefix $(SRC_DIR)/, $(SRCS))
 OBJS        := $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 DEPS        := $(SRCS:$(SRC_DIR)/%.cpp=$(DEP_DIR)/%.d)
