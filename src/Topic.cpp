@@ -1,6 +1,6 @@
-#include "Channel.hpp"
-#include "Server.hpp"
-#include "Client.hpp"
+#include "../include/Channel.hpp"
+#include "../include/Server.hpp"
+#include "../include/Client.hpp"
 
 void channelTopic(Server &s, Client &client, std::string line)
 {
