@@ -7,6 +7,8 @@
 #include <sys/socket.h>
 #include <errno.h>
 
+void privmsg(Server &s, Client &c, std::string &line);
+
 extern bool run_server;
 
 // Default constructor
@@ -57,6 +59,8 @@ int command_level(std::string cmd)
 		return(4);
 	else if(cmd == "JOIN")
 		return(5);
+	else if (cmd == "PRIVMSG")
+		return (6);
 	else
 		return(0);
 }
@@ -71,6 +75,8 @@ void validate_command(Server &s, const std::string& cmd, Client &client)
 
 	str >> command;
 	std::getline(str, line);
+	if (line[0] == ' ')
+		line.erase(0, 1);
 	ft_toupper(command);
 	int level = command_level(command); 
 
@@ -90,7 +96,10 @@ void validate_command(Server &s, const std::string& cmd, Client &client)
 			break;
 		case 5:
 			joinChannel(s, client, line);
-			break;		
+			break;
+		case 6:
+			privmsg(s, client, line);
+			break;
 		default:
 			std::cout << "End him" << std::endl;
 			break;
