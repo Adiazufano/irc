@@ -52,7 +52,7 @@ int command_level(std::string cmd)
 		return(0);
 }
 
-void validate_command(const std::string& cmd, Client &client, std::vector<Channel *> &channels)
+void validate_command(const std::string& cmd, Client &client, std::vector<Channel *> &channels, std::map<int, Client> _clientsMap)
 {
     if (cmd.empty())
         return ;
@@ -80,7 +80,7 @@ void validate_command(const std::string& cmd, Client &client, std::vector<Channe
 			std::cout << "Mode him" << std::endl;
 			break;
 		case 5:
-			joinChannel(client, line, channels);
+			joinChannel(client, line, channels, _clientsMap);
 			break;		
 		default:
 			std::cout << "End him" << std::endl;
@@ -164,7 +164,7 @@ void Server::client_event(int i)
 			commandParse(mensaje, cli, _password);
 			// To Do: No hay que dejar validar comandos hasta que no hayamos confirmado correctamente la conexión del usuario.
 			if (cli.getAuthenticated())
-				validate_command(mensaje, cli, _channels);
+				validate_command(mensaje, cli, _channels, _clients);
 		}
 		//si autentificacion mandar mensajes
 		if (cli.getHasPass() && !cli.getNickname().empty() && !cli.getUser().empty() && cli.getAuthenticated())
