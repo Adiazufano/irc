@@ -19,7 +19,6 @@
 #include <iterator>
 
 class Channel;
-
 class Client;
 
 class Server
@@ -43,7 +42,6 @@ class Server
 		void						disconnect_clients();
 
 	public:
-		static bool	run_server;
 		Server();
 		Server(char *port, char *password);
 		~Server();
@@ -53,9 +51,7 @@ class Server
 		std::map<int, Client> &getClients();
 
 };
-	
-//void stop_server();
-//void sigint_handler(int signal);
+
 void ft_toupper(std::string &str);
 
 

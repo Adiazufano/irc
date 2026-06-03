@@ -7,7 +7,7 @@
 #include <sys/socket.h>
 #include <errno.h>
 
-bool Server::run_server = true;
+extern bool run_server;
 
 // Default constructor
 Server::Server() {}
@@ -32,7 +32,7 @@ Server::Server(char *port, char* password) : _port(port), _password(password), _
 void sigint_handler(int signal)
 {
 	(void)signal;
-	Server::run_server = false;
+	run_server = false;
 }
 
 std::map<std::string, Channel *> &Server::getChannels()
@@ -230,7 +230,7 @@ void Server::disconnect_clients()
 
 void Server::run()
 {
-	while (Server::run_server)
+	while (run_server)
 	{
 		std::cout << _pfd_arr.size() - 1 << " connected clients. Waiting for events...\n";
 		int poll_result = poll(_pfd_arr.data(), _pfd_arr.size(), -1);

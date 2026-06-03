@@ -16,6 +16,8 @@
 #include <cstdio>
 #include <cstdlib>
 
+bool run_server = true;
+
 int validate_args(char **argv)
 {
 	//validate port
