@@ -5,6 +5,7 @@
 #include <sys/socket.h>
 #include "../include/Server.hpp"
 
+
 void print_message(int fd_client, const std::string& message)
 {
     std::string complete_message = message + "\r\n";
@@ -110,6 +111,11 @@ void commandCap(std::istringstream &iss, Client &client)
     }
     else if (subcommand == "END")
     {
+        if (!client.getHasPass())
+        {
+            print_message(client.getFd(), ":my_serv_irc 464 * :Password required");
+            return;
+        }
         std::cout << "[SERVER] Negociación CAP finalizada." << std::endl;
         client.setAuthenticated(true);
     }
@@ -128,9 +134,9 @@ void commandParse(const std::string& line, Client& client, std::string pass)
         commandPass(iss, client, pass);
     else if (command == "PASS" && client.getHasPass() != false)
         std::cout << "Password already validated: " << std::endl;
-    else if (command == "NICK" && client.getHasPass() != false)
+    else if (command == "NICK" && client.getHasPass())
         commandNick(iss, client);
-    else if (command == "USER" && client.getHasPass() != false)
+    else if (command == "USER" && client.getHasPass())
         commandUser(iss, client);
     else if (command == "CAP")
         commandCap(iss, client);

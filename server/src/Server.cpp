@@ -52,7 +52,7 @@ int command_level(std::string cmd)
 		return(0);
 }
 
-void validate_command(const std::string& cmd, Client &client, std::vector<Channel *> &channels)
+void validate_command(const std::string& cmd, Client &client, std::vector<Channel *> &channels, std::map<int, Client> _clientsMap)
 {
     if (cmd.empty())
         return ;
@@ -80,7 +80,7 @@ void validate_command(const std::string& cmd, Client &client, std::vector<Channe
 			std::cout << "Mode him" << std::endl;
 			break;
 		case 5:
-			joinChannel(client, line, channels);
+			joinChannel(client, line, channels, _clientsMap);
 			break;		
 		default:
 			std::cout << "End him" << std::endl;
@@ -150,8 +150,9 @@ void Server::client_event(int i)
 	else if (n_bytes > 0)
 	{
 		//buffer acumulativo para cada cliente
-		_clients[_pfd_arr[i].fd].buffer += std::string(buffer, n_bytes);
-		std::string &buf = _clients[_pfd_arr[i].fd].buffer;
+		Client &cli = _clients[_pfd_arr[i].fd];
+		cli.buffer += std::string(buffer, n_bytes);
+		std::string &buf = cli.buffer;
 		size_t pos;
 		//no considerar mensaje completo hasta encontrar "\r\n"
 		while ((pos = buf.find("\r\n")) != std::string::npos)
@@ -160,15 +161,14 @@ void Server::client_event(int i)
 			buf.erase(0, pos + 2);
 			std::cout << "Mensaje completo: " << mensaje << "\n";
 			//parseo de comandos de autentificacion
-			commandParse(mensaje, _clients[_pfd_arr[i].fd], _password);
+			commandParse(mensaje, cli, _password);
 			// To Do: No hay que dejar validar comandos hasta que no hayamos confirmado correctamente la conexión del usuario.
-			validate_command(mensaje, _clients[_pfd_arr[i].fd], _channels);
+			if (cli.getAuthenticated())
+				validate_command(mensaje, cli, _channels, _clients);
 		}
 		//si autentificacion mandar mensajes
-		Client &cli = _clients[_pfd_arr[i].fd];
-		if (cli.getHasPass() && !cli.getNickname().empty() && !cli.getUser().empty() && cli.getAuthenticated())\
+		if (cli.getHasPass() && !cli.getNickname().empty() && !cli.getUser().empty() && cli.getAuthenticated())
 		{
-			cli.setAuthenticated(true);
 			std::string nick = cli.getNickname();
 			print_message(_pfd_arr[i].fd, ":my_serv_irc 001 " + nick + " :Welcome to the IRC Network, " + nick);
 			print_message(_pfd_arr[i].fd, ":my_serv_irc 002 " + nick + " :Your host is my_serv_irc, running version 1.0");
