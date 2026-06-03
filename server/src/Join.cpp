@@ -5,23 +5,27 @@
 #include <sstream>
 
 
-void userMessages(Client& client, std::string name, std::string _topic, std::vector<int> _clients, std::map<int, Client> _clientsMap)
+void userMessages(Server &s, Client& client, std::string name)
 {
+
+    std::string topic = s.getChannels()[name]->getChannelTopic();
+    std::vector<int> clients = s.getChannels()[name]->getClientsArray();
+    std::map<int, Client> clientsMap = s.getClients();
     std::string topicMsg;
     std::string namesList;
     std::string endNames;
     
-    if(!_topic.empty())      // Sólo se envía al cliente que se une al canal, no a todo el mundo.
+    if(!topic.empty())      // Sólo se envía al cliente que se une al canal, no a todo el mundo.
     {
-        topicMsg = ":ircserver 332 " + client.getNickname() + " " + name + " :" + _topic;
+        topicMsg = ":ircserver 332 " + client.getNickname() + " " + name + " :" + topic;
         print_message(client.getFd(), topicMsg);
     }
 
     // El cliente cuando se une tiene que recibir la lista de usuarios del canal.
     namesList = ":ircserv 353 " + client.getNickname() + " = " + name + " :"; 
-    for(std::vector<int>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+    for(std::vector<int>::iterator it = clients.begin(); it != clients.end(); ++it)
     {
-        namesList += _clientsMap[*it].getNickname() + " ";
+        namesList += clientsMap[*it].getNickname() + " ";
     }
     print_message(client.getFd(), namesList);
     
@@ -31,18 +35,19 @@ void userMessages(Client& client, std::string name, std::string _topic, std::vec
 
 
 
-void joinMessages(Client& client, std::string name, std::string _topic, std::vector<int> _clients, std::map<int, Client> _clientsMap)
+void joinMessages(Server &s, Client& client, std::string name)
 {
     std::string joinMsg;
+    std::vector<int> clients = s.getChannels()[name]->getClientsArray();
 
     // Formato mensaje IRC [ :origen CODIGO destino [parámetros] :texto final\r\n ]
 
 
     joinMsg = ":" + client.getNickname() + "!" + client.getUser() + "@localhost JOIN" + name;
-    for(std::vector<int>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+    for(std::vector<int>::iterator it = clients.begin(); it != clients.end(); ++it)
         print_message(*it, joinMsg);
 
-    userMessages(client, name, _topic, _clients, _clientsMap);    
+    userMessages(s, client, name);
 }
 
 
@@ -87,7 +92,7 @@ std::vector<std::pair<std::string, std::string> > getChData(std::string names, s
 }
 
 
-void joinChannel(Client& client, std::string line, std::map<std::string, Channel *> &_channels, std::map<int, Client> _clientsMap)
+void joinChannel(Server &s, Client& client, std::string line)
 {
     std::istringstream str(line);
     std::string _chName;
@@ -105,16 +110,16 @@ void joinChannel(Client& client, std::string line, std::map<std::string, Channel
     {
         std::string name = it->first;
 
-        if (_channels.count(name))
+        if (s.getChannels().count(name))
         {
-            joinMessages(client, _channels[name]->getChannelName(), _channels[name]->getChannelTopic(), _channels[name]->getClientsArray(), _clientsMap);
-            _channels[name]->addClient(client.getFd());
+            joinMessages(s, client, name);
+            s.getChannels()[name]->addClient(client.getFd());
         }
         else
         {
             Channel* ch = new Channel (name, "", "", client.getFd());
             ch->addAdmind(client.getFd());
-            _channels[name] = ch;
+            s.getChannels()[name] = ch;
             std::cout << "Hemos creado el canal nuevo" << std::endl;
         }
     }

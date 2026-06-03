@@ -35,6 +35,16 @@ void sigint_handler(int signal)
 	Server::run_server = false;
 }
 
+std::map<std::string, Channel *> &Server::getChannels()
+{
+	return _channels;
+}
+
+std::map<int, Client> &Server::getClients()
+{
+	return _clients;
+}
+
 int command_level(std::string cmd)
 {
 	if(cmd == "KICK")
@@ -51,7 +61,7 @@ int command_level(std::string cmd)
 		return(0);
 }
 
-void validate_command(const std::string& cmd, Client &client, std::map<std::string, Channel*> &channels, std::map<int, Client> _clientsMap)
+void validate_command(Server &s, const std::string& cmd, Client &client)
 {
     if (cmd.empty())
         return ;
@@ -73,13 +83,13 @@ void validate_command(const std::string& cmd, Client &client, std::map<std::stri
 			std::cout << "Invite him" << std::endl;
 			break;
 		case 3:
-			channelTopic(line, channels, client);
+			channelTopic(s, client, line);
 			break;
 		case 4:
 			std::cout << "Mode him" << std::endl;
 			break;
 		case 5:
-			joinChannel(client, line, channels, _clientsMap);
+			joinChannel(s, client, line);
 			break;		
 		default:
 			std::cout << "End him" << std::endl;
@@ -163,7 +173,7 @@ void Server::client_event(int i)
 			commandParse(mensaje, cli, _password);
 			// To Do: No hay que dejar validar comandos hasta que no hayamos confirmado correctamente la conexión del usuario.
 			if (cli.getAuthenticated())
-				validate_command(mensaje, cli, _channels, _clients);
+				validate_command(*this, mensaje, cli);
 		}
 		//si autentificacion mandar mensajes
 		if (cli.getHasPass() && !cli.getNickname().empty() && !cli.getUser().empty() && cli.getAuthenticated() && !cli.getRegistered())

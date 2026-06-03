@@ -18,6 +18,10 @@
 #include <signal.h>
 #include <iterator>
 
+class Channel;
+
+class Client;
+
 class Server
 {
 	typedef std::vector<Channel *>::iterator channel_iterator;
@@ -45,6 +49,9 @@ class Server
 		~Server();
 		void init();
 		void run();
+		std::map<std::string, Channel *> &getChannels();
+		std::map<int, Client> &getClients();
+
 };
 	
 //void stop_server();

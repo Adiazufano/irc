@@ -1,13 +1,19 @@
 #ifndef CHANNEL_HPP
 #define CHANNEL_HPP
 
-#include "../include/Client.hpp"
 
 #include <iostream>
 #include <vector>
 #include <iterator>
 #include <map>
 #include <sstream>
+
+#include "Client.hpp"
+#include "Server.hpp"
+
+class Server;
+
+class Client;
 
 class Channel
 {
@@ -40,7 +46,7 @@ class Channel
 
 };
 
-void joinChannel(Client& client, std::string line, std::map<std::string, Channel *> &_channels, std::map<int, Client> _clientsMap);
-void channelTopic(std::string line, std::map<std::string, Channel *> &_channels, Client &client);
+void joinChannel(Server &s, Client& client, std::string line);
+void channelTopic(Server &s, Client &client, std::string line);
 
 #endif

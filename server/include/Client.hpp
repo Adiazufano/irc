@@ -3,6 +3,9 @@
 #include <string>
 #include <iterator>
 
+#include "../include/Channel.hpp"
+#include "../include/Server.hpp"
+
 class Client
 {
     private:

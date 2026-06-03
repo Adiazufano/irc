@@ -2,7 +2,7 @@
 #include "Server.hpp"
 #include "Client.hpp"
 
-void channelTopic(std::string line, std::map<std::string, Channel *> &_channels, Client &client)
+void channelTopic(Server &s, Client &client, std::string line)
 {
     std::istringstream iss(line);
     std::string channelName;
@@ -10,8 +10,8 @@ void channelTopic(std::string line, std::map<std::string, Channel *> &_channels,
     std::string resto;
     std::string topic;
     std::getline(iss, resto);
-    std::map<std::string, Channel*>::iterator it = _channels.find(channelName);
-    if (it == _channels.end())
+    std::map<std::string, Channel*>::iterator it = s.getChannels().find(channelName);
+    if (it == s.getChannels().end())
     {
         std::cout << "El canal no existe" << std::endl;
         return;
