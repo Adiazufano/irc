@@ -1,5 +1,4 @@
 *.o
-client/client
-server/ircserv
+ircserv
 deps
 obj
