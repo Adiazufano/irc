@@ -53,7 +53,7 @@ void validate_command(Server &s, const std::string& cmd, Client &client)
 	switch(level)
 	{
 		case 1:
-			std::cout << "Kick him" << std::endl;
+			commandKick(s, line);
 			break;
 		case 2:
 			std::cout << "Invite him" << std::endl;
@@ -73,7 +73,7 @@ void validate_command(Server &s, const std::string& cmd, Client &client)
 	}
 }
 
-void commandParse(const std::string& line, Client& client, std::string pass)
+void commandParse(const std::string& line, Client& client, std::string pass, Server &s)
 {
     if (line.empty())
         return ;
@@ -87,7 +87,7 @@ void commandParse(const std::string& line, Client& client, std::string pass)
     else if (command == "PASS" && client.getHasPass() != false)
         std::cout << "Password already validated: " << std::endl;
     else if (command == "NICK" && client.getHasPass())
-        commandNick(iss, client);
+        commandNick(iss, client, s);
     else if (command == "USER" && client.getHasPass())
         commandUser(iss, client);
     else if (command == "CAP")

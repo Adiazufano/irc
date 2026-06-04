@@ -41,6 +41,11 @@ std::map<std::string, Channel *> &Server::getChannels()
 	return _channels;
 }
 
+std::map<std::string, Client> &Server::getClientsByNick()
+{
+	return _clientsByNick;
+}
+
 std::map<int, Client> &Server::getClients()
 {
 	return _clients;
@@ -119,7 +124,7 @@ void Server::client_event(int i)
 			std::cout << "Mensaje completo: " << mensaje << "\n";
 			//parseo de comandos de autentificacion
 			if (!cli.getAuthenticated())
-				commandParse(mensaje, cli, _password);
+				commandParse(mensaje, cli, _password, *this);
 			// To Do: No hay que dejar validar comandos hasta que no hayamos confirmado correctamente la conexión del usuario.
 			else
 				validate_command(*this, mensaje, cli);

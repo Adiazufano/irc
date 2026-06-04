@@ -18,6 +18,7 @@
 #include <exception>
 #include <signal.h>
 #include <iterator>
+#include <sstream>
 
 class Channel;
 class Client;
@@ -36,6 +37,7 @@ class Server
 		std::vector<int>			_disconnected_clients;
 		std::map<std::string, Channel *>		_channels;
 		std::map<int, Client>		_clients;
+		std::map<std::string, Client> _clientsByNick;
 		void						accept_client();
 		void						client_event(int i);
 		void						handle_errors(int i);
@@ -50,6 +52,7 @@ class Server
 		void run();
 		std::map<std::string, Channel *> &getChannels();
 		std::map<int, Client> &getClients();
+		std::map<std::string, Client> &getClientsByNick();
 
 };
 
