@@ -77,8 +77,13 @@ void commandUser(std::istringstream &iss, Client& client)
             index++;
         }
         colon_pos += resto.find(':');
+        if (colon_pos == 0)
+        {
+            std::cout << "No se encontro <:>" << std::endl;
+            return;
+        }
         if (colon_pos  != std::string::npos)
-            realname = resto.substr(colon_pos + 1);
+            realname = resto.substr(colon_pos);
         else
             realname = resto;
     }
