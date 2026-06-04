@@ -5,7 +5,8 @@ OBJ_DIR     := obj
 INC_DIR     := include
 DEP_DIR     := deps
 
-SRCS        := main.cpp Client.cpp CommandParse.cpp Server.cpp Channel.cpp Join.cpp Topic.cpp
+SRCS        := main.cpp Client.cpp CommandParse.cpp Server.cpp Channel.cpp \
+				commands/cap.cpp commands/join.cpp commands/nick.cpp commands/pass.cpp commands/topic.cpp commands/user.cpp
 SRCS        := $(addprefix $(SRC_DIR)/, $(SRCS))
 OBJS        := $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 DEPS        := $(SRCS:$(SRC_DIR)/%.cpp=$(DEP_DIR)/%.d)
@@ -21,6 +22,7 @@ $(NAME): $(OBJS)
 	$(CXX) $(OBJS) -o $@ $(SANITIZE)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR) $(DEP_DIR)
+	mkdir -p $(dir $@) $(DEP_DIR)/$(dir $*)
 	$(CXX) $(CXXFLAGS) $(DEBUG) $(SANITIZE) -MMD -MF $(DEP_DIR)/$*.d -c $< -o $@
 
 $(OBJ_DIR):

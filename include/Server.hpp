@@ -3,6 +3,7 @@
 
 #include "../include/Channel.hpp"
 #include "../include/Client.hpp"
+#include "commands.hpp"
 
 #include <string>
 #include <sys/types.h>

@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include "../include/Server.hpp"
-
+#include "commands.hpp"
 
 void print_message(int fd_client, const std::string& message)
 {
@@ -21,109 +21,56 @@ void ft_toupper(std::string &str)
         str[i] = toupper(str[i]);
 }
 
-void commandPass(std::istringstream &iss, Client &client, std::string pass)
+int command_level(std::string cmd)
 {
-    std::string password;
-    if (iss >> password)
-    {
-        if (password == pass && !pass.empty())
-        {
-            client.setHasPass(true);
-            std::cout << "[SERVER] Contraseña correcta para el socket " << client.getFd() << "\n";
-        }
-        else
-        {
-            print_message(client.getFd(), ":my_serv_irc 464 * :Password incorrect.");
-            std::cout << "[SERVER] Contraseña INCORRECTA en el socket " << client.getFd() << "\n";
-        }
-    }
-    else
-    {
-        print_message(client.getFd(), ":my_serv_irc 461 * PASS :Not enough parameters");
-    }
+	if(cmd == "KICK")
+		return(1);
+	else if(cmd == "INVITE")
+		return(2);
+	else if(cmd == "TOPIC")
+		return(3);
+	else if(cmd == "MODE")
+		return(4);
+	else if(cmd == "JOIN")
+		return(5);
+	else
+		return(0);
 }
 
-void commandNick(std::istringstream &iss, Client &client)
+void validate_command(Server &s, const std::string& cmd, Client &client)
 {
-    std::string nickname;
-    iss >> nickname;
-    if (nickname.empty())
-        return;
-    client.setNickname(nickname);
-}
+    if (cmd.empty())
+        return ;
+    std::istringstream str(cmd);
+    std::string command;
+	std::string line;
 
-void commandUser(std::istringstream &iss, Client& client)
-{
-    std::string username;
-    std::string mode;
-    std::string desuso;
-    std::string realname;
+	str >> command;
+	std::getline(str, line);
+	ft_toupper(command);
+	int level = command_level(command); 
 
-    iss >> username >> mode >> desuso;
-    std::string resto;
-    std::getline(iss, resto);
-    
-    if (!resto.empty())
-    {
-        size_t colon_pos = 0;
-        size_t index = 0;
-        bool flag = 0;
-        while (index < resto.length())
-        {
-            if (isspace(resto[index]) && flag == 0)
-                colon_pos++;
-            else
-                flag = 1;
-            index++;
-        }
-        colon_pos += resto.find(':');
-        if (colon_pos == 0)
-        {
-            std::cout << "No se encontro <:>" << std::endl;
-            return;
-        }
-        if (colon_pos  != std::string::npos)
-            realname = resto.substr(colon_pos);
-        else
-            realname = resto;
-    }
-    
-    if (username.empty() || realname.empty())
-        return;
-    
-    client.setUser(username);
-    client.setRealname(realname);
-}
-
-void commandCap(std::istringstream &iss, Client &client)
-{
-    std::string subcommand;
-    if (!(iss >> subcommand))
-    {
-        print_message(client.getFd(), ":my_serv_irc 461 * CAP :Not enough parameters");
-        return;
-    }
-    ft_toupper(subcommand);
-    if (subcommand == "LS")
-    {
-        print_message(client.getFd(), ":my_serv_irc CAP * LS :");
-    }
-    else if (subcommand == "REQ")
-    {
-        std::string resto;
-        std::getline(iss, resto);
-        print_message(client.getFd(), ":my_serv_irc CAP * NAK " +  resto);
-    }
-    else if (subcommand == "END")
-    {
-        if (!client.getHasPass())
-        {
-            print_message(client.getFd(), ":my_serv_irc 464 * :Password required");
-            return;
-        }
-        std::cout << "[SERVER] Negociación CAP finalizada." << std::endl;
-        client.setAuthenticated(true);
-    }
+	switch(level)
+	{
+		case 1:
+			std::cout << "Kick him" << std::endl;
+			break;
+		case 2:
+			std::cout << "Invite him" << std::endl;
+			break;
+		case 3:
+			channelTopic(s, client, line);
+			break;
+		case 4:
+			std::cout << "Mode him" << std::endl;
+			break;
+		case 5:
+			joinChannel(s, client, line);
+			break;		
+		default:
+			std::cout << "End him" << std::endl;
+			break;
+	}
 }
 
 void commandParse(const std::string& line, Client& client, std::string pass)
