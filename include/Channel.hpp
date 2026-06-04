@@ -43,6 +43,7 @@ class Channel
         void addClient(int fd);
         void addAdmind(int fd);
         void removeClient(int fd);
+        bool hasClient(const Client &Client);
 
 };
 

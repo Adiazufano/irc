@@ -1,20 +1,6 @@
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#include <iostream>
-#include <poll.h>
-#include <unistd.h>
-#include <cstring>
-#include <vector>
-#include <map>
-#include <signal.h>
 #include "../include/Server.hpp"
-#include "../include/Client.hpp"
 #include <sstream>
 #include <iostream>
-#include <string>
-#include <cstdio>
-#include <cstdlib>
 
 bool run_server = true;
 

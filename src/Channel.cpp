@@ -98,3 +98,15 @@ void Channel::removeClient(int fd)
         }
     }
 }
+
+bool Channel::hasClient(const Client &client)
+{
+    std::vector<int>::iterator it;
+
+    for (it = _clients_fd.begin() ; it != _clients_fd.end(); ++it)
+    {
+        if (*it == client.getFd())
+            return true;
+    }
+    return false;
+}

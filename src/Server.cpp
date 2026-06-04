@@ -1,6 +1,7 @@
 #include "../include/Server.hpp"
 #include "../include/Client.hpp"
 #include "../include/Channel.hpp"
+#include "commands.hpp"
 #include <sstream>
 #include <iostream>
 #include <unistd.h>
@@ -46,66 +47,6 @@ std::map<int, Client> &Server::getClients()
 {
 	return _clients;
 }
-
-int command_level(std::string cmd)
-{
-	if(cmd == "KICK")
-		return(1);
-	else if(cmd == "INVITE")
-		return(2);
-	else if(cmd == "TOPIC")
-		return(3);
-	else if(cmd == "MODE")
-		return(4);
-	else if(cmd == "JOIN")
-		return(5);
-	else if (cmd == "PRIVMSG")
-		return (6);
-	else
-		return(0);
-}
-
-void validate_command(Server &s, const std::string& cmd, Client &client)
-{
-    if (cmd.empty())
-        return ;
-    std::istringstream str(cmd);
-    std::string command;
-	std::string line;
-
-	str >> command;
-	std::getline(str, line);
-	if (line[0] == ' ')
-		line.erase(0, 1);
-	ft_toupper(command);
-	int level = command_level(command); 
-
-	switch(level)
-	{
-		case 1:
-			std::cout << "Kick him" << std::endl;
-			break;
-		case 2:
-			std::cout << "Invite him" << std::endl;
-			break;
-		case 3:
-			channelTopic(s, client, line);
-			break;
-		case 4:
-			std::cout << "Mode him" << std::endl;
-			break;
-		case 5:
-			joinChannel(s, client, line);
-			break;
-		case 6:
-			privmsg(s, client, line);
-			break;
-		default:
-			std::cout << "End him" << std::endl;
-			break;
-	}
-}
-
 
 void Server::init()
 {
@@ -179,9 +120,10 @@ void Server::client_event(int i)
 			buf.erase(0, pos + 2);
 			std::cout << "Mensaje completo: " << mensaje << "\n";
 			//parseo de comandos de autentificacion
-			commandParse(mensaje, cli, _password);
+			if (!cli.getAuthenticated())
+				commandParse(mensaje, cli, _password);
 			// To Do: No hay que dejar validar comandos hasta que no hayamos confirmado correctamente la conexión del usuario.
-			if (cli.getAuthenticated())
+			else
 				validate_command(*this, mensaje, cli);
 		}
 		//si autentificacion mandar mensajes

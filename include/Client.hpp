@@ -39,6 +39,5 @@ class Client
         void setRegistered(const bool& registered);
         bool getRegistered() const;
 };
-void commandParse(const std::string& line, Client& client, std::string pass);
-void print_message(int fd_client, const std::string& message);
+
 #endif
