@@ -1,4 +1,4 @@
-#include "../include/Server.hpp"
+#include "Server.hpp"
 
 void privmsg(Server &s, Client &c, std::string &line)
 {

@@ -33,6 +33,8 @@ int command_level(std::string cmd)
 		return(4);
 	else if(cmd == "JOIN")
 		return(5);
+	else if(cmd == "PRIVMSG")
+		return(6);
 	else
 		return(0);
 }
@@ -67,6 +69,9 @@ void validate_command(Server &s, const std::string& cmd, Client &client)
 		case 5:
 			joinChannel(s, client, line);
 			break;		
+		case 6:
+			privmsg(s, client, line);
+			break;
 		default:
 			std::cout << "End him" << std::endl;
 			break;
