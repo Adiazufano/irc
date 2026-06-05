@@ -4,12 +4,13 @@
 Channel::Channel()
 {}
 
-Channel::Channel(std::string name, std::string topic, std::string mode, int user_fd)
+Channel::Channel(std::string name, std::string topic, std::string mode, std::string key, int user_fd)
 {
     _name = name;
     _topic = topic;
     _mode = mode;
     _user_fd = user_fd;
+    _key = key;
     if(_clients_fd.empty())
         _clients_fd.push_back(user_fd);
 
@@ -68,7 +69,10 @@ std::vector<int> Channel::getClientsArray()
     return(_clients_fd);
 }
 
-
+std::string& Channel::getChannelKey()
+{
+    return(_key);
+}
 
 void Channel::addClient(int fd)
 {

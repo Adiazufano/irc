@@ -63,13 +63,13 @@ bool checkName(std::string name)
     return(true);
 }
 
-std::vector<std::pair<std::string, std::string> > getChData(std::string names, std::string keys, Client& client)
+std::map<std::string, std::string> getChData(std::string names, std::string keys, Client& client)
 {
     std::istringstream streamNames(names);
     std::istringstream streamKeys(keys);
     std::string chName;
     std::string chKeys;
-    std::vector<std::pair<std::string, std::string> > chData;
+    std::map<std::string, std::string> chData;
     std::string errorMsg;
 
     while(std::getline(streamNames, chName, ','))
@@ -80,20 +80,30 @@ std::vector<std::pair<std::string, std::string> > getChData(std::string names, s
         {
             errorMsg = ":my_serv_irc 476" + client.getNickname() + " " + chName + " :Bad Channel Mask";
             print_message(client.getFd(), errorMsg);         
-            return std::vector<std::pair<std::string, std::string> > ();  // Devolvemos un vector vacío           
+            return std::map<std::string, std::string> ();  // Devolvemos un vector vacío           
         }
-        chData.push_back(std::make_pair(chName, chKeys));
+        chData[chName] = chKeys;
     }
 
     if (std::getline(streamKeys, chKeys, ','))
     {
         errorMsg = ":my_serv_irc 476" + client.getNickname() + " " + " :Bad Channel Mask";
         print_message(client.getFd(), errorMsg);
-        return std::vector<std::pair<std::string, std::string> > ();
+        return std::map<std::string, std::string> ();
     }
 
     return (chData);
 
+}
+
+bool validKey(Channel* channel, std::string key)
+{
+    if(channel->getChannelKey().empty())
+        return true;
+    else if(channel->getChannelKey() == key)
+        return true;
+    else
+        return false;
 }
 
 
@@ -102,27 +112,36 @@ void joinChannel(Server &s, Client& client, std::string line)
     std::istringstream str(line);
     std::string _chName;
     std::string _chKey;
-    std::vector<std::pair<std::string, std::string> > _chData;
+    std::map <std::string, std::string> _chData;
     std::string errorMsg;
 
     str >> _chName;
     str >> _chKey;
     _chData = getChData(_chName, _chKey, client);
     if(_chData.empty())
+    {
+        errorMsg = ":my_serv_irc 461 " + client.getNickname() + " JOIN :Not enough parameters";
         return;
+    }
 
-    for(std::vector<std::pair<std::string, std::string> >::iterator it = _chData.begin(); it != _chData.end(); ++it)
+    for(std::map<std::string, std::string>::iterator it = _chData.begin(); it != _chData.end(); ++it)
     {
         std::string name = it->first;
+        std::string key = it->second;
 
-        if (s.getChannels().count(name))
+        if (s.getChannels().count(name) && validKey(s.getChannels()[name], key))
         {
             s.getChannels()[name]->addClient(client.getFd());
             joinMessages(s, client, name);
         }
+        else if (s.getChannels().count(name) && !validKey(s.getChannels()[name], key))
+        {
+            errorMsg = ":my_serv_irc 475 " + client.getNickname() + " " + name + " :Cannot join channel";
+            print_message(client.getFd(), errorMsg);
+        }
         else
         {
-            Channel* ch = new Channel (name, "", "", client.getFd());
+            Channel* ch = new Channel (name, "", "", key, client.getFd());
             ch->addAdmind(client.getFd());
             s.getChannels()[name] = ch;
             joinMessages(s, client, name);
