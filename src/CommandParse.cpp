@@ -8,7 +8,7 @@
 
 void print_message(int fd_client, const std::string& message)
 {
-    std::string complete_message = message + "\r\n";
+    std::string complete_message = ":my_serv_irc " + message + "\r\n";
 
     ssize_t n_bytes = send(fd_client, complete_message.c_str(), complete_message.size(), 0);
     if (n_bytes == -1)
@@ -86,12 +86,13 @@ void commandParse(const std::string& line, Client& client, std::string pass)
         commandPass(iss, client, pass);
     else if (command == "PASS" && client.getHasPass() != false)
         std::cout << "Password already validated: " << std::endl;
-    else if (command == "NICK" && client.getHasPass())
+    else if (command == "NICK")
         commandNick(iss, client);
-    else if (command == "USER" && client.getHasPass())
+    else if (command == "USER")
         commandUser(iss, client);
     else if (command == "CAP")
         commandCap(iss, client);
+	
     else
         return;
     // --- BLOQUE DE VERIFICACIÓN (Añade esto al final de la función) ---

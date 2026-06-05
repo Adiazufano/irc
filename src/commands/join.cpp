@@ -17,19 +17,24 @@ void userMessages(Server &s, Client& client, std::string name)
     
     if(!topic.empty())      // Sólo se envía al cliente que se une al canal, no a todo el mundo.
     {
-        topicMsg = ":ircserver 332 " + client.getNickname() + " " + name + " :" + topic;
+        topicMsg = ":my_serv_irc 332 " + client.getNickname() + " " + name + " :" + topic;
         print_message(client.getFd(), topicMsg);
     }
-
+    else
+        print_message(client.getFd(), ":my_serv_irc 331 " + client.getNickname() + " " + name + " :No topic is set");
+    std::cout << topic << std::endl;
     // El cliente cuando se une tiene que recibir la lista de usuarios del canal.
-    namesList = ":ircserv 353 " + client.getNickname() + " = " + name + " :"; 
+    namesList = ":my_serv_irc 353 " + client.getNickname() + " = " + name + " :"; 
     for(std::vector<int>::iterator it = clients.begin(); it != clients.end(); ++it)
     {
         namesList += clientsMap[*it].getNickname() + " ";
     }
+    std::cout << namesList << std::endl;
     print_message(client.getFd(), namesList);
     
-    endNames = ":ircserv 366 " + client.getNickname() + " " + name + " :End of /Names list";
+    endNames = ":my_serv_irc 366 " + client.getNickname() + " " + name + " :End of /NAMES list";
+    std::cout << endNames << std::endl;
+    std::cout << "Dentro del canal" << std::endl;
     print_message(client.getFd(), endNames);
 }
 
@@ -44,7 +49,7 @@ void joinMessages(Server &s, Client& client, std::string name)
 
 
     joinMsg = ":" + client.getNickname() + "!" + client.getUser() + "@" + client.getHostname()+ " JOIN " + name;
-    for(std::vector<int>::iterator it = clients.begin(); it != clients.end(); ++it)
+    for(std::vector<int>::iterator it = clients.begin(); it != clients.end(); ++it)   
         print_message(*it, joinMsg);
 
     userMessages(s, client, name);
@@ -73,7 +78,7 @@ std::vector<std::pair<std::string, std::string> > getChData(std::string names, s
             chKeys = "";
         if(checkName(chName) == 0)
         {
-            errorMsg = ":ircserv 476" + client.getNickname() + " " + chName + " :Bad Channel Mask";
+            errorMsg = ":my_serv_irc 476" + client.getNickname() + " " + chName + " :Bad Channel Mask";
             print_message(client.getFd(), errorMsg);         
             return std::vector<std::pair<std::string, std::string> > ();  // Devolvemos un vector vacío           
         }
@@ -82,7 +87,7 @@ std::vector<std::pair<std::string, std::string> > getChData(std::string names, s
 
     if (std::getline(streamKeys, chKeys, ','))
     {
-        errorMsg = ":ircserv 476" + client.getNickname() + " " + " :Bad Channel Mask";
+        errorMsg = ":my_serv_irc 476" + client.getNickname() + " " + " :Bad Channel Mask";
         print_message(client.getFd(), errorMsg);
         return std::vector<std::pair<std::string, std::string> > ();
     }

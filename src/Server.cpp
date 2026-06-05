@@ -129,15 +129,17 @@ void Server::client_event(int i)
 			buf.erase(0, pos + 2);
 			std::cout << "Mensaje completo: " << mensaje << "\n";
 			//parseo de comandos de autentificacion
-			if (!cli.getAuthenticated())
+			if (!cli.getRegistered())
 				commandParse(mensaje, cli, _password);
 			// To Do: No hay que dejar validar comandos hasta que no hayamos confirmado correctamente la conexión del usuario.
 			else
 				validate_command(*this, mensaje, cli);
 		}
+
 		//si autentificacion mandar mensajes
 		if (cli.getHasPass() && !cli.getNickname().empty() && !cli.getUser().empty() && cli.getAuthenticated() && !cli.getRegistered())
 		{
+			cli.setAuthenticated(true);
 			std::string nick = cli.getNickname();
 			print_message(_pfd_arr[i].fd, ":my_serv_irc 001 " + nick + " :Welcome to the IRC Network, " + nick);
 			print_message(_pfd_arr[i].fd, ":my_serv_irc 002 " + nick + " :Your host is my_serv_irc, running version 1.0");
