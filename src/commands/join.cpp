@@ -10,7 +10,7 @@ void userMessages(Server &s, Client& client, std::string name)
 
     std::string topic = s.getChannels()[name]->getChannelTopic();
     std::vector<int> clients = s.getChannels()[name]->getClientsArray();
-    std::map<int, Client> clientsMap = s.getClients();
+    std::map<int, Client>& clientsMap = s.getClients();
     std::string topicMsg;
     std::string namesList;
     std::string endNames;
@@ -43,7 +43,7 @@ void joinMessages(Server &s, Client& client, std::string name)
     // Formato mensaje IRC [ :origen CODIGO destino [parámetros] :texto final\r\n ]
 
 
-    joinMsg = ":" + client.getNickname() + "!" + client.getUser() + "@localhost JOIN" + name;
+    joinMsg = ":" + client.getNickname() + "!" + client.getUser() + "@" + client.getHostname()+ " JOIN " + name;
     for(std::vector<int>::iterator it = clients.begin(); it != clients.end(); ++it)
         print_message(*it, joinMsg);
 
@@ -69,7 +69,7 @@ std::vector<std::pair<std::string, std::string> > getChData(std::string names, s
 
     while(std::getline(streamNames, chName, ','))
     {
-        if(!std::getline(streamKeys, keys, ','))
+        if(!std::getline(streamKeys, chKeys, ','))
             chKeys = "";
         if(checkName(chName) == 0)
         {
@@ -112,15 +112,16 @@ void joinChannel(Server &s, Client& client, std::string line)
 
         if (s.getChannels().count(name))
         {
-            joinMessages(s, client, name);
             s.getChannels()[name]->addClient(client.getFd());
+            joinMessages(s, client, name);
         }
         else
         {
             Channel* ch = new Channel (name, "", "", client.getFd());
             ch->addAdmind(client.getFd());
             s.getChannels()[name] = ch;
-            std::cout << "Hemos creado el canal nuevo" << std::endl;
+            joinMessages(s, client, name);
         }
     }
 }
+

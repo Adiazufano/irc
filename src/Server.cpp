@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <errno.h>
+#include <arpa/inet.h>
 
 extern bool run_server;
 
@@ -69,6 +70,10 @@ void Server::init()
 		throw std::runtime_error(strerror(errno));
 	if (bind(_serv_socket, _addr_lst->ai_addr, _addr_lst->ai_addrlen) < 0)
 		throw std::runtime_error(strerror(errno));
+	
+	char hostname[256];
+	gethostname(hostname, sizeof(hostname));
+	_hostname = hostname;
 
 	struct pollfd serv_pfd = { _serv_socket, POLLIN, 0 };
 	_pfd_arr.push_back(serv_pfd);
@@ -82,13 +87,19 @@ void Server::init()
 
 void Server::accept_client()
 {
-	int fd = accept(_serv_socket, 0, 0);
+	struct sockaddr_in client_addr;
+	socklen_t client_len = sizeof(client_addr);
+
+	int fd = accept(_serv_socket, (struct sockaddr*)&client_addr, &client_len);
 	if (fd > 0)
 	{
+		char ip[INET_ADDRSTRLEN];
+		inet_ntop(AF_INET, &client_addr.sin_addr, ip, sizeof(ip));
 		_accepted_clients.push_back(fd);
-		std::cout << "New connection accepted: Socket " << fd << '\n';
+		_accepted_ips[fd] = std::string(ip);
+		std::cout << "New connection accepted: Socket " << fd << " Client IP: " << ip << '\n';
 	}
-}
+} 
 
 void Server::client_event(int i)
 {
@@ -149,11 +160,18 @@ void Server::add_clients()
 	std::cout << "Adding " << _accepted_clients.size() << " new clients" << '\n';
 	for (size_t i = 0; i < _accepted_clients.size(); i++)
 	{
-		struct pollfd pfd = { _accepted_clients[i], POLLIN, 0 };
+		int fd = _accepted_clients[i];
+		struct pollfd pfd = { fd, POLLIN, 0 };
 		_pfd_arr.push_back(pfd);
-		_clients.insert(std::make_pair(_accepted_clients[i], Client(_accepted_clients[i])));
+		_clients.insert(std::make_pair(fd, Client(fd, _accepted_ips[fd])));
+		_accepted_ips.erase(_accepted_clients[i]);
 	}
 	_accepted_clients.clear();
+}
+
+std::string Server::getHostname() const
+{
+    return _hostname;
 }
 
 void Server::disconnect_clients()

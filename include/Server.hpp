@@ -29,12 +29,14 @@ class Server
 	private:
 		std::string					_port;
 		std::string					_password;
+		std::string					_hostname;
 		int							_serv_socket;
 		struct addrinfo				*_addr_lst;
 		std::vector<struct pollfd>	_pfd_arr;
 		std::vector<int>			_accepted_clients;
 		std::vector<int>			_disconnected_clients;
 		std::map<std::string, Channel *>		_channels;
+		std::map<int, std::string>	_accepted_ips;
 		std::map<int, Client>		_clients;
 		void						accept_client();
 		void						client_event(int i);
@@ -50,6 +52,7 @@ class Server
 		void run();
 		std::map<std::string, Channel *> &getChannels();
 		std::map<int, Client> &getClients();
+		std::string getHostname() const;
 
 };
 

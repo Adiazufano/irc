@@ -14,17 +14,18 @@ class Client
         std::string _user;
         std::string _realname;
         std::string _pass;
+        std::string _hostname;
         bool _authenticated;
         bool _has_pass;
         bool _registered;
-
-    public:
-        std::string buffer;
+        
+        public:
         Client();
-        Client(int fd);
+        Client(int fd, std::string hostname);
         Client(const Client& other);
         Client& operator=(const Client& other);
         ~Client();
+        std::string buffer; 
         int getFd() const;
         void setNickname(const std::string& nick);
         std::string getNickname() const;
@@ -38,6 +39,8 @@ class Client
         bool getHasPass() const;
         void setRegistered(const bool& registered);
         bool getRegistered() const;
+        std::string getHostname() const;
+        void setHostname(const std::string& hostname);
 };
 
 #endif
