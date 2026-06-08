@@ -44,7 +44,8 @@ class Channel
         void addClient(int fd);
         void addAdmind(int fd);
         void removeClient(int fd);
-        bool hasClient(const Client &Client);
+        bool hasClient(const Client &client);
+        void removeClient(const Client &client);
         std::string& getChannelKey();
 
 };

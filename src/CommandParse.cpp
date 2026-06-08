@@ -55,7 +55,7 @@ void validate_command(Server &s, const std::string& cmd, Client &client)
 	switch(level)
 	{
 		case 1:
-			std::cout << "Kick him" << std::endl;
+			commandKick(s, line);
 			break;
 		case 2:
 			std::cout << "Invite him" << std::endl;
@@ -78,7 +78,7 @@ void validate_command(Server &s, const std::string& cmd, Client &client)
 	}
 }
 
-void commandParse(const std::string& line, Client& client, std::string pass)
+void commandParse(const std::string& line, Client& client, std::string pass, Server &s)
 {
     if (line.empty())
         return ;

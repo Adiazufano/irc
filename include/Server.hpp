@@ -19,6 +19,7 @@
 #include <exception>
 #include <signal.h>
 #include <iterator>
+#include <sstream>
 
 class Channel;
 class Client;
@@ -39,6 +40,7 @@ class Server
 		std::map<std::string, Channel *>		_channels;
 		std::map<int, std::string>	_accepted_ips;
 		std::map<int, Client>		_clients;
+		std::map<std::string, int> _clientsByNick;
 		void						accept_client();
 		void						client_event(int i);
 		void						handle_errors(int i);
@@ -54,6 +56,7 @@ class Server
 		std::map<std::string, Channel *> &getChannels();
 		std::map<int, Client> &getClients();
 		std::string getHostname() const;
+		std::map<std::string, int> &getClientsByNick();
 
 };
 
