@@ -4,7 +4,7 @@ Client::Client() : _fd(-1), _authenticated(false), _has_pass(false), _registered
 
 Client::Client(int fd, std::string hostname) : _fd(fd), _hostname(hostname), _authenticated(false), _has_pass(false), _registered(false) {}
 
-Client::Client(const Client& other) : _fd(other._fd), _user(other._user), _realname(other._realname), _pass(other._pass), _hostname(other._hostname), _authenticated(other._authenticated), _has_pass(other._has_pass), _registered(other._registered) {}
+Client::Client(const Client& other) : _fd(other._fd), _nick(other._nick), _user(other._user), _realname(other._realname), _pass(other._pass), _hostname(other._hostname), _authenticated(other._authenticated), _has_pass(other._has_pass), _registered(other._registered) {}
 
 Client& Client::operator=(const Client& other)
 {
