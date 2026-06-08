@@ -41,6 +41,12 @@ void    commandKick(Server &s, std::string line)
     if (channel -> hasClient(cli))
     {
         channel -> removeClient(cli);
+        if (!resto.empty() && resto[0] == ' ')
+            resto.erase(0, 1);
+        if (!resto.empty() && resto[0] == ':')
+            resto.erase(0, 1);
+        while (!resto.empty() && resto[0] == ' ')
+            resto.erase(0, 1);
         if (resto.empty())
             std::cout << "El usuario " << nick << " ha sido expulsado de " << channelName << std::endl;
         else

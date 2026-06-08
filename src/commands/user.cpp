@@ -14,22 +14,12 @@ void commandUser(std::istringstream &iss, Client& client)
     if (!resto.empty())
     {
         size_t colon_pos = 0;
-        size_t index = 0;
-        bool flag = 0;
-        while (index < resto.length())
-        {
-            if (isspace(resto[index]) && flag == 0)
-                colon_pos++;
-            else
-                flag = 1;
-            index++;
-        }
-        colon_pos += resto.find(':');
-        if (colon_pos == 0)
-        {
-            std::cout << "No se encontro <:>" << std::endl;
-            return;
-        }
+        if (!resto.empty() && resto[0] == ' ')
+            resto.erase(0, 1);
+        if (!resto.empty() && resto[0] == ':')
+            resto.erase(0, 1);
+        while (!resto.empty() && resto[0] == ' ')
+            resto.erase(0, 1);
         if (colon_pos  != std::string::npos)
             realname = resto.substr(colon_pos);
         else
