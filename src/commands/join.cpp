@@ -46,7 +46,7 @@ void joinMessages(Server &s, Client& client, std::string name)
     // Formato mensaje IRC [ :origen CODIGO destino [parámetros] :texto final\r\n ]
 
 
-    joinMsg = ":" + client.getNickname() + "!" + client.getUser() + "@" + client.getHostname()+ " JOIN " + name;
+    joinMsg = ":" + client.getNickname() + "!" + client.getUser() + "@" + client.getHostname()+ " " + client.getCliCmd() + " " + name;
     for(std::vector<int>::iterator it = clients.begin(); it != clients.end(); ++it)   
         print_message(*it, joinMsg);
 

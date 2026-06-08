@@ -24,7 +24,7 @@ class Channel
         std::string _key;
         int         _user_fd;  // En lugar de guardar el cliente guardaremos el fd y lo buscaremos después. Ya que los contenedores pueden mover su memoria al crecer y generar SEGV
         std::vector<int> _admind_fd;
-        std::vector<int> _clients_fd;
+        std::vector<int> _members_fd;
     
     public:
         Channel();

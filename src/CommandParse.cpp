@@ -48,6 +48,7 @@ void validate_command(Server &s, const std::string& cmd, Client &client)
 	std::string line;
 
 	str >> command;
+	client.setCliCmd(command);
 	std::getline(str, line);
 	ft_toupper(command);
 	int level = command_level(command); 

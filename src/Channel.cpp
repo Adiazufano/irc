@@ -11,8 +11,8 @@ Channel::Channel(std::string name, std::string topic, std::string mode, std::str
     _mode = mode;
     _user_fd = user_fd;
     _key = key;
-    if(_clients_fd.empty())
-        _clients_fd.push_back(user_fd);
+    if(_members_fd.empty())
+        _members_fd.push_back(user_fd);
 
     // std::cout << "Te has unido al canal: Name " << _name << " Topic: " << _topic << " Mode: " << _mode << " user: " << _user_fd->getUser() << std::endl; 
 }
@@ -66,7 +66,7 @@ void Channel::setChannelMode(const std::string mode)
 
 std::vector<int> Channel::getClientsArray()
 {
-    return(_clients_fd);
+    return(_members_fd);
 }
 
 std::string& Channel::getChannelKey()
@@ -76,10 +76,10 @@ std::string& Channel::getChannelKey()
 
 void Channel::addClient(int fd)
 {
-    for (size_t i = 0; i < _clients_fd.size(); i++)
-        if (_clients_fd[i] == fd)
+    for (size_t i = 0; i < _members_fd.size(); i++)
+        if (_members_fd[i] == fd)
             return;
-    _clients_fd.push_back(fd);
+    _members_fd.push_back(fd);
 }
 
 void Channel::addAdmind(int fd)
@@ -93,11 +93,11 @@ void Channel::addAdmind(int fd)
 
 void Channel::removeClient(int fd)
 {
-    for (std::vector<int>::iterator it = _clients_fd.begin(); it != _clients_fd.end(); ++it)
+    for (std::vector<int>::iterator it = _members_fd.begin(); it != _members_fd.end(); ++it)
     {
         if (*it == fd)
         {
-            _clients_fd.erase(it);
+            _members_fd.erase(it);
             return;
         }
     }
@@ -107,7 +107,7 @@ bool Channel::hasClient(const Client &client)
 {
     std::vector<int>::iterator it;
 
-    for (it = _clients_fd.begin() ; it != _clients_fd.end(); ++it)
+    for (it = _members_fd.begin() ; it != _members_fd.end(); ++it)
     {
         if (*it == client.getFd())
             return true;
@@ -117,13 +117,13 @@ bool Channel::hasClient(const Client &client)
 
 void Channel::removeClient(const Client &client)
 {
-    std::vector<int>::iterator it =  _clients_fd.begin();
+    std::vector<int>::iterator it =  _members_fd.begin();
 
-    while (it != _clients_fd.end())
+    while (it != _members_fd.end())
     {
         if (*it == client.getFd())
         {
-            it = _clients_fd.erase(it);
+            it = _members_fd.erase(it);
             break;
         }
         else

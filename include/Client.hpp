@@ -15,6 +15,7 @@ class Client
         std::string _realname;
         std::string _pass;
         std::string _hostname;
+        std::string _cmd;
         bool _authenticated;
         bool _has_pass;
         bool _registered;
@@ -41,6 +42,8 @@ class Client
         bool getRegistered() const;
         std::string getHostname() const;
         void setHostname(const std::string& hostname);
+        std::string getCliCmd();
+        void setCliCmd(std::string cmd);
 };
 
 #endif

@@ -4,7 +4,7 @@ Client::Client() : _fd(-1), _authenticated(false), _has_pass(false), _registered
 
 Client::Client(int fd, std::string hostname) : _fd(fd), _hostname(hostname), _authenticated(false), _has_pass(false), _registered(false) {}
 
-Client::Client(const Client& other) : _fd(other._fd), _nick(other._nick), _user(other._user), _realname(other._realname), _pass(other._pass), _hostname(other._hostname), _authenticated(other._authenticated), _has_pass(other._has_pass), _registered(other._registered) {}
+Client::Client(const Client& other) : _fd(other._fd), _nick(other._nick), _user(other._user), _realname(other._realname), _pass(other._pass), _hostname(other._hostname), _cmd(other._cmd), _authenticated(other._authenticated), _has_pass(other._has_pass), _registered(other._registered) {}
 
 Client& Client::operator=(const Client& other)
 {
@@ -14,6 +14,7 @@ Client& Client::operator=(const Client& other)
         this -> _authenticated = other._authenticated;
         this -> _nick = other._nick;
         this -> _user = other._user;
+        this -> _cmd = other._cmd;
         this -> _realname = other._realname;
         this -> _has_pass = other._has_pass;
         this -> _registered = other._registered;
@@ -99,3 +100,12 @@ std::string Client::getHostname() const
      return _hostname;
 }
 
+std::string Client::getCliCmd()
+{
+    return(_cmd);
+}
+
+void Client::setCliCmd(std::string cmd)
+{
+    _cmd = cmd;
+}
