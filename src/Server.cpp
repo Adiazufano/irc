@@ -9,6 +9,8 @@
 #include <errno.h>
 #include <arpa/inet.h>
 
+void privmsg(Server &s, Client &c, std::string &line);
+
 extern bool run_server;
 
 // Default constructor
