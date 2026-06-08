@@ -15,5 +15,9 @@
 #define ERR_NEEDMOREPARAMS(nick, cmd)   (my_serv_name" 461 " + (nick) + " " + (cmd) + " :Not enough parameters")
 #define ERR_BADCHANNELKEY(nick, chName) (my_serv_name" 475 " + (nick) + " " + (chName) + " :Cannot join channel")
 #define ERR_BADCHANMASK(nick, chName)   (my_serv_name" 476" + (nick) + " " + (chName) + " :Bad Channel Mask")
+#define ERR_NOSUCHCHANNEL(nick, chname) (my_serv_name" 403 " + (nick) + " " + (chname) + " :No such channel")
+#define ERR_NOTONCHANNEL(nick, chname)  (my_serv_name" 442 " + (nick) + " " + (chname) + " :You're not on that channel\r\n")
+#define ERR_CHANOPRIVSNEEDED(nick, chname) (my_serv_name" 482 " + (nick) + " " + (chname) + " :You're not channel operator\r\n")
+#define ERR_USERNOTINCHANNEL(nick, chname) (my_serv_name" 441 " + (nick) + " " + (chname) + " :They aren't on that channel\r\n")
 
 #endif

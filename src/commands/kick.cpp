@@ -1,4 +1,5 @@
 #include "Server.hpp"
+#include "replies.hpp"
 
 void    commandKick(Server &s, Client &client, std::string line)
 {
@@ -9,22 +10,10 @@ void    commandKick(Server &s, Client &client, std::string line)
     iss >> channelName >> nick;
     std::getline(iss, resto);
 
-    if (!s.getChannels().count(channelName))
-	{
-		// ERR_NOSUCHCHANNEL (403) "<client> <channel> :No such channel"
-		std::string message = ":ircserver 403 " + client.getNickname() + " " + channelName + " :No such channel";
-		print_message(client.getFd(), message);
-		return;
-	}
-    if (!s.getChannels()[channelName]->isAdmin(client.getFd()))
+    if (channelName.empty() || nick.empty())
     {
-        std::cout << "El cliente no es un operador del canal" << std::endl;
+        print_message(client.getFd(), ERR_NEEDMOREPARAMS(client.getNickname(), "KICK"));
         return;
-    }
-    if (channelName.empty())
-    {
-       std::cout << "El canal no puede ser nulo" << std::endl;
-       return ;
     }
 
     if (!checkName(channelName))
@@ -40,14 +29,34 @@ void    commandKick(Server &s, Client &client, std::string line)
         return;
     }
 
+    if (!s.getChannels().count(channelName))
+	{
+		// ERR_NOSUCHCHANNEL (403) "<client> <channel> :No such channel"
+		print_message(client.getFd(), ERR_NOSUCHCHANNEL(nick, channelName));
+		return;
+	}
+
+	Channel *channel = channels[channelName];
+    if (!channel->hasClient(client))
+    {
+        // "<client> <channel> :You're not on that channel"
+        print_message(client.getFd(), ERR_NOTONCHANNEL(client.getNickname(), channelName));
+        return;
+    }
+
+    if (!s.getChannels()[channelName]->isAdmin(client.getFd()))
+    {
+        print_message(client.getFd(), ERR_CHANOPRIVSNEEDED(client.getNickname(), channelName));
+        return;
+    }
+
     std::map<std::string, int>& clients = s.getClientsByNick();
     std::map<std::string, int>::iterator it = clients.find(nick);
     if (it == clients.end())
     {
-        std::cout << "Error: El cliente " << nick << " no existe en el servidor" << std::endl;
+        print_message(client.getFd(), ERR_USERNOTINCHANNEL(nick, channelName));
         return;
     }
-	Channel *channel = channels[channelName];
 	Client &cli = s.getClients()[s.getClientsByNick()[nick]];
     std::vector<int> _fd_clients = channel->getClientsArray();
     if (channel -> hasClient(cli))
@@ -60,13 +69,14 @@ void    commandKick(Server &s, Client &client, std::string line)
         while (!resto.empty() && resto[0] == ' ')
             resto.erase(0, 1);
         if (resto.empty())
-            std::cout << "El usuario " << nick << " ha sido expulsado de " << channelName << std::endl;
-        else
-            std::cout << "El usuario " << nick << " ha sido expulsado de " << channelName << " Por " << resto << std::endl;
-
+            resto = "Expulsado por un operador";
+        std::string msgKick = ":" + client.getNickname() + " KICK " + channelName + " " + nick + " :" + resto + "\r\n";
+        userMessages(s, cli, msgKick);
+        channel->removeClient(cli);
     }
     else
     {
-        std::cout << "Error: El usuario " << nick << " no esta en el canal" << std::endl;
+        print_message(client.getFd(), ERR_USERNOTINCHANNEL(nick, channelName));
     }
 }
+
