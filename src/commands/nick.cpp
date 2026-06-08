@@ -7,5 +7,6 @@ void commandNick(std::istringstream &iss, Client &client, Server& s)
     if (nickname.empty())
         return;
     client.setNickname(nickname);
-    s.getClientsByNick().insert(std::make_pair(nickname, client));
+	s.getClientsByNick()[nickname] = client.getFd();
+    // s.getClientsByNick().insert(std::make_pair(nickname, client));
 }

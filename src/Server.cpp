@@ -137,7 +137,7 @@ void Server::client_event(int i)
 			std::cout << "Mensaje completo: " << mensaje << "\n";
 			//parseo de comandos de autentificacion
 			if (!cli.getRegistered())
-				commandParse(mensaje, cli, _password);
+				commandParse(mensaje, cli, _password, *this);
 			// To Do: No hay que dejar validar comandos hasta que no hayamos confirmado correctamente la conexión del usuario.
 			else
 				validate_command(*this, mensaje, cli);

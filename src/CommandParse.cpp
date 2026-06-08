@@ -92,7 +92,7 @@ void commandParse(const std::string& line, Client& client, std::string pass, Ser
     else if (command == "PASS" && client.getHasPass() != false)
         std::cout << "Password already validated: " << std::endl;
     else if (command == "NICK")
-        commandNick(iss, client);
+        commandNick(iss, client, s);
     else if (command == "USER")
         commandUser(iss, client);
     else if (command == "CAP")
