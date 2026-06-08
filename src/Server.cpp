@@ -152,6 +152,7 @@ void Server::client_event(int i)
 			print_message(_pfd_arr[i].fd, ":my_serv_irc 002 " + nick + " :Your host is my_serv_irc, running version 1.0");
 			print_message(_pfd_arr[i].fd, ":my_serv_irc 003 " + nick + " :This server was created May 2026");
 			print_message(_pfd_arr[i].fd, ":my_serv_irc 004 " + nick + " my_serv_irc 1.0 o itkol");
+			print_message(_pfd_arr[i].fd, ":my_serv_irc 376 " + nick + " :End of /MOTD command.");
 			std::cout << "[SERVER] Bienvenido enviado de forma segura.\n";
 			cli.setRegistered(true);
 		}
