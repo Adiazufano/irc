@@ -18,7 +18,7 @@ void privmsg(Server &s, Client &c, std::string &line);
 void validate_command(Server &s, const std::string& cmd, Client &client);
 void commandParse(const std::string& line, Client& client, std::string pass, Server &s);
 void print_message(int fd_client, const std::string& message);
-void    commandKick(Server &s, std::string line);
+void    commandKick(Server &s, Client& cli, std::string line);
 
 bool checkName(std::string name);
 

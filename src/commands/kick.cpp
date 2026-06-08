@@ -1,6 +1,6 @@
 #include "Server.hpp"
 
-void    commandKick(Server &s, std::string line)
+void    commandKick(Server &s, Client &client, std::string line)
 {
     std::istringstream iss(line);
     std::string channelName;
@@ -9,6 +9,18 @@ void    commandKick(Server &s, std::string line)
     iss >> channelName >> nick;
     std::getline(iss, resto);
 
+    if (!s.getChannels().count(channelName))
+	{
+		// ERR_NOSUCHCHANNEL (403) "<client> <channel> :No such channel"
+		std::string message = ":ircserver 403 " + client.getNickname() + " " + channelName + " :No such channel";
+		print_message(client.getFd(), message);
+		return;
+	}
+    if (!s.getChannels()[channelName]->isAdmin(client.getFd()))
+    {
+        std::cout << "El cliente no es un operador del canal" << std::endl;
+        return;
+    }
     if (channelName.empty())
     {
        std::cout << "El canal no puede ser nulo" << std::endl;

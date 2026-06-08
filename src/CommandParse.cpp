@@ -56,7 +56,7 @@ void validate_command(Server &s, const std::string& cmd, Client &client)
 	switch(level)
 	{
 		case 1:
-			commandKick(s, line);
+			commandKick(s, client, line);
 			break;
 		case 2:
 			std::cout << "Invite him" << std::endl;
