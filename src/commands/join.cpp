@@ -26,7 +26,7 @@ void userMessages(Server &s, Client& client, std::string name)
     namesList = RPL_NAMREPLY(nick, name); 
     for(std::vector<int>::iterator it = clients.begin(); it != clients.end(); ++it)
     {
-        namesList += clientsMap[*it].getNickname() + " ";
+        namesList += clientsMap[*it].getNickWithPrefix(*s.getChannels()[name]) + " ";
     }
     std::cout << namesList << std::endl;
     print_message(client.getFd(), namesList);

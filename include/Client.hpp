@@ -6,6 +6,8 @@
 #include "../include/Channel.hpp"
 #include "../include/Server.hpp"
 
+class Channel;
+
 class Client
 {
     private:
@@ -26,24 +28,28 @@ class Client
         Client(const Client& other);
         Client& operator=(const Client& other);
         ~Client();
+        
         std::string buffer; 
-        int getFd() const;
+        
         void setNickname(const std::string& nick);
-        std::string getNickname() const;
         void setUser(const std::string& user);
-        std::string getUser() const;
         void setRealname(const std::string& realname);
-        std::string getRealname() const;
-        void setAuthenticated(const bool& autheticated);
-        bool getAuthenticated() const;
         void setHasPass(const bool& has_pass);
-        bool getHasPass() const;
+        void setAuthenticated(const bool& autheticated);
         void setRegistered(const bool& registered);
-        bool getRegistered() const;
-        std::string getHostname() const;
         void setHostname(const std::string& hostname);
-        std::string getCliCmd();
         void setCliCmd(std::string cmd);
+        
+        std::string getNickname() const;
+        std::string getUser() const;
+        std::string getRealname() const;
+        std::string getHostname() const;
+        std::string getCliCmd() const;
+        std::string getNickWithPrefix(Channel& ch) const;
+        bool getAuthenticated() const;
+        bool getHasPass() const;
+        bool getRegistered() const;
+        int getFd() const;
 };
 
 #endif

@@ -130,3 +130,11 @@ void Channel::removeClient(const Client &client)
             ++it;
     }
 }
+
+bool Channel::isAdmin(int fd)
+{
+    for(std::vector<int>::iterator it = _admind_fd.begin(); it != _admind_fd.end(); it++)
+        if((*it) == fd)
+            return true;
+    return false;
+}

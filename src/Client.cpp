@@ -100,7 +100,7 @@ std::string Client::getHostname() const
      return _hostname;
 }
 
-std::string Client::getCliCmd()
+std::string Client::getCliCmd() const
 {
     return(_cmd);
 }
@@ -109,3 +109,11 @@ void Client::setCliCmd(std::string cmd)
 {
     _cmd = cmd;
 }
+
+std::string Client::getNickWithPrefix(Channel& ch) const
+{
+    if(ch.isAdmin(_fd))
+        return ("@" + _nick);
+    return(_nick);
+}
+
