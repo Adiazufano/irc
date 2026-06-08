@@ -12,7 +12,7 @@
 #define RPL_ENDOFNAMES(nick, alias)     (my_serv_name" 366 " + (nick) + " " + (alias) + " :End of /NAMES list")
 
 
-#define ERR_NEEDMOREPARAMS(nick)        (my_serv_name" 461 " + (nick) + " JOIN :Not enough parameters")
+#define ERR_NEEDMOREPARAMS(nick, cmd)   (my_serv_name" 461 " + (nick) + " " + (cmd) + " :Not enough parameters")
 #define ERR_BADCHANNELKEY(nick, chName) (my_serv_name" 475 " + (nick) + " " + (chName) + " :Cannot join channel")
 #define ERR_BADCHANMASK(nick, chName)   (my_serv_name" 476" + (nick) + " " + (chName) + " :Bad Channel Mask")
 
