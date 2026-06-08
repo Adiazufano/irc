@@ -28,19 +28,19 @@ void    commandKick(Server &s, std::string line)
         return;
     }
 
-    Channel *channel = channels[channelName];
-    std::map<std::string, Client>& clients = s.getClientsByNick();
-    std::map<std::string, Client>::iterator it = clients.find(nick);
+    std::map<std::string, int>& clients = s.getClientsByNick();
+    std::map<std::string, int>::iterator it = clients.find(nick);
     if (it == clients.end())
     {
         std::cout << "Error: El cliente " << nick << " no existe en el servidor" << std::endl;
         return;
     }
-
-    Client &targetClient = it -> second;
-    if (channel -> hasClient(targetClient))
+	Channel *channel = channels[channelName];
+	Client &cli = s.getClients()[s.getClientsByNick()[nick]];
+    std::vector<int> _fd_clients = channel->getClientsArray();
+    if (channel -> hasClient(cli))
     {
-        channel -> removeClient(targetClient);
+        channel -> removeClient(cli);
         if (resto.empty())
             std::cout << "El usuario " << nick << " ha sido expulsado de " << channelName << std::endl;
         else
