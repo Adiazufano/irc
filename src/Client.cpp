@@ -15,6 +15,7 @@ Client& Client::operator=(const Client& other)
         this -> _nick = other._nick;
         this -> _user = other._user;
         this -> _cmd = other._cmd;
+        this -> _channels = other._channels;
         this -> _realname = other._realname;
         this -> _has_pass = other._has_pass;
         this -> _registered = other._registered;
@@ -117,3 +118,35 @@ std::string Client::getNickWithPrefix(Channel& ch) const
     return(_nick);
 }
 
+
+void Client::addChannel(Channel& ch)
+{
+    for (std::vector<std::string>::iterator it = _channels.begin(); it != _channels.end(); ++it)
+    {
+        if (*it == ch.getChannelName())
+        {
+            std::cout << "The user is already a member of the channel" << std::endl;
+            return;
+        }
+    }
+    _channels.push_back(ch.getChannelName());
+}
+
+void Client::removeChannel(Channel& ch)
+{
+    for(std::vector<std::string>::iterator it = _channels.begin(); it != _channels.end(); ++it)
+        if((*it) == ch.getChannelName())
+        {
+            _channels.erase(it);
+            return ;
+        }
+}
+
+
+void Client::printChannels()
+{
+   for(std::vector<std::string>::iterator it = _channels.begin(); it != _channels.end(); ++it)
+   {
+        std::cout << *it << std::endl;
+   } 
+}

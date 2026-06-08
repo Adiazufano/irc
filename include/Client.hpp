@@ -18,6 +18,7 @@ class Client
         std::string _pass;
         std::string _hostname;
         std::string _cmd;
+        std::vector<std::string> _channels;
         bool _authenticated;
         bool _has_pass;
         bool _registered;
@@ -40,6 +41,9 @@ class Client
         void setHostname(const std::string& hostname);
         void setCliCmd(std::string cmd);
         
+        void addChannel(Channel& ch);
+        void removeChannel(Channel& ch);
+        
         std::string getNickname() const;
         std::string getUser() const;
         std::string getRealname() const;
@@ -50,6 +54,9 @@ class Client
         bool getHasPass() const;
         bool getRegistered() const;
         int getFd() const;
+
+
+        void printChannels();
 };
 
 #endif

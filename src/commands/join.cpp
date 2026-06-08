@@ -116,7 +116,7 @@ void joinChannel(Server &s, Client& client, std::string line)
     _chData = getChData(_chName, _chKey, client);
     if(_chData.empty())
     {
-        errorMsg = ERR_NEEDMOREPARAMS(nick);
+        errorMsg = ERR_NEEDMOREPARAMS(nick, client.getCliCmd());
         return;
     }
 
@@ -128,15 +128,17 @@ void joinChannel(Server &s, Client& client, std::string line)
         if (s.getChannels().count(name) && validKey(s.getChannels()[name], key))
         {
             s.getChannels()[name]->addClient(client.getFd());
+            client.addChannel(*(s.getChannels()[name]));
             joinMessages(s, client, name);
         }
         else if (s.getChannels().count(name) && !validKey(s.getChannels()[name], key))
-            print_message(client.getFd(), ERR_BADCHANNELKEY(nick, name));
+        print_message(client.getFd(), ERR_BADCHANNELKEY(nick, name));
         else
         {
             Channel* ch = new Channel (name, "", "", key, client.getFd());
             ch->addAdmind(client.getFd());
             s.getChannels()[name] = ch;
+            client.addChannel(*ch);
             joinMessages(s, client, name);
         }
     }

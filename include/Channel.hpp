@@ -33,21 +33,22 @@ class Channel
         Channel& operator=(const Channel& other);
         ~Channel();
 
-        std::string getChannelName() const;
-        void setChannelName(const std::string name);
-        std::string getChannelTopic() const;
-        void setChannelTopic(const std::string topic);
-        std::string getChannelMode() const;
-        void setChannelMode(const std::string mode);
         std::vector<int> getClientsArray();
+        std::string getChannelTopic() const;
+        std::string getChannelName() const;
+        std::string getChannelMode() const;
+        std::string& getChannelKey();
+        
+        void setChannelName(const std::string name);
+        void setChannelTopic(const std::string topic);
+        void setChannelMode(const std::string mode);
 
+        bool isAdmin(int fd);
+        bool hasClient(const Client &client);
         void addClient(int fd);
         void addAdmind(int fd);
         void removeClient(int fd);
-        bool hasClient(const Client &client);
-        bool isAdmin(int fd);
         void removeClient(const Client &client);
-        std::string& getChannelKey();
 
 };
 
