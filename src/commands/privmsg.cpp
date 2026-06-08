@@ -65,8 +65,8 @@ void broadcastChannel(Server &s, Client &c, std::string &channelName, std::strin
 	{
 		if (members[i] == c.getFd())
 			continue;
-		std::string message = ":" + c.getNickname() + " PRIVMSG " + s.getClients()[i].getNickname() + " :" + text;
-		print_message(members[i], text);
+		std::string message = ":" + c.getNickname() + "!" + c.getUser() + "@" + c.getHostname() + " PRIVMSG " + channelName + " " + s.getClients()[i].getNickname() + text;
+		print_message(members[i], message);
 	}
 }
 
