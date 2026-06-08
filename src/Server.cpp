@@ -92,7 +92,7 @@ void Server::init()
 	std::cout << "Server listening on port " << _port.c_str() << '\n';
 }
 
-void Server::accept_client()
+void Server::accept_socket()
 {
 	struct sockaddr_in client_addr;
 	socklen_t client_len = sizeof(client_addr);
@@ -102,7 +102,7 @@ void Server::accept_client()
 	{
 		char ip[INET_ADDRSTRLEN];
 		inet_ntop(AF_INET, &client_addr.sin_addr, ip, sizeof(ip));
-		_accepted_clients.push_back(fd);
+		_accepted_sockets.push_back(fd);
 		_accepted_ips[fd] = std::string(ip);
 		std::cout << "New connection accepted: Socket " << fd << " Client IP: " << ip << '\n';
 	}
@@ -120,7 +120,7 @@ void Server::client_event(int i)
 	else if (n_bytes == 0)
 	{
 		std::cout << "Client at socket " << _pfd_arr[i].fd << " disconnected\n";
-		_disconnected_clients.push_back(_pfd_arr[i].fd);
+		_disconnected_sockets.push_back(_pfd_arr[i].fd);
 	}
 	else if (n_bytes > 0)
 	{
@@ -167,16 +167,16 @@ void Server::handle_errors(int i)
 
 void Server::add_clients()
 {
-	std::cout << "Adding " << _accepted_clients.size() << " new clients" << '\n';
-	for (size_t i = 0; i < _accepted_clients.size(); i++)
+	std::cout << "Adding " << _accepted_sockets.size() << " new clients" << '\n';
+	for (size_t i = 0; i < _accepted_sockets.size(); i++)
 	{
-		int fd = _accepted_clients[i];
+		int fd = _accepted_sockets[i];
 		struct pollfd pfd = { fd, POLLIN, 0 };
 		_pfd_arr.push_back(pfd);
 		_clients.insert(std::make_pair(fd, Client(fd, _accepted_ips[fd])));
-		_accepted_ips.erase(_accepted_clients[i]);
+		_accepted_ips.erase(_accepted_sockets[i]);
 	}
-	_accepted_clients.clear();
+	_accepted_sockets.clear();
 }
 
 std::string Server::getHostname() const
@@ -184,15 +184,15 @@ std::string Server::getHostname() const
     return _hostname;
 }
 
-void Server::disconnect_clients()
+void Server::disconnect_sockets()
 {
-	std::cout << "Removing " << _disconnected_clients.size() << " disconnected clients" << '\n';
-	for (size_t i = 0; i < _disconnected_clients.size(); i++)
+	std::cout << "Removing " << _disconnected_sockets.size() << " disconnected clients" << '\n';
+	for (size_t i = 0; i < _disconnected_sockets.size(); i++)
 	{
 		std::vector<struct pollfd>::iterator it = _pfd_arr.begin();
 		while (it != _pfd_arr.end())
 		{
-			if (_disconnected_clients[i] == it->fd)
+			if (_disconnected_sockets[i] == it->fd)
 			{
 				close(it->fd); // Mejor llamar a close desde el destructor del cliente??
 				_clients.erase(it -> fd);
@@ -202,7 +202,7 @@ void Server::disconnect_clients()
 			it++;
 		}
 	}
-	_disconnected_clients.clear();
+	_disconnected_sockets.clear();
 }
 
 void Server::run()
@@ -219,7 +219,7 @@ void Server::run()
 		{
 			// New incoming connection
 			if (_pfd_arr[i].revents == POLLIN && _pfd_arr[i].fd == _serv_socket)
-				accept_client();
+				accept_socket();
 			// Event from known client (message or disconnection)
 			else if (_pfd_arr[i].revents == POLLIN)
 				client_event(i);
@@ -232,11 +232,11 @@ void Server::run()
 		}
 
 		// Add new clients
-		if (_accepted_clients.size() > 0)
+		if (_accepted_sockets.size() > 0)
 			add_clients();
 	
 		// Close and remove disconnected clients
-		if (_disconnected_clients.size() > 0)
-			disconnect_clients();
+		if (_disconnected_sockets.size() > 0)
+			disconnect_sockets();
 	}
 }

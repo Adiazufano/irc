@@ -35,17 +35,17 @@ class Server
 		int							_serv_socket;
 		struct addrinfo				*_addr_lst;
 		std::vector<struct pollfd>	_pfd_arr;
-		std::vector<int>			_accepted_clients;
-		std::vector<int>			_disconnected_clients;
+		std::vector<int>			_accepted_sockets;
+		std::vector<int>			_disconnected_sockets;
 		std::map<std::string, Channel *>		_channels;
 		std::map<int, std::string>	_accepted_ips;
 		std::map<int, Client>		_clients;
 		std::map<std::string, int> _clientsByNick;
-		void						accept_client();
+		void						accept_socket();
 		void						client_event(int i);
 		void						handle_errors(int i);
 		void						add_clients();
-		void						disconnect_clients();
+		void						disconnect_sockets();
 
 	public:
 		Server();
