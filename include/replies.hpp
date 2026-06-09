@@ -20,4 +20,10 @@
 #define ERR_CHANOPRIVSNEEDED(nick, chname) (my_serv_name" 482 " + (nick) + " " + (chname) + " :You're not channel operator\r\n")
 #define ERR_USERNOTINCHANNEL(nick, chname) (my_serv_name" 441 " + (nick) + " " + (chname) + " :They aren't on that channel\r\n")
 
+#define ERR_NOSUCHNICK(clientNick, nick) (my_serv_name" 401 " + (clientNick) + " " + (nick) + " :No such nick/channel")
+#define ERR_CANNOTSENDTOCHAN(nick, channel) (my_serv_name" 404 " + (nick) + " " + (channel) + " :Cannot send to channel")
+#define ERR_USERONCHANNEL(clientNick, nick, channel) (my_serv_name" 443 " + (clientNick) + " " + (nick) + " " + (channel) + " :is already on channel")
+#define RPL_INVITING(client, nick, channel) (my_serv_name" 341 " + (client) + " " + (nick) + " " + (channel))
+#define INVITE_MSG(source, client, host, nick, channel) (":" + (source) + "!" + (client) + "@" + (host) + " INVITE " + (nick) + " :" + (channel))
+
 #endif
