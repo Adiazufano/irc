@@ -54,18 +54,9 @@ void invite(Server &s, Client &c, std::string &line)
 		return;
 	}
 
-	// Add nickname to channel
-	//ch->addClient(target.getFd());
-	//target.addChannel(*ch);
-
-	//When the invite is successful, the server MUST send: 
-	// - A 341 RPL_INVITING numeric to the command issuer
-	// - An INVITE message, with the issuer as <source>, to the target user.
-	// - Other channel members SHOULD NOT be notified.
 	std::string reply = RPL_INVITING(c.getNickname(), target.getNickname(), channelName);
 	c.sendMsg(reply);
 
-	// std::string message = ":" + c.getNickname() + "!" + c.getUser() + "@" + c.getHostname() + " INVITE " + target.getNickname() + " :" + channelName;
 	std::string message = INVITE_MSG(c.getNickname(), c.getUser(), c.getHostname(), target.getNickname(), channelName);
 	target.sendMsg(message);
 }

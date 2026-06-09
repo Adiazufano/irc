@@ -25,5 +25,7 @@
 #define ERR_USERONCHANNEL(clientNick, nick, channel) (my_serv_name" 443 " + (clientNick) + " " + (nick) + " " + (channel) + " :is already on channel")
 #define RPL_INVITING(client, nick, channel) (my_serv_name" 341 " + (client) + " " + (nick) + " " + (channel))
 #define INVITE_MSG(source, client, host, nick, channel) (":" + (source) + "!" + (client) + "@" + (host) + " INVITE " + (nick) + " :" + (channel))
+#define ERR_NORECIPIENT(client, command) (my_serv_name" 411 " + (client) + " :No recipient given (" + (command) + ")")
+#define ERR_NOTEXTTOSEND(client) (my_serv_name" 412 " + (client) + " :No text to send")
 
 #endif
