@@ -37,6 +37,8 @@ int command_level(std::string cmd)
 		return(6);
 	else if(cmd == "PART")
 		return(7);
+	else if(cmd == "PING")
+		return(8);
 	else
 		return(0);
 }
@@ -77,6 +79,9 @@ void validate_command(Server &s, const std::string& cmd, Client &client)
 			break;
 		case 7:
 			partChannel(s, client, line);
+			break;
+		case 8:
+			ping(s, client, line);
 			break;
 		default:
 			std::cout << "End him" << std::endl;
