@@ -50,6 +50,8 @@ class Channel
         void removeClient(int fd);
         void removeClient(const Client &client);
 
+		void sendMembers(Server &s, std::string &msg, int exclude);
+
 };
 
 void joinChannel(Server &s, Client& client, std::string line);
