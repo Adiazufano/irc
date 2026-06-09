@@ -18,56 +18,42 @@
 
 void broadcastUser(Server &s, Client &c, std::string &target, std::string &text)
 {
-	std::map<int, Client> &clients = s.getClients();
-	std::map<int, Client>::iterator it;
-
-	// Iterate through clients map to find target
-	for (it = clients.begin(); it != clients.end(); ++it)
+	// Target not found: ERR_NOSUCHNICK (401) "<client> <nickname> :No such nick/channel"
+	if (!s.getClientsByNick().count(target))
 	{
-		if (it->second.getNickname() == target)
-		{
-			std::string message = ":" + c.getNickname() + " PRIVMSG " + target + " :" + text;
-			std::cout << "Sending message to socket " << it->first << " " << message << "\n";
-			print_message(it->first, message);
-			return;
-		}
+		std::string message = ":ircserver 401 " + c.getNickname() + " " + target + " :No such nick/channel";
+		c.sendMsg(message);
+		return;
 	}
 
-	// Target not found ERR_NOSUCHNICK (401) "<client> <nickname> :No such nick/channel"
-	std::string message = ":ircserver 401 " + c.getNickname() + " " + target + " :No such nick/channel";
-	print_message(c.getFd(), message);
+	// Send private message to target client
+	Client &dest = s.getClients()[s.getClientsByNick()[target]];
+	std::string message = ":" + c.getNickname() + " PRIVMSG " + target + " :" + text;
+	dest.sendMsg(message);
 }
 
 void broadcastChannel(Server &s, Client &c, std::string &channelName, std::string &text)
 {
-	// Channel doesn't exist
+	// Channel doesn't exist: ERR_NOSUCHCHANNEL (403) "<client> <channel> :No such channel"
 	if (!s.getChannels().count(channelName))
 	{
-		// ERR_NOSUCHCHANNEL (403) "<client> <channel> :No such channel"
 		std::string message = ":ircserver 403 " + c.getNickname() + " " + channelName + " :No such channel";
-		print_message(c.getFd(), message);
+		c.sendMsg(message);
 		return;
 	}
 
-	// Sender doesn't belong to channel
+	// Sender doesn't belong to channel: ERR_CANNOTSENDTOCHAN (404) "<client> <channel> :Cannot send to channel"
 	Channel *ch = s.getChannels()[channelName];
 	if (!ch->hasClient(c))
 	{
-		// ERR_CANNOTSENDTOCHAN (404) "<client> <channel> :Cannot send to channel"
 		std::string message = ":ircserver 404 " + c.getNickname() + " " + channelName + " :Cannot send to channel";
-		print_message(c.getFd(), message);
+		c.sendMsg(message);
 		return;
 	}
 
 	// Send message to all channel members except sender
-	std::vector<int> members = ch->getClientsArray();
-	for (size_t i = 0; i < members.size(); ++i)
-	{
-		if (members[i] == c.getFd())
-			continue;
-		std::string message = ":" + c.getNickname() + "!" + c.getUser() + "@" + c.getHostname() + " PRIVMSG " + channelName + " " + s.getClients()[i].getNickname() + text;
-		print_message(members[i], message);
-	}
+	std::string message = ":" + c.getNickname() + "!" + c.getUser() + "@" + c.getHostname() + " PRIVMSG " + channelName + " " + text;
+	ch->sendMembers(s, message, c.getFd());
 }
 
 void privmsg(Server &s, Client &c, std::string &line)
@@ -81,12 +67,11 @@ void privmsg(Server &s, Client &c, std::string &line)
 	getline(iss1 >> std::ws, targets_full, ' ');
 	getline(iss1 >> std::ws, text);
 
-	// Message is empty
+	// Message is empty: ERR_NOTEXTTOSEND (412) "<client> :No text to send"
 	if (text.empty())
 	{
-		// ERR_NOTEXTTOSEND (412) "<client> :No text to send"
 		std::string message = ":ircserver 412 " + c.getNickname() + " :No text to send";
-		print_message(c.getFd(), message);
+		c.sendMsg(message);
 		return;
 	}
 
@@ -94,19 +79,15 @@ void privmsg(Server &s, Client &c, std::string &line)
 	std::istringstream iss2(targets_full);
 	for (std::string target; getline(iss2, target, ',');)
 	{
-		// Target is empty
+		// Target is empty: ERR_NORECIPIENT (411) "<client> :No recipient given (<command>)"
 		if (target.empty())
 		{
-			// ERR_NORECIPIENT (411) "<client> :No recipient given (<command>)"
 			std::string message = ":ircserver 411 " + c.getNickname() + " :No recipient given (PRIVMSG)";
-			print_message(c.getFd(), message);
-			return;
+			c.sendMsg(message);
 		}
-		// Target is a channel
-		if (target[0] == '#')
-			broadcastChannel(s, c, target, text);
-		// Target is a user
+		else if (target[0] == '#')
+			broadcastChannel(s, c, target, text);	// Target is a channel
 		else
-			broadcastUser(s, c, target, text);
+			broadcastUser(s, c, target, text);		// Target is a user
 	}
 }
