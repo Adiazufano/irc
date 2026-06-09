@@ -148,7 +148,6 @@ void Channel::sendMembers(Server &s, std::string &msg, int exclude)
 		if (s.getClients().count(_members_fd[i]) > 0)
 		{
 			Client &dest = s.getClients()[_members_fd[i]];
-			std::cout << "Sending message to " << dest.getFd() << ": " << msg << "\n";
 			dest.sendMsg(msg);
 		}
 	}
