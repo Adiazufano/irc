@@ -63,7 +63,7 @@ void validate_command(Server &s, const std::string& cmd, Client &client)
 			commandKick(s, client, line);
 			break;
 		case 2:
-			std::cout << "Invite him" << std::endl;
+			invite(s, client, line);
 			break;
 		case 3:
 			channelTopic(s, client, line);

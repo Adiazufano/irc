@@ -8,6 +8,7 @@ DEP_DIR     := deps
 SRCS        := main.cpp Client.cpp CommandParse.cpp Server.cpp Channel.cpp \
 				commands/cap.cpp commands/join.cpp commands/nick.cpp commands/pass.cpp commands/topic.cpp commands/user.cpp \
 				commands/privmsg.cpp commands/kick.cpp commands/part.cpp \
+				commands/invite.cpp \
 				commands/ping.cpp
 SRCS        := $(addprefix $(SRC_DIR)/, $(SRCS))
 OBJS        := $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
