@@ -124,10 +124,7 @@ void Client::addChannel(Channel& ch)
     for (std::vector<std::string>::iterator it = _channels.begin(); it != _channels.end(); ++it)
     {
         if (*it == ch.getChannelName())
-        {
-            std::cout << "The user is already a member of the channel" << std::endl;
             return;
-        }
     }
     _channels.push_back(ch.getChannelName());
 }

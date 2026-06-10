@@ -17,10 +17,9 @@ void userMessages(Server &s, Client& client, std::string name)
     std::string endNames;
     
     if(!topic.empty())      // Sólo se envía al cliente que se une al canal, no a todo el mundo.
-        print_message(client.getFd(), RPL_TOPIC(nick, name, topic));
+        client.sendMsg(RPL_TOPIC(nick, name, topic));
     else
-        print_message(client.getFd(), RPL_NOTOPIC(nick, name));
-    std::cout << topic << std::endl;
+        client.sendMsg(RPL_NOTOPIC(nick, name));
 
     // El cliente cuando se une tiene que recibir la lista de usuarios del canal.
     namesList = RPL_NAMREPLY(nick, name); 
@@ -28,12 +27,8 @@ void userMessages(Server &s, Client& client, std::string name)
     {
         namesList += clientsMap[*it].getNickWithPrefix(*s.getChannels()[name]) + " ";
     }
-    std::cout << namesList << std::endl;
-    print_message(client.getFd(), namesList);
-    
-    std::cout << endNames << std::endl;
-    std::cout << "Dentro del canal" << std::endl;
-    print_message(client.getFd(), RPL_ENDOFNAMES(nick, name));
+    client.sendMsg(namesList); 
+    client.sendMsg(RPL_ENDOFNAMES(nick, name));
 }
 
 
@@ -44,12 +39,8 @@ void joinMessages(Server &s, Client& client, std::string name)
     std::vector<int> clients = s.getChannels()[name]->getClientsArray();
 
     // Formato mensaje IRC [ :origen CODIGO destino [parámetros] :texto final\r\n ]
-
-
     joinMsg = ":" + client.getNickname() + "!" + client.getUser() + "@" + client.getHostname()+ " " + client.getCliCmd() + " " + name;
-    for(std::vector<int>::iterator it = clients.begin(); it != clients.end(); ++it)   
-        print_message(*it, joinMsg);
-
+    s.getChannels()[name]-> sendMembers(s, joinMsg, 0);
     userMessages(s, client, name);
 }
 
@@ -77,7 +68,7 @@ std::map<std::string, std::string> getChData(std::string names, std::string keys
             chKeys = "";
         if(checkName(chName) == 0)
         {
-            print_message(client.getFd(), ERR_BADCHANMASK(nick, chName));         
+            client.sendMsg(ERR_BADCHANMASK(nick, chName));         
             return std::map<std::string, std::string> ();  // Devolvemos un vector vacío           
         }
         chData[chName] = chKeys;
@@ -85,7 +76,7 @@ std::map<std::string, std::string> getChData(std::string names, std::string keys
 
     if (std::getline(streamKeys, chKeys, ','))
     {
-        print_message(client.getFd(), ERR_BADCHANMASK(nick, chName));
+        client.sendMsg(ERR_BADCHANMASK(nick, chName));
         return std::map<std::string, std::string> ();
     }
     return (chData);
@@ -132,7 +123,7 @@ void joinChannel(Server &s, Client& client, std::string line)
             joinMessages(s, client, name);
         }
         else if (s.getChannels().count(name) && !validKey(s.getChannels()[name], key))
-            print_message(client.getFd(), ERR_BADCHANNELKEY(nick, name));
+            client.sendMsg(ERR_BADCHANNELKEY(nick, name));
         else
         {
             Channel* ch = new Channel (name, "", "", key, client.getFd());

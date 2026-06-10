@@ -12,49 +12,28 @@ void    commandKick(Server &s, Client &client, std::string line)
     std::getline(iss, resto);
 
     if (channelName.empty() || nick.empty())
-    {
-        print_message(client.getFd(), ERR_NEEDMOREPARAMS(client.getNickname(), "KICK"));
-        return;
-    }
+        return (client.sendMsg(ERR_NEEDMOREPARAMS(client.getNickname(), client.getCliCmd())));
+
     if (!checkName(channelName))
-    {
-        std::cout << "El nombre del canal no es correcto" << std::endl;
-        return;
-    }
+        return (client.sendMsg(ERR_NOSUCHCHANNEL(client.getNickname(), channelName)));
 
     std::map<std::string, Channel*>& channels = s.getChannels();
     if (!s.getChannels().count(channelName))
-    {
-        print_message(client.getFd(), ERR_NOSUCHCHANNEL(client.getNickname(), channelName));
-        return;
-    }
+        return (client.sendMsg(ERR_NOSUCHCHANNEL(client.getNickname(), channelName)));
 
     Channel *channel = channels[channelName];
     if (!channel->hasClient(client))
-    {
-        print_message(client.getFd(), ERR_NOTONCHANNEL(client.getNickname(), channelName));
-        return;
-    }
+        return(client.sendMsg(ERR_NOTONCHANNEL(client.getNickname(), channelName)));
+
     if (!channel->isAdmin(client.getFd()))
-    {
-        print_message(client.getFd(), ERR_CHANOPRIVSNEEDED(client.getNickname(), channelName));
-        return;
-    }
+        return(client.sendMsg(ERR_CHANOPRIVSNEEDED(client.getNickname(), channelName)));
 
     std::map<std::string, int>& clients = s.getClientsByNick();
     std::map<std::string, int>::iterator it = clients.find(nick);
     if (it == clients.end())
-    {
-        print_message(client.getFd(), ERR_USERNOTINCHANNEL(nick, channelName));
-        return;
-    }
+        return(client.sendMsg(ERR_USERNOTINCHANNEL(nick, channelName)));
 
     int targetFd = it->second;
-    if (s.getClients().count(targetFd) == 0)
-    {
-        print_message(client.getFd(), ERR_USERNOTINCHANNEL(nick, channelName));
-        return;
-    }
 
     Client &cli = s.getClients()[targetFd];
     std::vector<int> _fd_clients = channel->getClientsArray();
@@ -72,13 +51,12 @@ void    commandKick(Server &s, Client &client, std::string line)
             resto = "Expulsado por un operador";
 
         std::string msgKick = ":" + client.getNickname() + "!" + client.getUser() + "@" + client.getHostname() + " KICK " + channelName + " " + nick + " :" + resto;
-        for (size_t i = 0; i < _fd_clients.size(); ++i)
-            print_message(_fd_clients[i], msgKick);
+        channel->sendMembers(s, msgKick, 0);
         channel->removeClient(cli.getFd());
         cli.removeChannel(*channel);
     }
     else
     {
-        print_message(client.getFd(), ERR_USERNOTINCHANNEL(nick, channelName));
+        client.sendMsg(ERR_USERNOTINCHANNEL(nick, channelName));
     }
 }

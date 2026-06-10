@@ -6,14 +6,14 @@
 #include "../include/Server.hpp"
 #include "commands.hpp"
 
-void print_message(int fd_client, const std::string& message)
+/*void print_message(int fd_client, const std::string& message)
 {
     std::string complete_message = message + "\r\n";
 
     ssize_t n_bytes = send(fd_client, complete_message.c_str(), complete_message.size(), 0);
     if (n_bytes == -1)
         std::cerr << "Error al enviar datos al socket " << fd_client << std::endl;
-}
+}*/
 
 void ft_toupper(std::string &str)
 {

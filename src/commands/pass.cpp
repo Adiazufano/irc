@@ -6,18 +6,10 @@ void commandPass(std::istringstream &iss, Client &client, std::string pass)
     if (iss >> password)
     {
         if (password == pass && !pass.empty())
-        {
             client.setHasPass(true);
-            std::cout << "[SERVER] Contraseña correcta para el socket " << client.getFd() << "\n";
-        }
         else
-        {
-            print_message(client.getFd(), ":my_serv_irc 464 * :Password incorrect.");
-            std::cout << "[SERVER] Contraseña INCORRECTA en el socket " << client.getFd() << "\n";
-        }
+            client.sendMsg(ERR_PASSWDMISMATCH(client.getNickname()));
     }
     else
-    {
-        print_message(client.getFd(), ":my_serv_irc 461 * PASS :Not enough parameters");
-    }
+        client.sendMsg(ERR_NEEDMOREPARAMS(client.getNickname(), client.getCliCmd()));
 }

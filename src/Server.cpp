@@ -146,12 +146,12 @@ void Server::client_event(int i)
 		{
 			cli.setAuthenticated(true);
 			std::string nick = cli.getNickname();
-			print_message(_pfd_arr[i].fd, ":my_serv_irc 001 " + nick + " :Welcome to the IRC Network, " + nick);
-			print_message(_pfd_arr[i].fd, ":my_serv_irc 002 " + nick + " :Your host is my_serv_irc, running version 1.0");
-			print_message(_pfd_arr[i].fd, ":my_serv_irc 003 " + nick + " :This server was created May 2026");
-			print_message(_pfd_arr[i].fd, ":my_serv_irc 004 " + nick + " my_serv_irc 1.0 o itkol");
-			print_message(_pfd_arr[i].fd, ":my_serv_irc 005 " + nick + " CASEMAPPING=ascii CHANMODES=,o,kl,it CHANTYPES=# :are supported by this server");
-			print_message(_pfd_arr[i].fd, ":my_serv_irc 376 " + nick + " :End of /MOTD command.");
+			cli.sendMsg(":my_serv_irc 001 " + nick + " :Welcome to the IRC Network, " + nick);
+			cli.sendMsg(":my_serv_irc 002 " + nick + " :Your host is my_serv_irc, running version 1.0");
+			cli.sendMsg(":my_serv_irc 003 " + nick + " :This server was created May 2026");
+			cli.sendMsg(":my_serv_irc 004 " + nick + " my_serv_irc 1.0 o itkol");
+			cli.sendMsg(":my_serv_irc 005 " + nick + " CASEMAPPING=ascii CHANMODES=,o,kl,it CHANTYPES=# :are supported by this server");
+			cli.sendMsg(":my_serv_irc 376 " + nick + " :End of /MOTD command.");
 
 			std::cout << "[SERVER] Bienvenido enviado de forma segura.\n";
 			cli.setRegistered(true);

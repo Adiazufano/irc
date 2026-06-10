@@ -28,5 +28,6 @@
 #define ERR_NORECIPIENT(client, command)                    (my_serv_name" 411 " + (client) + " :No recipient given (" + (command) + ")")
 #define ERR_NOTEXTTOSEND(client)                            (my_serv_name" 412 " + (client) + " :No text to send")
 #define ERR_UNKNOWNCOMMAND(client, command)                 (my_serv_name" 421 " + (client) + " " + (command) + " :Unknown command")
+#define ERR_PASSWDMISMATCH(client)                          (my_serv_name" 464 " + (client) + " :Password incorrect")
 
 #endif

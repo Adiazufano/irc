@@ -15,9 +15,7 @@ void promoteAdmin(Server& s, Channel* ch)
 
         std::string newAdminNick = s.getClients()[newAdminFd].getNickname();
         std::string modeMsg = ":my_serv_irc MODE " + ch->getChannelName() + " +o " + newAdminNick;
-
-        for (std::vector<int>::iterator at = members.begin(); at != members.end(); ++at)
-            print_message(*at, modeMsg);
+        ch->sendMembers(s, modeMsg, 0);
     }
 }
 
@@ -42,7 +40,7 @@ void partChannel(Server &s, Client& client, std::string line)
 			client.sendMsg(ERR_NEEDMOREPARAMS(client.getNickname(), client.getCliCmd()));
         if (!s.getChannels().count(name))
         {
-            print_message(client.getFd(), ERR_NOSUCHCHANNEL(client.getNickname(), name));
+            client.sendMsg(ERR_NOSUCHCHANNEL(client.getNickname(), name));
             continue ;
         }
         
@@ -50,7 +48,7 @@ void partChannel(Server &s, Client& client, std::string line)
 
         if (!ch->hasClient(client))
         {
-            print_message(client.getFd(), ERR_NOTONCHANNEL(client.getNickname(), name));
+            client.sendMsg(ERR_NOTONCHANNEL(client.getNickname(), name));
             continue;
         }
         std::string msg = ":" + client.getNickname() + "!" + client.getUser() + "@" + client.getHostname()
