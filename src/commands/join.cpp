@@ -82,11 +82,11 @@ std::map<std::string, std::string> getChData(std::string names, std::string keys
     return (chData);
 }
 
-bool validKey(Channel* channel, std::string key)
+bool validKey(Channel* channel, std::string key, int fd)
 {
     if(channel->getChannelKey().empty())
         return true;
-    else if(channel->getChannelKey() == key)
+    else if((channel->getChannelKey() == key) || (channel->isInvited(fd)))
         return true;
     else
         return false;
@@ -116,13 +116,14 @@ void joinChannel(Server &s, Client& client, std::string line)
         std::string name = it->first;
         std::string key = it->second;
 
-        if (s.getChannels().count(name) && validKey(s.getChannels()[name], key))
+
+        if (s.getChannels().count(name) && validKey(s.getChannels()[name], key , client.getFd()))
         {
             s.getChannels()[name]->addMember(client.getFd());
             client.addChannel(*(s.getChannels()[name]));
             joinMessages(s, client, name);
         }
-        else if (s.getChannels().count(name) && !validKey(s.getChannels()[name], key))
+        else if (s.getChannels().count(name) && !validKey(s.getChannels()[name], key, client.getFd()))
             client.sendMsg(ERR_BADCHANNELKEY(nick, name));
         else
         {

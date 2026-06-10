@@ -34,6 +34,7 @@ void invite(Server &s, Client &client, std::string &line)
 	if (ch->hasClient(target))
 		return client.sendMsg(ERR_USERONCHANNEL(client.getNickname(), nickname, channelName));
 
+	ch->addInvited(target.getFd());
 	client.sendMsg(RPL_INVITING(client.getNickname(), target.getNickname(), channelName));
 	target.sendMsg(INVITE_MSG(client.getNickname(), client.getUser(), client.getHostname(), target.getNickname(), channelName));
 }

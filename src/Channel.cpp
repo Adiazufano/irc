@@ -94,6 +94,14 @@ void Channel::addAdmind(int fd)
     _admind_fd.push_back(fd);
 }
 
+void Channel::addInvited(int fd)
+{
+    for(size_t i = 0; i < _invited_fd.size(); i++)
+        if(_invited_fd[i] == fd)
+            return;
+    _invited_fd.push_back(fd);
+}
+
 
 void Channel::removeClient(int fd)
 {
@@ -137,6 +145,14 @@ bool Channel::isAdmin(int fd)
         if((*it) == fd)
             return true;
     return false;
+}
+
+bool Channel::isInvited(int fd)
+{
+    for(std::vector<int>::iterator it = _invited_fd.begin(); it != _invited_fd.end(); it++)
+        if((*it) == fd)
+            return true;
+    return false;   
 }
 
 void Channel::sendMembers(std::string &msg, int exclude)
