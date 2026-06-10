@@ -39,6 +39,8 @@ int command_level(std::string cmd)
 		return(7);
 	else if(cmd == "PING")
 		return(8);
+	else if  (cmd == "NICK")
+		return(9);
 	else
 		return(0);
 }
@@ -61,6 +63,7 @@ void validate_command(Server &s, const std::string& cmd, Client &client)
 	
 	if(command.empty())
 		return ;
+	std::istringstream iss(line);
 	switch(level)
 	{
 		case 1:
@@ -86,6 +89,9 @@ void validate_command(Server &s, const std::string& cmd, Client &client)
 			break;
 		case 8:
 			ping(s, client, line);
+			break;
+		case 9:
+			commandNick(iss, client, s);
 			break;
 		default:
 			client.sendMsg(ERR_UNKNOWNCOMMAND(client.getNickname(), client.getCliCmd()));

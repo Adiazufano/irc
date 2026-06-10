@@ -29,5 +29,7 @@
 #define ERR_NOTEXTTOSEND(client)                            (my_serv_name" 412 " + (client) + " :No text to send")
 #define ERR_UNKNOWNCOMMAND(client, command)                 (my_serv_name" 421 " + (client) + " " + (command) + " :Unknown command")
 #define ERR_PASSWDMISMATCH(client)                          (my_serv_name" 464 " + (client) + " :Password incorrect")
+#define ERR_NICKNAMEINUSE(client, nick)                     (my_serv_name" 433 " + (client) + " " + (nick) + " :Nickname is already in use")
+#define ERR_NICKNAMEINUSE2(nick)                            (my_serv_name" 433 * " + (nick) + " :Nickname is already in use")
 
 #endif
