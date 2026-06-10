@@ -55,9 +55,10 @@ class Client
         bool getRegistered() const;
         int getFd() const;
 
-		void sendMsg(std::string &msg);
+		void sendMsg(std::string msg);
 
         void printChannels();
+        void printVectorInt(std::vector<int> &v);
 };
 
 #endif

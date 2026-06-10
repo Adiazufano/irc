@@ -2,52 +2,64 @@
 #include "Client.hpp"
 #include "replies.hpp"
 
-std::vector<std::string> getChannels(Client& client, std::string line)
-{
-    std::istringstream str(line);
-    std::vector<std::string> channels;
-    std::string token;
 
-    while(std::getline(str, token, ','))
+void promoteAdmin(Server& s, Channel* ch)
+{
+    std::vector<int> admins = ch->getChannelAdmins();
+    std::vector<int> members = ch->getClientsArray();
+
+    if (admins.empty() && !members.empty())
     {
-        if(token.empty() || token[0] != '#')
-        {
-            print_message(client.getFd(), ERR_NEEDMOREPARAMS(client.getNickname(), client.getCliCmd()));
-            return std::vector<std::string>();
-        }
-        channels.push_back(token);
+        int newAdminFd = members[0];
+        ch->addAdmind(newAdminFd);
+
+        std::string newAdminNick = s.getClients()[newAdminFd].getNickname();
+        std::string modeMsg = ":my_serv_irc MODE " + ch->getChannelName() + " +o " + newAdminNick;
+
+        for (std::vector<int>::iterator at = members.begin(); at != members.end(); ++at)
+            print_message(*at, modeMsg);
     }
-    return channels;
 }
+
 
 void partChannel(Server &s, Client& client, std::string line)
 {
-    std::vector<std::string> channels;
-    std::string nick = client.getNickname();
+	// Parse channel and reason
+	std::istringstream iss1(line);
+	std::string text;
+	std::string targets_full;
+	std::vector<std::string> channels;
 
-    channels = getChannels(client, line);
-    for(std::vector<std::string>::iterator it = channels.begin(); it != channels.end(); ++it)
-    {
-        std::string name = *it;
+	getline(iss1 >> std::ws, targets_full, ' ');
+	getline(iss1 >> std::ws, text);
 
+	// Iterate through comma-separated channels and sending the reason of leaving to each member
+	std::istringstream iss2(targets_full);
+	for (std::string name; getline(iss2, name, ',');)
+	{
+		// If is empty
+		if (name.empty())
+			client.sendMsg(ERR_NEEDMOREPARAMS(client.getNickname(), client.getCliCmd()));
         if (!s.getChannels().count(name))
         {
-            print_message(client.getFd(), ERR_NOSUCHCHANNEL(nick, name));
-            continue;
+            print_message(client.getFd(), ERR_NOSUCHCHANNEL(client.getNickname(), name));
+            continue ;
         }
-        if (!s.getChannels()[name]->hasClient(client))
+        
+        Channel* ch = s.getChannels()[name];
+
+        if (!ch->hasClient(client))
         {
-            print_message(client.getFd(), ERR_NOTONCHANNEL(nick, name));
+            print_message(client.getFd(), ERR_NOTONCHANNEL(client.getNickname(), name));
             continue;
         }
-        std::string msg = ":" + nick + "!" + client.getUser() + "@" + client.getHostname()
-                        + " " + client.getCliCmd() + " " + name;
+        std::string msg = ":" + client.getNickname() + "!" + client.getUser() + "@" + client.getHostname()
+                        + " " + client.getCliCmd() + " " + name + " " + text;
 
-        std::vector<int> clients = s.getChannels()[name]->getClientsArray();
-        for(std::vector<int>::iterator jt = clients.begin(); jt != clients.end(); ++jt)
-            print_message(*jt, msg);
-
-        s.getChannels()[name]->removeClient(client.getFd());
-        client.removeChannel(*s.getChannels()[name]);
+        std::vector<int> clients = ch->getClientsArray();
+        ch->sendMembers(s, msg, 0);
+        ch->removeClient(client.getFd());
+        client.removeChannel(*ch);
+        promoteAdmin(s, ch);        
     }
 }

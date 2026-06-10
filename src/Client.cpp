@@ -142,7 +142,7 @@ void Client::removeChannel(Channel& ch)
         }
 }
 
-void Client::sendMsg(std::string &msg)
+void Client::sendMsg(std::string msg)
 {
 	// TO DO: Check if msg already contains "\r\n"
 
@@ -169,3 +169,14 @@ void Client::printChannels()
         std::cout << *it << std::endl;
    } 
 }
+
+void Client::printVectorInt(std::vector<int> &v)
+{
+   for(std::vector<int>::iterator it = v.begin(); it != v.end(); ++it)
+   {
+        std::cout << *it << " ";
+   }
+   std::cout << std::endl;
+}
+
+

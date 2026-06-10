@@ -54,9 +54,13 @@ void validate_command(Server &s, const std::string& cmd, Client &client)
 	str >> command;
 	client.setCliCmd(command);
 	std::getline(str, line);
+	if(!line.empty() && line[0] == ' ')
+        line = line.substr(1);
 	ft_toupper(command);
 	int level = command_level(command); 
-
+	
+	if(command.empty())
+		return ;
 	switch(level)
 	{
 		case 1:
@@ -84,7 +88,7 @@ void validate_command(Server &s, const std::string& cmd, Client &client)
 			ping(s, client, line);
 			break;
 		default:
-			std::cout << "End him" << std::endl;
+			client.sendMsg(ERR_UNKNOWNCOMMAND(client.getNickname(), client.getCliCmd()));
 			break;
 	}
 }

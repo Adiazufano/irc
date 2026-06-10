@@ -63,6 +63,10 @@ void Channel::setChannelMode(const std::string mode)
     _mode = mode;
 }
 
+std::vector<int> Channel::getChannelAdmins()
+{
+    return(_admind_fd);
+}
 
 std::vector<int> Channel::getClientsArray()
 {
@@ -74,7 +78,7 @@ std::string& Channel::getChannelKey()
     return(_key);
 }
 
-void Channel::addClient(int fd)
+void Channel::addMember(int fd)
 {
     for (size_t i = 0; i < _members_fd.size(); i++)
         if (_members_fd[i] == fd)
@@ -93,6 +97,18 @@ void Channel::addAdmind(int fd)
 
 void Channel::removeClient(int fd)
 {
+    if(isAdmin(fd))
+    {
+        
+        for(std::vector<int>::iterator it =  _admind_fd.begin(); it != _admind_fd.end(); ++it)
+        {
+            if(*it == fd)
+            {
+                _admind_fd.erase(it);
+                break ;
+            }
+        }
+    }
     for (std::vector<int>::iterator it = _members_fd.begin(); it != _members_fd.end(); ++it)
     {
         if (*it == fd)
@@ -113,22 +129,6 @@ bool Channel::hasClient(const Client &client)
             return true;
     }
     return false;
-}
-
-void Channel::removeClient(const Client &client)
-{
-    std::vector<int>::iterator it =  _members_fd.begin();
-
-    while (it != _members_fd.end())
-    {
-        if (*it == client.getFd())
-        {
-            it = _members_fd.erase(it);
-            break;
-        }
-        else
-            ++it;
-    }
 }
 
 bool Channel::isAdmin(int fd)

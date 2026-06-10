@@ -34,6 +34,7 @@ class Channel
         ~Channel();
 
         std::vector<int> getClientsArray();
+        std::vector<int> getChannelAdmins();
         std::string getChannelTopic() const;
         std::string getChannelName() const;
         std::string getChannelMode() const;
@@ -45,10 +46,9 @@ class Channel
 
         bool isAdmin(int fd);
         bool hasClient(const Client &client);
-        void addClient(int fd);
+        void addMember(int fd);
         void addAdmind(int fd);
         void removeClient(int fd);
-        void removeClient(const Client &client);
 
 		void sendMembers(Server &s, std::string &msg, int exclude);
 
