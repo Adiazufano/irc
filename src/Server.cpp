@@ -9,8 +9,6 @@
 #include <errno.h>
 #include <arpa/inet.h>
 
-void privmsg(Server &s, Client &c, std::string &line);
-
 extern bool run_server;
 
 // Default constructor
@@ -22,11 +20,11 @@ Server::~Server()
 	std::cout << "\nClosing server...\n";
 	freeaddrinfo(_addr_lst);
 	close(_serv_socket);
-	std::cout << "Closed" << std::endl;
 	std::map<std::string, Channel*>::iterator it;
 	for(it = _channels.begin(); it != _channels.end(); ++it)
 		delete it->second;
 	_channels.clear();
+	std::cout << "Bye!" << std::endl;
 }
 
 // Parameterized constructor
@@ -152,7 +150,9 @@ void Server::client_event(int i)
 			print_message(_pfd_arr[i].fd, ":my_serv_irc 002 " + nick + " :Your host is my_serv_irc, running version 1.0");
 			print_message(_pfd_arr[i].fd, ":my_serv_irc 003 " + nick + " :This server was created May 2026");
 			print_message(_pfd_arr[i].fd, ":my_serv_irc 004 " + nick + " my_serv_irc 1.0 o itkol");
+			print_message(_pfd_arr[i].fd, ":my_serv_irc 005 " + nick + " CASEMAPPING=ascii CHANMODES=,o,kl,it CHANTYPES=# :are supported by this server");
 			print_message(_pfd_arr[i].fd, ":my_serv_irc 376 " + nick + " :End of /MOTD command.");
+
 			std::cout << "[SERVER] Bienvenido enviado de forma segura.\n";
 			cli.setRegistered(true);
 		}
