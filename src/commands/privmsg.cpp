@@ -1,46 +1,34 @@
 #include "Server.hpp"
 
-void broadcastUser(Server &s, Client &c, std::string &target, std::string &text)
+void broadcastUser(Server &s, Client &client, std::string &target, std::string &text)
 {
 	// Target not found
 	if (!s.getClientsByNick().count(target))
-	{
-		std::string message = ERR_NOSUCHNICK(c.getNickname(), target);
-		c.sendMsg(message);
-		return;
-	}
+		return client.sendMsg(ERR_NOSUCHNICK(client.getNickname(), target));
 
 	// Send private message to target client
 	Client &dest = s.getClients()[s.getClientsByNick()[target]];
-	std::string message = ":" + c.getNickname() + " PRIVMSG " + target + " :" + text;
-	dest.sendMsg(message);
+	//std::string message = ":" + client.getNickname() + " PRIVMSG " + target + " :" + text;
+	dest.sendMsg(":" + client.getNickname() + " PRIVMSG " + target + " :" + text);
 }
 
-void broadcastChannel(Server &s, Client &c, std::string &channelName, std::string &text)
+void broadcastChannel(Server &s, Client &client, std::string &channelName, std::string &text)
 {
 	// Channel doesn't exist
 	if (!s.getChannels().count(channelName))
-	{
-		std::string message = ERR_NOTONCHANNEL(c.getNickname(), channelName);
-		c.sendMsg(message);
-		return;
-	}
+		return client.sendMsg(ERR_NOTONCHANNEL(client.getNickname(), channelName));
 
 	// Sender doesn't belong to channel
 	Channel *ch = s.getChannels()[channelName];
-	if (!ch->hasClient(c))
-	{
-		std::string message = ERR_CANNOTSENDTOCHAN(c.getNickname(), channelName);
-		c.sendMsg(message);
-		return;
-	}
+	if (!ch->hasClient(client))
+		return client.sendMsg(ERR_CANNOTSENDTOCHAN(client.getNickname(), channelName));
 
 	// Send message to all channel members except sender
-	std::string message = ":" + c.getNickname() + "!" + c.getUser() + "@" + c.getHostname() + " PRIVMSG " + channelName + " " + text;
-	ch->sendMembers(s, message, c.getFd());
+	std::string message = ":" + client.getNickname() + "!" + client.getUser() + "@" + client.getHostname() + " PRIVMSG " + channelName + " " + text;
+	ch->sendMembers(s, message, client.getFd());
 }
 
-void privmsg(Server &s, Client &c, std::string &line)
+void privmsg(Server &s, Client &client, std::string &line)
 {
 	// Parse targets and text
 	std::istringstream iss1(line);
@@ -53,11 +41,7 @@ void privmsg(Server &s, Client &c, std::string &line)
 
 	// Message is empty
 	if (text.empty())
-	{
-		std::string message = ERR_NOTEXTTOSEND(c.getNickname());
-		c.sendMsg(message);
-		return;
-	}
+		return client.sendMsg(ERR_NOTEXTTOSEND(client.getNickname()));
 
 	// Iterate through comma separated targets and send message to each one
 	std::istringstream iss2(targets_full);
@@ -65,13 +49,10 @@ void privmsg(Server &s, Client &c, std::string &line)
 	{
 		// Target is empty
 		if (target.empty())
-		{
-			std::string message = ERR_NORECIPIENT(c.getNickname(), c.getCliCmd());
-			c.sendMsg(message);
-		}
+			client.sendMsg(ERR_NORECIPIENT(client.getNickname(), client.getCliCmd()));
 		else if (target[0] == '#')
-			broadcastChannel(s, c, target, text);	// Target is a channel
+			broadcastChannel(s, client, target, text);	// Target is a channel
 		else
-			broadcastUser(s, c, target, text);		// Target is a user
+			broadcastUser(s, client, target, text);		// Target is a user
 	}
 }
