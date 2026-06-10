@@ -27,7 +27,7 @@ void commandUser(std::istringstream &iss, Client& client)
     }
     
     if (username.empty() || realname.empty())
-        return;
+        return (client.sendMsg(ERR_NEEDMOREPARAMS(client.getNickname(), "USER")));
     
     client.setUser(username);
     client.setRealname(realname);

@@ -31,5 +31,10 @@
 #define ERR_PASSWDMISMATCH(client)                          (my_serv_name" 464 " + (client) + " :Password incorrect")
 #define ERR_NICKNAMEINUSE(client, nick)                     (my_serv_name" 433 " + (client) + " " + (nick) + " :Nickname is already in use")
 #define ERR_NICKNAMEINUSE2(nick)                            (my_serv_name" 433 * " + (nick) + " :Nickname is already in use")
+#define ERR_NONICKNAMEGIVEN(client)                        (my_serv_name" 431  " + (client) + " :No nickname given")
+#define ERR_NONICKNAMEGIVEN2(client)                        (my_serv_name" 431  * :No nickname given")
+#define ERR_ERRONEUSNICKNAME(client, nick)                  (my_serv_name" 432 " + (client) + " " + (nick) + " :Erroneus nickname")
+#define ERR_ERRONEUSNICKNAME2(nick)                         (my_serv_name" 432 * " + (nick) + " :Erroneus nickname")
+
 
 #endif
