@@ -4,20 +4,19 @@
 Channel::Channel()
 {}
 
-Channel::Channel(std::string name, std::string topic, std::string mode, std::string key, int user_fd)
+Channel::Channel(std::string name, std::string topic, std::string mode, std::string key, int user_fd, Server *server)
 {
     _name = name;
     _topic = topic;
     _mode = mode;
     _user_fd = user_fd;
     _key = key;
-    if(_members_fd.empty())
-        _members_fd.push_back(user_fd);
-
-    // std::cout << "Te has unido al canal: Name " << _name << " Topic: " << _topic << " Mode: " << _mode << " user: " << _user_fd->getUser() << std::endl; 
+	_server = server;
+	if(_members_fd.empty())
+		_members_fd.push_back(user_fd);
 }
 
-Channel::Channel(const Channel& copy) : _name(copy._name), _topic(copy._topic), _mode(copy._mode), _user_fd(copy._user_fd){}
+Channel::Channel(const Channel& copy) : _name(copy._name), _topic(copy._topic), _mode(copy._mode), _user_fd(copy._user_fd), _server(copy._server){}
 
 Channel& Channel::operator=(const Channel& other)
 {
@@ -27,6 +26,7 @@ Channel& Channel::operator=(const Channel& other)
         _topic = other._topic;
         _mode = other._mode;
         _user_fd = other._user_fd;
+		_server = other._server;
     }
     return (*this);
 }
@@ -139,15 +139,15 @@ bool Channel::isAdmin(int fd)
     return false;
 }
 
-void Channel::sendMembers(Server &s, std::string &msg, int exclude)
+void Channel::sendMembers(std::string &msg, int exclude)
 {
 	for (size_t i = 0; i < _members_fd.size(); ++i)
 	{
-		if (_members_fd[i] == exclude)
+		if (exclude && _members_fd[i] == exclude)
 			continue;
-		if (s.getClients().count(_members_fd[i]) > 0)
+		if (_server->getClients().count(_members_fd[i]) > 0)
 		{
-			Client &dest = s.getClients()[_members_fd[i]];
+			Client &dest = _server->getClients()[_members_fd[i]];
 			dest.sendMsg(msg);
 		}
 	}

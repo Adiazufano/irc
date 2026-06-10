@@ -40,7 +40,7 @@ void joinMessages(Server &s, Client& client, std::string name)
 
     // Formato mensaje IRC [ :origen CODIGO destino [parámetros] :texto final\r\n ]
     joinMsg = ":" + client.getNickname() + "!" + client.getUser() + "@" + client.getHostname()+ " " + client.getCliCmd() + " " + name;
-    s.getChannels()[name]-> sendMembers(s, joinMsg, 0);
+    s.getChannels()[name]-> sendMembers(joinMsg, 0);
     userMessages(s, client, name);
 }
 
@@ -126,7 +126,7 @@ void joinChannel(Server &s, Client& client, std::string line)
             client.sendMsg(ERR_BADCHANNELKEY(nick, name));
         else
         {
-            Channel* ch = new Channel (name, "", "", key, client.getFd());
+            Channel* ch = new Channel (name, "", "", key, client.getFd(), &s);
             ch->addAdmind(client.getFd());
             ch->addMember(client.getFd());
             s.getChannels()[name] = ch;

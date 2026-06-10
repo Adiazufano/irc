@@ -38,6 +38,6 @@ void channelTopic(Server &s, Client &client, std::string line)
     {
         channel.setChannelTopic(topic);
         std::string broadcast = ":" + client.getNickname() + "!" + client.getUser() + "@localhost" + " TOPIC " + channelName + " :" + topic + "\r\n";
-        channel.sendMembers(s, broadcast, 0);
+        channel.sendMembers(broadcast);
     }
 }

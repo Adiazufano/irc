@@ -25,7 +25,7 @@ void broadcastChannel(Server &s, Client &client, std::string &channelName, std::
 
 	// Send message to all channel members except sender
 	std::string message = ":" + client.getNickname() + "!" + client.getUser() + "@" + client.getHostname() + " PRIVMSG " + channelName + " " + text;
-	ch->sendMembers(s, message, client.getFd());
+	ch->sendMembers(message, client.getFd());
 }
 
 void privmsg(Server &s, Client &client, std::string &line)

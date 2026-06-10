@@ -51,7 +51,7 @@ void    commandKick(Server &s, Client &client, std::string line)
             resto = "Expulsado por un operador";
 
         std::string msgKick = ":" + client.getNickname() + "!" + client.getUser() + "@" + client.getHostname() + " KICK " + channelName + " " + nick + " :" + resto;
-        channel->sendMembers(s, msgKick, 0);
+        channel->sendMembers(msgKick);
         channel->removeClient(cli.getFd());
         cli.removeChannel(*channel);
     }
