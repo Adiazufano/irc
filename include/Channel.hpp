@@ -61,5 +61,6 @@ class Channel
 void joinChannel(Server &s, Client& client, std::string line);
 void channelTopic(Server &s, Client &client, std::string line);
 void partChannel(Server &s, Client& client, std::string line);
+void namesCommand(Server&s, Channel& ch, Client& client);
 
 #endif

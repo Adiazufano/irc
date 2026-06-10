@@ -8,27 +8,15 @@
 
 void userMessages(Server &s, Client& client, std::string name)
 {
-
     std::string topic = s.getChannels()[name]->getChannelTopic();
-    std::vector<int> clients = s.getChannels()[name]->getClientsArray();
-    std::map<int, Client>& clientsMap = s.getClients();
     std::string nick = client.getNickname();
-    std::string namesList;
-    std::string endNames;
     
     if(!topic.empty())      // Sólo se envía al cliente que se une al canal, no a todo el mundo.
         client.sendMsg(RPL_TOPIC(nick, name, topic));
     else
         client.sendMsg(RPL_NOTOPIC(nick, name));
-
-    // El cliente cuando se une tiene que recibir la lista de usuarios del canal.
-    namesList = RPL_NAMREPLY(nick, name); 
-    for(std::vector<int>::iterator it = clients.begin(); it != clients.end(); ++it)
-    {
-        namesList += clientsMap[*it].getNickWithPrefix(*s.getChannels()[name]) + " ";
-    }
-    client.sendMsg(namesList); 
-    client.sendMsg(RPL_ENDOFNAMES(nick, name));
+    
+    namesCommand(s, *s.getChannels()[name], client);
 }
 
 
