@@ -54,7 +54,7 @@ class Channel
         void addInvited(int fd);
         void removeClient(int fd);
 
-		void sendMembers(std::string &msg, int exclude = 0);
+		void sendMembers(std::string msg, int exclude = 0);
 
 };
 
