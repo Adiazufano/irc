@@ -4,25 +4,31 @@ void commandNick(std::istringstream &iss, Client &client, Server& s)
 {
     std::string nickname;
     iss >> nickname;
-    if (nickname.empty() && s.getClientsByNick()[client.getNickname()])
-        return(client.sendMsg(ERR_NONICKNAMEGIVEN(client.getNickname())));
-    else if (nickname.empty() && !s.getClientsByNick()[client.getNickname()])
-        return(client.sendMsg(ERR_NONICKNAMEGIVEN2()));
-    // s.getClientsByNick().insert(std::make_pair(nickname, client));
 
-    if ((nickname[0] == '#' || nickname[0] == ':') && s.getClientsByNick()[client.getNickname()])
-        return(client.sendMsg(ERR_ERRONEUSNICKNAME(client.getNickname(), nickname)));
-    else  if ((nickname[0] == '#' || nickname[0] == ':') && !s.getClientsByNick()[client.getNickname()])
-        return(client.sendMsg(ERR_NONICKNAMEGIVEN(nickname)));
+    std::string oldNickname = client.getNickname().empty() ? "*" : client.getNickname();
+
+    if (nickname.empty())
+        return(client.sendMsg(ERR_NONICKNAMEGIVEN(oldNickname)));
+
+    if ((nickname[0] == '#' || nickname[0] == ':'))
+        return(client.sendMsg(ERR_ERRONEUSNICKNAME(oldNickname, nickname)));
 
     if (s.getClientsByNick()[nickname])
-    {
-        if (s.getClientsByNick()[client.getNickname()])
-            client.sendMsg(ERR_NICKNAMEINUSE(client.getNickname(), nickname));
-        else
-            client.sendMsg(ERR_NICKNAMEINUSE2(nickname));
-        return ;
-    }
+        return (client.sendMsg(ERR_NICKNAMEINUSE(oldNickname, nickname)));
+
     client.setNickname(nickname);
     s.getClientsByNick()[nickname] = client.getFd();
+
+    // TO DO: Buscar respuesta
+    /* 
+    The NICK message may be sent from the server to clients to acknowledge their NICK command was successful,
+    and to inform other clients about the change of nickname. In these cases, the <source> of the message will
+    be the old nickname [ [ "!" user ] "@" host ] of the user who is changing their nickname.
+
+    Message Examples:
+      :WiZ NICK Kilroy          ; WiZ changed his nickname to Kilroy.
+      :dan-!d@localhost NICK Mamoped
+                                ; dan- changed his nickname to Mamoped.
+
+    */
 }
