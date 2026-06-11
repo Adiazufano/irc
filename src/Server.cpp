@@ -176,7 +176,7 @@ std::vector<int>	&Server::getDisconnectedSockets()
 
 void Server::disconnect_sockets()
 {
-	std::cout << "Removing " << _disconnected_sockets.size() << " disconnected clients" << '\n';
+	std::cout << "Removing " << _disconnected_sockets.size() << " disconnected clients\n";
 	for (size_t i = 0; i < _disconnected_sockets.size(); i++)
 	{
 		std::vector<struct pollfd>::iterator it = _pfd_arr.begin();
@@ -193,6 +193,20 @@ void Server::disconnect_sockets()
 		}
 	}
 	_disconnected_sockets.clear();
+
+	// Remove empty channels
+	std::map<std::string, Channel*>::iterator it;
+	for (it = _channels.begin(); it != _channels.end(); )
+	{
+		if (it->second->getClientsArray().size() == 0)
+		{
+			std::cout << "Removing empty channel: " << it->first << '\n';
+			delete it->second;
+			_channels.erase(it++);
+		}
+		else
+			++it;
+	}
 }
 
 void Server::run()
@@ -243,18 +257,5 @@ void Server::run()
 		// Close and remove disconnected clients
 		if (_disconnected_sockets.size() > 0)
 			disconnect_sockets();
-		
-		// Remove empty channels
-		std::map<std::string, Channel*>::iterator it;
-		for (it = _channels.begin(); it != _channels.end(); )
-		{
-			if (it->second->getClientsArray().size() == 0)
-			{
-				delete it->second;
-				_channels.erase(it++);
-			}
-			else
-				++it;
-		}
 	}
 }
