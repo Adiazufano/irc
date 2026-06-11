@@ -39,8 +39,10 @@ int command_level(std::string cmd)
 		return(7);
 	else if(cmd == "PING")
 		return(8);
-	else if  (cmd == "NICK")
+	else if (cmd == "NICK")
 		return(9);
+	else if(cmd == "WHO")
+		return(10);
 	else
 		return(0);
 }
@@ -92,6 +94,9 @@ void validate_command(Server &s, const std::string& cmd, Client &client)
 			break;
 		case 9:
 			commandNick(iss, client, s);
+			break;
+		case 10:
+			whoCommand(s, client, line);
 			break;
 		default:
 			client.sendMsg(ERR_UNKNOWNCOMMAND(client.getNickname(), client.getCliCmd()));
