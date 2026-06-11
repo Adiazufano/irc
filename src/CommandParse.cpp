@@ -111,6 +111,7 @@ void validate_command(Server &s, const std::string& cmd, Client &client)
 			break;
 		case 13:
 			quit(s, client, line);
+			break;
 		default:
 			client.sendMsg(ERR_UNKNOWNCOMMAND(client.getNickname(), client.getCliCmd()));
 			break;
