@@ -8,8 +8,7 @@ void broadcastUser(Server &s, Client &client, std::string &target, std::string &
 
 	// Send private message to target client
 	Client &dest = s.getClients()[s.getClientsByNick()[target]];
-	//std::string message = ":" + client.getNickname() + " PRIVMSG " + target + " :" + text;
-	dest.sendMsg(":" + client.getNickname() + " PRIVMSG " + target + " :" + text);
+	dest.sendMsg(PRIVMSG(client.getNickname(), client.getUser(), client.getHostname(), target, text));
 }
 
 void broadcastChannel(Server &s, Client &client, std::string &channelName, std::string &text)
@@ -23,9 +22,7 @@ void broadcastChannel(Server &s, Client &client, std::string &channelName, std::
 	if (!ch->hasClient(client))
 		return client.sendMsg(ERR_CANNOTSENDTOCHAN(client.getNickname(), channelName));
 
-	// Send message to all channel members except sender
-	std::string message = ":" + client.getNickname() + "!" + client.getUser() + "@" + client.getHostname() + " PRIVMSG " + channelName + " " + text;
-	ch->sendMembers(message, client.getFd());
+	ch->sendMembers(PRIVMSG(client.getNickname(), client.getUser(), client.getHostname(), channelName, text), client.getFd());
 }
 
 void privmsg(Server &s, Client &client, std::string &line)

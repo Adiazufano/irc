@@ -41,4 +41,6 @@
 #define RPL_ISUPPORT(client)                                (my_serv_name" 005 " + (client) + " CASEMAPPING=ascii CHANMODES=,o,kl,it CHANTYPES=# :are supported by this server")
 #define RPL_ENDOFMOTD(client)                               (my_serv_name" 376 " + (client) + " :End of /MOTD command.")
 
+#define PRIVMSG(client, user, host, target, text)           (":" + (client) + "!" + (user) + "@" + (host) + " PRIVMSG " + (target) + " " + (text))
+
 #endif
