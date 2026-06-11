@@ -173,4 +173,10 @@ void Client::printVectorInt(std::vector<int> &v)
    std::cout << std::endl;
 }
 
+std::vector<std::string> Client::getChannels() const
+{
+    return (_channels);
+}
+
+
 

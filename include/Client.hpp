@@ -40,7 +40,6 @@ class Client
         void setRegistered(const bool& registered);
         void setHostname(const std::string& hostname);
         void setCliCmd(std::string cmd);
-        
         void addChannel(Channel& ch);
         void removeChannel(Channel& ch);
         
@@ -50,6 +49,7 @@ class Client
         std::string getHostname() const;
         std::string getCliCmd() const;
         std::string getNickWithPrefix(Channel& ch) const;
+        std::vector<std::string> getChannels() const;
         bool getAuthenticated() const;
         bool getHasPass() const;
         bool getRegistered() const;

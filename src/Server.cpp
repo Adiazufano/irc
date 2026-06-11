@@ -169,6 +169,11 @@ void Server::add_clients()
 	_accepted_sockets.clear();
 }
 
+std::vector<int>	&Server::getDisconnectedSockets()
+{
+	return (_disconnected_sockets);
+}
+
 void Server::disconnect_sockets()
 {
 	std::cout << "Removing " << _disconnected_sockets.size() << " disconnected clients" << '\n';
@@ -179,7 +184,7 @@ void Server::disconnect_sockets()
 		{
 			if (_disconnected_sockets[i] == it->fd)
 			{
-				close(it->fd); // Mejor llamar a close desde el destructor del cliente??
+				close(it->fd);
 				_clients.erase(it -> fd);
 				it = _pfd_arr.erase(it);
 				break;

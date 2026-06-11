@@ -47,6 +47,8 @@ int command_level(std::string cmd)
 		return (11);
 	else if (cmd == "PASS")
 		return (12);
+	else if (cmd == "QUIT")
+		return (13);
 	return(0);
 }
 
@@ -107,6 +109,8 @@ void validate_command(Server &s, const std::string& cmd, Client &client)
 		case 12:
 			commandPass(iss, client, "");
 			break;
+		case 13:
+			quit(s, client, line);
 		default:
 			client.sendMsg(ERR_UNKNOWNCOMMAND(client.getNickname(), client.getCliCmd()));
 			break;

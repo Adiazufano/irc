@@ -9,7 +9,6 @@ void    commandKick(Server &s, Client &client, std::string line)
     std::string nick;
     std::string resto;
     iss >> channelName >> nick;
-    std::getline(iss, resto);
 
     if (channelName.empty() || nick.empty())
         return (client.sendMsg(ERR_NEEDMOREPARAMS(client.getNickname(), client.getCliCmd())));
@@ -41,12 +40,7 @@ void    commandKick(Server &s, Client &client, std::string line)
 
     if (targetInChannel)
     {
-        if (!resto.empty() && resto[0] == ' ')
-            resto.erase(0, 1);
-        if (!resto.empty() && resto[0] == ':')
-            resto.erase(0, 1);
-        while (!resto.empty() && resto[0] == ' ')
-            resto.erase(0, 1);
+        resto = getMsg(iss);
         if (resto.empty())
             resto = "Expulsado por un operador";
 

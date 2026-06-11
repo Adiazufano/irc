@@ -19,12 +19,14 @@ void invite(Server &s, Client &c, std::string &line);
 
 void validate_command(Server &s, const std::string& cmd, Client &client);
 void commandParse(const std::string& line, Client& client, std::string pass, Server &s);
-void print_message(int fd_client, const std::string& message);
 void commandKick(Server &s, Client& cli, std::string line);
 
 void userMessages(Server &s, Client& client, std::string name);
 
 bool checkName(std::string name);
 void whoCommand(Server& s, Client& client, std::string& line);
+void quit(Server &s, Client &cli, std::string line);
+std::string getMsg(std::istringstream &iss);
+
 
 #endif

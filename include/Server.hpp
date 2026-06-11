@@ -58,6 +58,7 @@ class Server
 		std::map<int, Client> &getClients();
 		std::string getHostname() const;
 		std::map<std::string, int> &getClientsByNick();
+		std::vector<int>	&getDisconnectedSockets();
 
 };
 
