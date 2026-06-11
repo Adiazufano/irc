@@ -28,5 +28,6 @@ void whoCommand(Server& s, Client& client, std::string& line);
 void quit(Server &s, Client &cli, std::string line);
 std::string getMsg(std::istringstream &iss);
 
+void mode(Server &s, Client &c, std::string &line);
 
 #endif

@@ -22,12 +22,12 @@ class Channel
         std::string _topic;
         std::string _modes;
         std::string _key;
-		int			_limit;
         int         _user_fd;  // En lugar de guardar el cliente guardaremos el fd y lo buscaremos después. Ya que los contenedores pueden mover su memoria al crecer y generar SEGV
+		Server		*_server;
+		int			_limit;
         std::vector<int> _admind_fd;
         std::vector<int> _members_fd;
         std::vector<int> _invited_fd;
-		Server		*_server;
     
     public:
         Channel();
@@ -41,15 +41,16 @@ class Channel
         std::string getChannelTopic() const;
         std::string getChannelName() const;
         std::string getChannelModes() const;
+        std::string getChannelModeArgs();
         std::string& getChannelKey();
 		int getLimit();
 
         void setChannelName(const std::string name);
         void setChannelTopic(const std::string topic);
-        bool setChannelMode(const char modechar);
-		bool setChannelMode(const char modechar, const std::string modearg);
-		bool unsetChannelMode(const char modechar);
+        void setChannelMode(const char modechar);
+		void unsetChannelMode(const char modechar);
 		bool isModeEnabled(const char modechar);
+		void setKey(std::string key);
 		void setLimit(int n);
 
         bool isAdmin(int fd);

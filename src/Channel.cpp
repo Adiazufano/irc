@@ -9,10 +9,10 @@ Channel::Channel(std::string name, std::string topic, std::string modes, std::st
     _name = name;
     _topic = topic;
     _modes = modes;
-    _user_fd = user_fd;
     _key = key;
-    _limit = 0;
+    _user_fd = user_fd;
 	_server = server;
+    _limit = 0;
 	if(_members_fd.empty())
 		_members_fd.push_back(user_fd);
 }
@@ -21,10 +21,10 @@ Channel::Channel(const Channel& copy) :
 	_name(copy._name),
 	_topic(copy._topic),
 	_modes(copy._modes),
-	_user_fd(copy._user_fd),
 	_key(copy._key),
-	_limit(copy._limit),
-	_server(copy._server)
+	_user_fd(copy._user_fd),
+	_server(copy._server),
+	_limit(copy._limit)
 {}
 
 Channel& Channel::operator=(const Channel& other)
@@ -71,45 +71,28 @@ std::string Channel::getChannelModes() const
     return(_modes);
 }
 
-bool Channel::setChannelMode(const char modechar)
+std::string Channel::getChannelModeArgs()
 {
-	if (isModeEnabled(modechar))
-		return false;
-	_modes += modechar;
-	return true;
+	if (isModeEnabled('l'))
+	{
+		std::ostringstream oss;
+		oss << _limit;
+		return (oss.str());
+	}
+	return ("");
 }
 
-bool Channel::setChannelMode(const char modechar, const std::string modearg)
+void Channel::setChannelMode(const char modechar)
 {
-	if (isModeEnabled(modechar))
-		return false;
-
-	if (modechar == 'l')
-	{
-		int value;
-		std::istringstream iss(modearg);
-		iss >> value;
-		if (iss.fail())
-			return false;
-		_limit == value;
-	}
-	else if (modechar == 'k')
-	{
-		_key = modearg;
-	}
-	_modes += modechar;
-	return true;
+	if (!isModeEnabled(modechar))
+		_modes.append(1, modechar);
 }
 
-bool Channel::unsetChannelMode(const char modechar)
+void Channel::unsetChannelMode(const char modechar)
 {
 	std::size_t pos = _modes.find(modechar);
 	if (pos != std::string::npos)
-	{
-		_modes.erase(pos);
-		return true;
-	}
-	return false;
+		_modes.erase(pos, 1);
 }
 
 bool Channel::isModeEnabled(const char modechar)
@@ -143,6 +126,11 @@ std::vector<int> Channel::getClientsArray()
 std::string& Channel::getChannelKey()
 {
     return(_key);
+}
+
+void Channel::setKey(std::string key)
+{
+	_key = key;
 }
 
 void Channel::addMember(int fd)

@@ -83,7 +83,8 @@ void validate_command(Server &s, const std::string& cmd, Client &client)
 			channelTopic(s, client, line);
 			break;
 		case 4:
-			std::cout << "Mode him" << std::endl;
+			mode(s, client, line);
+			//std::cout << "Mode him" << std::endl;
 			break;
 		case 5:
 			joinChannel(s, client, line);

@@ -2,25 +2,19 @@
 #include "Channel.hpp"
 #include "Client.hpp"
 
-struct mode_t {
-	Channel *channel;
-	char modechar;
-	Client *client;
-	char *arg;
-	char modeset;
-	bool status;
-};
-
 // MUST always have a parameter
-bool modeTypeB(Channel &channel, char modechar, char modeset, std::istringstream &args)
+void modeTypeB(Channel &channel, char modechar, char modeset, std::istringstream &args)
 {
+	(void)channel;
+	(void)modeset;
+	(void)args;
 	std::string modearg;
 	args >> modearg;
 	if (modearg.empty())
 	{
 		// Missing argument
 		// If a type B or C mode does not have a parameter when being set, the server MUST ignore that mode.
-		return false;
+		return;
 	}
 	if (modechar == 'o' && modeset == '+')
 	{
@@ -34,11 +28,33 @@ bool modeTypeB(Channel &channel, char modechar, char modeset, std::istringstream
 	// Es decir, hará falta la referencia al cliente para mandarle el error
 }
 
+void appendModesetModechar(std::string &modestring, char modeset, char modechar)
+{
+	char active = 0;
+	//for (size_t i = 0; i < modestring.size(); ++i)
+	//{
+	//	if (modestring[i] == '+' || modestring[i] == '-')
+	//		active = modestring[i];
+	//}
+
+	size_t pos = modestring.find_last_of("+-");
+	if (pos != std::string::npos)
+		active = modestring[pos];
+
+	if (modeset != active)
+		modestring.append(1, modeset);
+	modestring.append(1, modechar);
+}
+
 // MUST have a parameter when being set, and MUST NOT have a parameter when being unset
-bool modeTypeC(Channel &channel, char modechar, char modeset, std::istringstream &args)
+void modeTypeC(Channel &channel, char modechar, char modeset, std::istringstream &args, std::vector<std::string> &result)
 {
 	if (modeset == '-')
-		return channel.unsetChannelMode(modechar);
+	{
+		if (!channel.isModeEnabled(modechar))
+			return;
+		channel.unsetChannelMode(modechar);
+	}
 	else if (modeset == '+')
 	{
 		std::string modearg;
@@ -47,38 +63,65 @@ bool modeTypeC(Channel &channel, char modechar, char modeset, std::istringstream
 		{
 			// Missing argument
 			// If a type B or C mode does not have a parameter when being set, the server MUST ignore that mode.
-			return false;
+			return;
 		}
-		// Check if modearg is a valid number for limit
-		// if (modechar == 'l')
-		// {}
-		return channel.setChannelMode(modechar, modearg);
+		if (modechar == 'l')
+		{
+			/* static int stoi( std::string & s ) {
+			   int i;
+			   std::istringstream(s) >> i;
+			   return i;
+			} */
+			int value;
+			std::istringstream iss(modearg);
+			iss >> value;
+			if (iss.fail() || !iss.eof())	// COMPROBAR ESTO !!!!!
+				return;
+			if (channel.getLimit() == value)
+				return;
+			channel.setChannelMode('l');
+			channel.setLimit(value);
+		}
+		else if (modechar == 'k')
+		{
+			if (channel.getChannelKey() == modearg)
+				return;
+			channel.setChannelMode('k');
+			channel.setKey(modearg);
+		}
+		result.push_back(modearg);
 	}
+	appendModesetModechar(result[0], modeset, modechar);
 }
 
 // MUST NOT have a parameter
-bool modeTypeD(Channel &channel, char modechar, char modeset)
+void modeTypeD(Channel &channel, char modechar, char modeset, std::vector<std::string> &result)
 {
 	if (modeset == '-')
-		return channel.unsetChannelMode(modechar);
+	{
+		if (!channel.isModeEnabled(modechar))
+			return;
+		channel.unsetChannelMode(modechar);
+	}
 	else if (modeset == '+')
-		return channel.setChannelMode(modechar);
+	{
+		if (channel.isModeEnabled(modechar))
+			return;
+		channel.setChannelMode(modechar);
+	}
+	appendModesetModechar(result[0], modeset, modechar);
 }
 
 void mode(Server &s, Client &c, std::string &line)
 {
-	std::string line = "    #roma    +iol     alice     50";
-	// Parse target, modestring and modearguments
+	(void)c;
+	//std::string line = "    #roma    +iol     alice     50";
+	// Parse target and modestring
 	std::istringstream	iss(line);
 	std::string			target;
 	std::string			modestring;
-	//std::string			modeargs;
 
 	iss >> target >> modestring;
-	//getline(iss >> std::ws, modeargs);
-	std::cout << "Target     : " << target << '\n';
-	std::cout << "Modestring : " << modestring << '\n';
-	//std::cout << "Modeargs   : " << modeargs << '\n';
 
 	// Check if target is valid channel name (#...)
 
@@ -95,7 +138,9 @@ void mode(Server &s, Client &c, std::string &line)
 	// Servers SHOULD also return the RPL_CREATIONTIME (329) numeric following RPL_CHANNELMODEIS.
 	if (modestring.empty())
 	{
-		// RPL_CHANNELMODEIS (324)
+		#define RPL_CHANNELMODEIS(client, channel, modestring, args) (my_serv_name" 324 " + (client) + " " + (channel) + " " + (modestring) + " " + (args))
+		std::string msg = RPL_CHANNELMODEIS(c.getNickname(), channel.getChannelName(), channel.getChannelModes(), channel.getChannelModeArgs());
+		c.sendMsg(msg);
 	}
 
 	// Check if client has operator privileges
@@ -104,6 +149,7 @@ void mode(Server &s, Client &c, std::string &line)
 
 	char modeset = 0;
 	std::vector<std::string> result;
+	result.push_back("");
 	for (size_t i = 0; i < modestring.length(); ++i)
 	{
 		if (std::string("iktol").find_first_of(modestring[i]) != std::string::npos && !modeset)
@@ -117,9 +163,9 @@ void mode(Server &s, Client &c, std::string &line)
 		else if (modestring[i] == 'o')
 			modeTypeB(channel, modestring[i], modeset, iss);
 		else if (modestring[i] == 'k' || modestring[i] == 'l')
-			modeTypeC(channel, modestring[i], modeset, iss);
+			modeTypeC(channel, modestring[i], modeset, iss, result);
 		else if (modestring[i] == 'i' || modestring[i] == 't')
-			modeTypeD(channel, modestring[i], modeset);
+			modeTypeD(channel, modestring[i], modeset, result);
 		else
 		{
 			// Unknown or unsupported mode
@@ -129,4 +175,17 @@ void mode(Server &s, Client &c, std::string &line)
 	// When the server is done processing the modes, a MODE command is sent to all members
 	// of the channel containing the mode changes.
 	// Servers MAY choose to hide sensitive information when sending the mode changes.
+
+	std::cout << "Mode result: ";
+	for (std::vector<std::string>::iterator str = result.begin(); str != result.end(); ++str)
+	{
+		std::cout << *str << " ";
+	}
+	//std::cout << "\n";
+	//std::cout << "Active modes: " << channel.getChannelModes() << "\n";
+	//std::cout << "Is i enabled?" << channel.isModeEnabled('i') << "\n";
+	//std::cout << "Is l enabled?" << channel.isModeEnabled('l') << "\n";
+	//std::cout << "Is t enabled?" << channel.isModeEnabled('t') << "\n";
+	//std::cout << "Limit: " << channel.getLimit() << "\n";
+	//std::cout << "Key: " << channel.getChannelKey() << "\n";
 }
