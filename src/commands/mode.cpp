@@ -2,8 +2,17 @@
 #include "Channel.hpp"
 #include "Client.hpp"
 
+struct mode_t {
+	Channel *channel;
+	char modechar;
+	Client *client;
+	char *arg;
+	char modeset;
+	bool status;
+};
+
 // MUST always have a parameter
-void modeTypeB(char modechar, char modeset, std::istringstream &args)
+bool modeTypeB(Channel &channel, char modechar, char modeset, std::istringstream &args)
 {
 	std::string modearg;
 	args >> modearg;
@@ -11,22 +20,25 @@ void modeTypeB(char modechar, char modeset, std::istringstream &args)
 	{
 		// Missing argument
 		// If a type B or C mode does not have a parameter when being set, the server MUST ignore that mode.
-		return;
+		return false;
 	}
 	if (modechar == 'o' && modeset == '+')
-		channel.addOperator(modearg);
+	{
+		//channel.addOperator(modearg);
+	}
 	else if (modechar == 'o' && modeset == '-')
-		channel.removeOperator(modearg);
-
+	{
+		//channel.removeOperator(modearg);
+	}
 	// ¡CUIDADO! Si nick no existe el servidor debe responder ERR_NOSUCHNICK (401).
 	// Es decir, hará falta la referencia al cliente para mandarle el error
 }
 
 // MUST have a parameter when being set, and MUST NOT have a parameter when being unset
-void modeTypeC(char modechar, char modeset, std::istringstream &args)
+bool modeTypeC(Channel &channel, char modechar, char modeset, std::istringstream &args)
 {
 	if (modeset == '-')
-		channel.unsetMode(modechar);
+		return channel.unsetChannelMode(modechar);
 	else if (modeset == '+')
 	{
 		std::string modearg;
@@ -35,20 +47,22 @@ void modeTypeC(char modechar, char modeset, std::istringstream &args)
 		{
 			// Missing argument
 			// If a type B or C mode does not have a parameter when being set, the server MUST ignore that mode.
-			return;
+			return false;
 		}
 		// Check if modearg is a valid number for limit
-		channel.setMode(modechar, modearg);
+		// if (modechar == 'l')
+		// {}
+		return channel.setChannelMode(modechar, modearg);
 	}
 }
 
 // MUST NOT have a parameter
-void modeTypeD(char modechar, char modeset)
+bool modeTypeD(Channel &channel, char modechar, char modeset)
 {
 	if (modeset == '-')
-		channel.unsetMode(modechar);
+		return channel.unsetChannelMode(modechar);
 	else if (modeset == '+')
-		channel.setMode(modechar);
+		return channel.setChannelMode(modechar);
 }
 
 void mode(Server &s, Client &c, std::string &line)
@@ -89,6 +103,7 @@ void mode(Server &s, Client &c, std::string &line)
 	// the server MUST NOT process the message, and ERR_CHANOPRIVSNEEDED (482) numeric is returned.
 
 	char modeset = 0;
+	std::vector<std::string> result;
 	for (size_t i = 0; i < modestring.length(); ++i)
 	{
 		if (std::string("iktol").find_first_of(modestring[i]) != std::string::npos && !modeset)
@@ -100,11 +115,11 @@ void mode(Server &s, Client &c, std::string &line)
 		if (modestring[i] == '+' || modestring[i] == '-')
 			modeset = modestring[i];
 		else if (modestring[i] == 'o')
-			modeTypeB(modestring[i], modeset, iss);
+			modeTypeB(channel, modestring[i], modeset, iss);
 		else if (modestring[i] == 'k' || modestring[i] == 'l')
-			modeTypeC(modestring[i], modeset, iss);
+			modeTypeC(channel, modestring[i], modeset, iss);
 		else if (modestring[i] == 'i' || modestring[i] == 't')
-			modeTypeD(modestring[i], modeset);
+			modeTypeD(channel, modestring[i], modeset);
 		else
 		{
 			// Unknown or unsupported mode

@@ -20,8 +20,9 @@ class Channel
     private:
         std::string _name;
         std::string _topic;
-        std::string _mode;
+        std::string _modes;
         std::string _key;
+		int			_limit;
         int         _user_fd;  // En lugar de guardar el cliente guardaremos el fd y lo buscaremos después. Ya que los contenedores pueden mover su memoria al crecer y generar SEGV
         std::vector<int> _admind_fd;
         std::vector<int> _members_fd;
@@ -39,12 +40,17 @@ class Channel
         std::vector<int> getChannelAdmins();
         std::string getChannelTopic() const;
         std::string getChannelName() const;
-        std::string getChannelMode() const;
+        std::string getChannelModes() const;
         std::string& getChannelKey();
-        
+		int getLimit();
+
         void setChannelName(const std::string name);
         void setChannelTopic(const std::string topic);
-        void setChannelMode(const std::string mode);
+        bool setChannelMode(const char modechar);
+		bool setChannelMode(const char modechar, const std::string modearg);
+		bool unsetChannelMode(const char modechar);
+		bool isModeEnabled(const char modechar);
+		void setLimit(int n);
 
         bool isAdmin(int fd);
         bool isInvited(int fd);

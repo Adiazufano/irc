@@ -4,19 +4,28 @@
 Channel::Channel()
 {}
 
-Channel::Channel(std::string name, std::string topic, std::string mode, std::string key, int user_fd, Server *server)
+Channel::Channel(std::string name, std::string topic, std::string modes, std::string key, int user_fd, Server *server)
 {
     _name = name;
     _topic = topic;
-    _mode = mode;
+    _modes = modes;
     _user_fd = user_fd;
     _key = key;
+    _limit = 0;
 	_server = server;
 	if(_members_fd.empty())
 		_members_fd.push_back(user_fd);
 }
 
-Channel::Channel(const Channel& copy) : _name(copy._name), _topic(copy._topic), _mode(copy._mode), _user_fd(copy._user_fd), _server(copy._server){}
+Channel::Channel(const Channel& copy) :
+	_name(copy._name),
+	_topic(copy._topic),
+	_modes(copy._modes),
+	_user_fd(copy._user_fd),
+	_key(copy._key),
+	_limit(copy._limit),
+	_server(copy._server)
+{}
 
 Channel& Channel::operator=(const Channel& other)
 {
@@ -24,8 +33,10 @@ Channel& Channel::operator=(const Channel& other)
     {
         _name = other._name;
         _topic = other._topic;
-        _mode = other._mode;
+        _modes = other._modes;
         _user_fd = other._user_fd;
+		_key = other._key;
+		_limit= other._limit;
 		_server = other._server;
     }
     return (*this);
@@ -54,13 +65,69 @@ void Channel::setChannelTopic(const std::string topic)
 {
     _topic = topic;
 }
-std::string Channel::getChannelMode() const
+
+std::string Channel::getChannelModes() const
 {
-    return(_mode);
+    return(_modes);
 }
-void Channel::setChannelMode(const std::string mode)
+
+bool Channel::setChannelMode(const char modechar)
 {
-    _mode = mode;
+	if (isModeEnabled(modechar))
+		return false;
+	_modes += modechar;
+	return true;
+}
+
+bool Channel::setChannelMode(const char modechar, const std::string modearg)
+{
+	if (isModeEnabled(modechar))
+		return false;
+
+	if (modechar == 'l')
+	{
+		int value;
+		std::istringstream iss(modearg);
+		iss >> value;
+		if (iss.fail())
+			return false;
+		_limit == value;
+	}
+	else if (modechar == 'k')
+	{
+		_key = modearg;
+	}
+	_modes += modechar;
+	return true;
+}
+
+bool Channel::unsetChannelMode(const char modechar)
+{
+	std::size_t pos = _modes.find(modechar);
+	if (pos != std::string::npos)
+	{
+		_modes.erase(pos);
+		return true;
+	}
+	return false;
+}
+
+bool Channel::isModeEnabled(const char modechar)
+{
+	std::size_t pos = _modes.find(modechar);
+	if (pos != std::string::npos)
+		return true;
+	return false;
+}
+
+int Channel::getLimit()
+{
+	return _limit;
+}
+
+void Channel::setLimit(int n)
+{
+	_limit = n;
 }
 
 std::vector<int> Channel::getChannelAdmins()
