@@ -52,10 +52,13 @@ std::map<int, Client> &Server::getClients()
 	return _clients;
 }
 
+std::string Server::getHostname() const
+{
+    return _hostname;
+}
+
 void Server::init()
 {
-	signal(SIGINT, sigint_handler);
-
 	// Network address
 	struct addrinfo hints;
 	std::memset(&hints, 0, sizeof(hints));
@@ -106,63 +109,56 @@ void Server::accept_socket()
 	}
 } 
 
-void Server::client_event(int i)
+void Server::client_event(int fd)
 {
 	char buffer[512] = { 0 };
-	ssize_t n_bytes = recv(_pfd_arr[i].fd, buffer, sizeof(buffer), 0);
+	ssize_t n_bytes = recv(fd, buffer, sizeof(buffer), 0);
 	if (n_bytes < 0)
 	{
-		// TO DO: Handle recv error
 		std::cout << "recv error: " << strerror(errno) << std::endl;
+		_disconnected_sockets.push_back(fd);
 	}
 	else if (n_bytes == 0)
 	{
-		std::cout << "Client at socket " << _pfd_arr[i].fd << " disconnected\n";
-		_disconnected_sockets.push_back(_pfd_arr[i].fd);
+		std::cout << "Client on socket " << fd << " disconnected\n";
+		_disconnected_sockets.push_back(fd);
 	}
 	else if (n_bytes > 0)
 	{
 		//buffer acumulativo para cada cliente
-		Client &cli = _clients[_pfd_arr[i].fd];
+		Client &cli = _clients[fd];
 		cli.buffer += std::string(buffer, n_bytes);
 		std::string &buf = cli.buffer;
 		size_t pos;
 		//no considerar mensaje completo hasta encontrar "\r\n"
 		while ((pos = buf.find("\r\n")) != std::string::npos)
 		{
-			std::string mensaje = buf.substr(0, pos);
+			std::string message = buf.substr(0, pos);
 			buf.erase(0, pos + 2);
-			std::cout << "Mensaje completo: " << mensaje << "\n";
+			std::cout << "Message from socket " << cli.getFd() << ": " << message << "\n";
 			//parseo de comandos de autentificacion
 			if (!cli.getRegistered())
-				commandParse(mensaje, cli, _password, *this);
+				commandParse(message, cli, _password, *this);
 			// To Do: No hay que dejar validar comandos hasta que no hayamos confirmado correctamente la conexión del usuario.
 			else
-				validate_command(*this, mensaje, cli);
+				validate_command(*this, message, cli);
 		}
 
 		//si autentificacion mandar mensajes
 		if (cli.getHasPass() && !cli.getNickname().empty() && !cli.getUser().empty() && cli.getAuthenticated() && !cli.getRegistered())
 		{
-			cli.setAuthenticated(true);
+			//cli.setAuthenticated(true);
 			std::string nick = cli.getNickname();
-			cli.sendMsg(":my_serv_irc 001 " + nick + " :Welcome to the IRC Network, " + nick);
-			cli.sendMsg(":my_serv_irc 002 " + nick + " :Your host is my_serv_irc, running version 1.0");
-			cli.sendMsg(":my_serv_irc 003 " + nick + " :This server was created May 2026");
-			cli.sendMsg(":my_serv_irc 004 " + nick + " my_serv_irc 1.0 o itkol");
-			cli.sendMsg(":my_serv_irc 005 " + nick + " CASEMAPPING=ascii CHANMODES=,o,kl,it CHANTYPES=# :are supported by this server");
-			cli.sendMsg(":my_serv_irc 376 " + nick + " :End of /MOTD command.");
+			cli.sendMsg(RPL_WELCOME(nick));
+			cli.sendMsg(RPL_YOURHOST(nick));
+			cli.sendMsg(RPL_CREATED(nick));
+			cli.sendMsg(RPL_MYINFO(nick));
+			cli.sendMsg(RPL_ISUPPORT(nick));
+			cli.sendMsg(RPL_ENDOFMOTD(nick));
 
-			std::cout << "[SERVER] Bienvenido enviado de forma segura.\n";
 			cli.setRegistered(true);
 		}
 	}
-}
-
-void Server::handle_errors(int i)
-{
-	// TO DO: Handle errors
-	std::cout << "There was an error at socket " << _pfd_arr[i].fd << "\n";
 }
 
 void Server::add_clients()
@@ -177,11 +173,6 @@ void Server::add_clients()
 		_accepted_ips.erase(_accepted_sockets[i]);
 	}
 	_accepted_sockets.clear();
-}
-
-std::string Server::getHostname() const
-{
-    return _hostname;
 }
 
 void Server::disconnect_sockets()
@@ -207,26 +198,31 @@ void Server::disconnect_sockets()
 
 void Server::run()
 {
+	signal(SIGINT, sigint_handler);
+
 	while (run_server)
 	{
 		std::cout << _pfd_arr.size() - 1 << " connected clients. Waiting for events...\n";
 		int poll_result = poll(_pfd_arr.data(), _pfd_arr.size(), -1);
 		if (poll_result < 0)
+		{
+			std::cout << "poll error: " << strerror(errno) << std::endl;
 			break;
-		std::cout << "Events: " << poll_result << std::endl;
+		}
+		std::cout << poll_result << " event(s)\n";
 
 		for (size_t i = 0; i < _pfd_arr.size(); i++)
 		{
-			// New incoming connection
-			if (_pfd_arr[i].revents == POLLIN && _pfd_arr[i].fd == _serv_socket)
+			if ((_pfd_arr[i].revents & POLLIN) && _pfd_arr[i].fd == _serv_socket)
 				accept_socket();
-			// Event from known client (message or disconnection)
-			else if (_pfd_arr[i].revents == POLLIN)
-				client_event(i);
-			// Errors
-			else if (_pfd_arr[i].revents == POLLERR || _pfd_arr[i].revents == POLLHUP || _pfd_arr[i].revents == POLLNVAL)
-				handle_errors(i);
-			// Break loop if no more events
+			else if (_pfd_arr[i].revents & POLLIN)
+				client_event(_pfd_arr[i].fd);
+			else if (_pfd_arr[i].revents & (POLLERR | POLLHUP | POLLNVAL))
+			{
+				std::cout << "There was an error on socket " << _pfd_arr[i].fd << "\n";
+				_disconnected_sockets.push_back(_pfd_arr[i].fd);
+			}
+
 			if (_pfd_arr[i].revents != 0 && !--poll_result)
 				break;
 		}
@@ -238,5 +234,18 @@ void Server::run()
 		// Close and remove disconnected clients
 		if (_disconnected_sockets.size() > 0)
 			disconnect_sockets();
+		
+		// Remove empty channels
+		std::map<std::string, Channel*>::iterator it;
+		for (it = _channels.begin(); it != _channels.end(); )
+		{
+			if (it->second->getClientsArray().size() == 0)
+			{
+				delete it->second;
+				_channels.erase(it++);
+			}
+			else
+				++it;
+		}
 	}
 }

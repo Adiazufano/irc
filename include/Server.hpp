@@ -42,8 +42,7 @@ class Server
 		std::map<int, Client>		_clients;
 		std::map<std::string, int> _clientsByNick;
 		void						accept_socket();
-		void						client_event(int i);
-		void						handle_errors(int i);
+		void						client_event(int fd);
 		void						add_clients();
 		void						disconnect_sockets();
 
