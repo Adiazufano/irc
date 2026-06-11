@@ -40,6 +40,9 @@
 #define RPL_MYINFO(client)                                  (my_serv_name" 004 " + (client) + " " + (my_serv_name) + " 1.0 o itkol")
 #define RPL_ISUPPORT(client)                                (my_serv_name" 005 " + (client) + " CASEMAPPING=ascii CHANMODES=,o,kl,it CHANTYPES=# :are supported by this server")
 #define RPL_ENDOFMOTD(client)                               (my_serv_name" 376 " + (client) + " :End of /MOTD command.")
+
+#define PRIVMSG(client, user, host, target, text)           (":" + (client) + "!" + (user) + "@" + (host) + " PRIVMSG " + (target) + " " + (text))
+
 #define QUIT_MSG(source, client, host, reason)              (":" + (source) + "!" + (client) + "@" + (host) + " QUIT :" + (reason))
 #define NICK_MSG(source, client, host, newnick)             (":" + (source) + "!" + (client) + "@" + (host) + " NICK :" + (newnick))
 #endif

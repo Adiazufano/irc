@@ -155,7 +155,7 @@ bool Channel::isInvited(int fd)
     return false;   
 }
 
-void Channel::sendMembers(std::string &msg, int exclude)
+void Channel::sendMembers(std::string msg, int exclude)
 {
 	for (size_t i = 0; i < _members_fd.size(); ++i)
 	{
