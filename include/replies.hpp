@@ -36,11 +36,11 @@
 #define ERR_ERRONEUSNICKNAME(client, nick)                  (my_serv_name" 432 " + (client) + " " + (nick) + " :Erroneus nickname")
 #define ERR_ERRONEUSNICKNAME2(nick)                         (my_serv_name" 432 * " + (nick) + " :Erroneus nickname")
 
-#define RPL_WELCOME(client)                                 (my_serv_name" 001" + (client) + " :Welcome to the IRC Network, " + (client))
-#define RPL_YOURHOST(client)                                (my_serv_name" 002" + (client) + " :Your host is my_serv_irc, running version 1.0")
-#define RPL_CREATED(client)                                 (my_serv_name" 003" + (client) + " :This server was created May 2026")
-#define RPL_MYINFO(client)                                  (my_serv_name" 004" + (client) + " " + (my_serv_name) + " 1.0 o itkol")
-#define RPL_ISUPPORT(client)                                (my_serv_name" 005" + (client) + " CASEMAPPING=ascii CHANMODES=,o,kl,it CHANTYPES=# :are supported by this server")
-#define RPL_ENDOFMOTD(client)                               (my_serv_name" 376" + (client) + " :End of /MOTD command.")
+#define RPL_WELCOME(client)                                 (my_serv_name" 001 " + (client) + " :Welcome to the IRC Network, " + (client))
+#define RPL_YOURHOST(client)                                (my_serv_name" 002 " + (client) + " :Your host is my_serv_irc, running version 1.0")
+#define RPL_CREATED(client)                                 (my_serv_name" 003 " + (client) + " :This server was created May 2026")
+#define RPL_MYINFO(client)                                  (my_serv_name" 004 " + (client) + " " + (my_serv_name) + " 1.0 o itkol")
+#define RPL_ISUPPORT(client)                                (my_serv_name" 005 " + (client) + " CASEMAPPING=ascii CHANMODES=,o,kl,it CHANTYPES=# :are supported by this server")
+#define RPL_ENDOFMOTD(client)                               (my_serv_name" 376 " + (client) + " :End of /MOTD command.")
 
 #endif
