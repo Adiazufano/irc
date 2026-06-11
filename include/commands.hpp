@@ -25,5 +25,6 @@ void commandKick(Server &s, Client& cli, std::string line);
 void userMessages(Server &s, Client& client, std::string name);
 
 bool checkName(std::string name);
+void whoCommand(Server& s, Client& client, std::string& line);
 
 #endif
