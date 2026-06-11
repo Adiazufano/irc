@@ -32,6 +32,7 @@
 #define ERR_NICKNAMEINUSE(client, nick)                     (my_serv_name" 433 " + (client) + " " + (nick) + " :Nickname is already in use")
 #define ERR_NONICKNAMEGIVEN(client)                         (my_serv_name" 431  " + (client) + " :No nickname given")
 #define ERR_ERRONEUSNICKNAME(client, nick)                  (my_serv_name" 432 " + (client) + " " + (nick) + " :Erroneus nickname")
+#define ERR_ALREADYREGISTERED(client)                       (my_serv_name" 462 " + (client) + " :You may not reregister")
 
 #define RPL_WELCOME(client)                                 (my_serv_name" 001 " + (client) + " :Welcome to the IRC Network, " + (client))
 #define RPL_YOURHOST(client)                                (my_serv_name" 002 " + (client) + " :Your host is my_serv_irc, running version 1.0")

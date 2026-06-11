@@ -3,6 +3,9 @@
 void commandPass(std::istringstream &iss, Client &client, std::string pass)
 {
     std::string password;
+
+    if (client.getRegistered() && client.getAuthenticated())
+        return(client.sendMsg(ERR_ALREADYREGISTERED(client.getNickname())));
     if (iss >> password)
     {
         if (password == pass && !pass.empty())

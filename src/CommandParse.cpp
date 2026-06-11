@@ -43,8 +43,11 @@ int command_level(std::string cmd)
 		return(9);
 	else if(cmd == "WHO")
 		return(10);
-	else
-		return(0);
+	else if (cmd == "USER")
+		return (11);
+	else if (cmd == "PASS")
+		return (12);
+	return(0);
 }
 
 void validate_command(Server &s, const std::string& cmd, Client &client)
@@ -97,6 +100,12 @@ void validate_command(Server &s, const std::string& cmd, Client &client)
 			break;
 		case 10:
 			whoCommand(s, client, line);
+			break;
+		case 11: 
+			commandUser(iss, client);
+			break;
+		case 12:
+			commandPass(iss, client, "");
 			break;
 		default:
 			client.sendMsg(ERR_UNKNOWNCOMMAND(client.getNickname(), client.getCliCmd()));

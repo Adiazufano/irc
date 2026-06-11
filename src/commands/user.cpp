@@ -11,6 +11,8 @@ void commandUser(std::istringstream &iss, Client& client)
     std::string resto;
     std::getline(iss, resto);
     
+    if (client.getRegistered() && client.getAuthenticated())
+        return(client.sendMsg(ERR_ALREADYREGISTERED(client.getNickname())));
     if (!resto.empty())
     {
         size_t colon_pos = 0;
