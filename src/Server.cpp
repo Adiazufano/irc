@@ -2,12 +2,6 @@
 #include "../include/Client.hpp"
 #include "../include/Channel.hpp"
 #include "commands.hpp"
-#include <sstream>
-#include <iostream>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <errno.h>
-#include <arpa/inet.h>
 
 extern bool run_server;
 
@@ -206,7 +200,7 @@ void Server::run()
 		int poll_result = poll(_pfd_arr.data(), _pfd_arr.size(), -1);
 		if (poll_result < 0)
 		{
-			std::cout << "poll error: " << strerror(errno) << std::endl;
+			std::cerr << "poll error: " << strerror(errno) << std::endl;
 			break;
 		}
 		std::cout << poll_result << " event(s)\n";
@@ -216,10 +210,20 @@ void Server::run()
 			if ((_pfd_arr[i].revents & POLLIN) && _pfd_arr[i].fd == _serv_socket)
 				accept_socket();
 			else if (_pfd_arr[i].revents & POLLIN)
-				client_event(_pfd_arr[i].fd);
+			{
+				try
+				{
+					client_event(_pfd_arr[i].fd);
+				}
+				catch(const std::exception& e)
+				{
+					std::cerr << "There was an error on socket " << _pfd_arr[i].fd << "\n";
+					_disconnected_sockets.push_back(_pfd_arr[i].fd);
+				}
+			}
 			else if (_pfd_arr[i].revents & (POLLERR | POLLHUP | POLLNVAL))
 			{
-				std::cout << "There was an error on socket " << _pfd_arr[i].fd << "\n";
+				std::cerr << "There was an error on socket " << _pfd_arr[i].fd << "\n";
 				_disconnected_sockets.push_back(_pfd_arr[i].fd);
 			}
 

@@ -20,6 +20,8 @@
 #include <signal.h>
 #include <iterator>
 #include <sstream>
+#include <errno.h>
+#include <arpa/inet.h>
 
 class Channel;
 class Client;

@@ -146,12 +146,9 @@ void Client::sendMsg(std::string msg)
 	if (msg.length() > 510)
 		msg.erase(509);
 	msg += "\r\n";
-
 	ssize_t n_bytes = send(_fd, msg.c_str(), msg.size(), 0);
-	if (n_bytes == -1)
-	{
-		// TO DO: Handle error (disconnect client)
-	}
+	if (n_bytes < 0)
+		throw std::runtime_error(strerror(errno));
 	else if (n_bytes < static_cast<ssize_t>(msg.size()))
 	{
 		// TO DO: Handle incomplete message
