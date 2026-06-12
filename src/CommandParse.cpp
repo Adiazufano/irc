@@ -96,7 +96,7 @@ void validate_command(Server &s, const std::string& cmd, Client &client)
 			partChannel(s, client, line);
 			break;
 		case 8:
-			ping(s, client, line);
+			ping(client, line);
 			break;
 		case 9:
 			commandNick(iss, client, s);

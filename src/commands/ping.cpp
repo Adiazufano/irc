@@ -1,8 +1,9 @@
 #include "Server.hpp"
 
-void ping(Server &s, Client &client, std::string &line)
+void ping(Client &client, std::string &line)
 {
-	(void)s;
-	std::string message = ":ircserver PONG " + line;
-	client.sendMsg(message);
+	if (line.empty())
+		return client.sendMsg(ERR_NEEDMOREPARAMS(client.getNickname(), client.getCliCmd()));
+
+	client.sendMsg(PONG_MSG(line));
 }
