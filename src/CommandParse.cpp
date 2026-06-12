@@ -49,6 +49,8 @@ int command_level(std::string cmd)
 		return (12);
 	else if (cmd == "QUIT")
 		return (13);
+	else if(cmd == "NOTICE")
+		return(14);
 	return(0);
 }
 
@@ -73,46 +75,20 @@ void validate_command(Server &s, const std::string& cmd, Client &client)
 	std::istringstream iss(line);
 	switch(level)
 	{
-		case 1:
-			commandKick(s, client, line);
-			break;
-		case 2:
-			invite(s, client, line);
-			break;
-		case 3:
-			channelTopic(s, client, line);
-			break;
-		case 4:
-			mode(s, client, line);
-			//std::cout << "Mode him" << std::endl;
-			break;
-		case 5:
-			joinChannel(s, client, line);
-			break;		
-		case 6:
-			privmsg(s, client, line);
-			break;
-		case 7:
-			partChannel(s, client, line);
-			break;
-		case 8:
-			ping(client, line);
-			break;
-		case 9:
-			commandNick(iss, client, s);
-			break;
-		case 10:
-			whoCommand(s, client, line);
-			break;
-		case 11: 
-			commandUser(iss, client);
-			break;
-		case 12:
-			commandPass(iss, client, "");
-			break;
-		case 13:
-			quit(s, client, line);
-			break;
+		case 1:		commandKick(s, client, line);	break;
+		case 2:		invite(s, client, line);		break;
+		case 3:		channelTopic(s, client, line);	break;
+		case 4:		mode(s, client, line);			break;
+		case 5:		joinChannel(s, client, line);	break;
+		case 6:		privmsg(s, client, line);		break;
+		case 7:		partChannel(s, client, line);	break;
+		case 8:		ping(client, line);				break;
+		case 9:		commandNick(iss, client, s);	break;
+		case 10:	whoCommand(s, client, line);	break;
+		case 11: 	commandUser(iss, client);		break;
+		case 12:	commandPass(iss, client, "");	break;
+		case 13:	quit(s, client, line);			break;
+		case 14:	notice(s, client, line);		break;
 		default:
 			client.sendMsg(ERR_UNKNOWNCOMMAND(client.getNickname(), client.getCliCmd()));
 			break;

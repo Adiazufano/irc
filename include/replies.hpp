@@ -46,6 +46,7 @@
 # define QUIT_MSG(source, client, host, reason)          (":" + (source) + "!" + (client) + "@" + (host) + " QUIT :" + (reason))
 # define NICK_MSG(source, client, host, newnick)         (":" + (source) + "!" + (client) + "@" + (host) + " NICK :" + (newnick))
 # define PRIVMSG(client, user, host, target, text)       (":" + (client) + "!" + (user) + "@" + (host) + " PRIVMSG " + (target) + " " + (text))
+# define NOTICE(client, user, host, target, text)        (":" + (client) + "!" + (user) + "@" + (host) + " NOTICE " + (target) + " " + (text))
 # define INVITE_MSG(source, client, host, nick, channel) (":" + (source) + "!" + (client) + "@" + (host) + " INVITE " + (nick) + " :" + (channel))
 # define PONG_MSG(token)                                 (my_serv_name" PONG my_serv_irc :" + (token))
 

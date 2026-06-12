@@ -10,7 +10,8 @@ SRCS        := main.cpp Client.cpp CommandParse.cpp Server.cpp Channel.cpp \
 				commands/privmsg.cpp commands/kick.cpp commands/part.cpp commands/names.cpp commands/who.cpp commands/quit.cpp\
 				commands/invite.cpp \
 				commands/ping.cpp \
-				commands/mode.cpp
+				commands/mode.cpp \
+				commands/notice.cpp
 SRCS        := $(addprefix $(SRC_DIR)/, $(SRCS))
 OBJS        := $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 DEPS        := $(SRCS:$(SRC_DIR)/%.cpp=$(DEP_DIR)/%.d)
