@@ -102,6 +102,10 @@ void Channel::unsetChannelMode(const char modechar)
 	std::size_t pos = _modes.find(modechar);
 	if (pos != std::string::npos)
 		_modes.erase(pos, 1);
+	if (modechar == 'l')
+		_limit = 0;
+	else if (modechar == 'k')
+		_key.clear();
 }
 
 bool Channel::isModeEnabled(const char modechar)
