@@ -141,18 +141,27 @@ void Client::removeChannel(Channel& ch)
 
 void Client::sendMsg(std::string msg)
 {
-	// TO DO: Check if msg already contains "\r\n"
-
 	if (msg.length() > 510)
-		msg.erase(509);
+		msg.erase(510);
 	msg += "\r\n";
-	ssize_t n_bytes = send(_fd, msg.c_str(), msg.size(), 0);
-	if (n_bytes < 0)
-		throw std::runtime_error(strerror(errno));
-	else if (n_bytes < static_cast<ssize_t>(msg.size()))
+
+	ssize_t total = 0;
+	ssize_t length = static_cast<ssize_t>(msg.size());
+	while (total < length)
 	{
-		// TO DO: Handle incomplete message
+		ssize_t n_bytes = send(_fd, msg.c_str() + total, length - total, 0);
+		if (n_bytes < 0)
+			throw std::runtime_error(strerror(errno));
+		total += n_bytes;
 	}
+	/* The key distinction is whether the error is fatal (the connection is dead) or transient (try again).
+	In practice for IRC servers, almost all errors here mean the client is gone:
+	 - EPIPE / ECONNRESET — client disconnected
+	 - EBADF / ENOTSOCK — bad fd, programming error
+	 - EAGAIN / EWOULDBLOCK — only relevant if your fd is non-blocking; means the send buffer is full right now
+	For a straightforward implementation, treat all errors as fatal and mark the client for disconnection.
+	Retrying on EAGAIN requires a write buffer queue, which is a bigger architectural change — not worth it
+	unless you expect high load.*/
 }
 
 
