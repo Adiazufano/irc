@@ -61,20 +61,22 @@ void Server::init()
 	hints.ai_flags = AI_PASSIVE;		// localhost
 	int opt = 1;
 
-	if (getaddrinfo(0, _port.data(), &hints, &_addr_lst) < 0)
-		throw std::runtime_error(strerror(errno));
+	int gai = getaddrinfo(0, _port.data(), &hints, &_addr_lst);
+	if (gai != 0)
+		throw std::runtime_error("\033[1;31mgetaddrinfo error:\033[0m " + std::string(gai_strerror(gai)));
 
 	// Server socket
 	_serv_socket = socket(_addr_lst->ai_family, _addr_lst->ai_socktype, _addr_lst->ai_protocol);
 	if (_serv_socket < 0)
-		throw std::runtime_error(strerror(errno));
+		throw std::runtime_error("\033[1;31msocket error:\033[0m " + std::string(strerror(errno)));
 	if (setsockopt(_serv_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
-		throw std::runtime_error(strerror(errno));
+		throw std::runtime_error("\033[1;31msetsockopt error:\033[0m " + std::string(strerror(errno)));
 	if (bind(_serv_socket, _addr_lst->ai_addr, _addr_lst->ai_addrlen) < 0)
-		throw std::runtime_error(strerror(errno));
+		throw std::runtime_error("\033[1;31mbind error:\033[0m " + std::string(strerror(errno)));
 	
 	char hostname[256];
-	gethostname(hostname, sizeof(hostname));
+	if (gethostname(hostname, sizeof(hostname)) < 0)
+		throw std::runtime_error("\033[1;31mgethostname error:\033[0m " + std::string(strerror(errno)));
 	_hostname = hostname;
 
 	struct pollfd serv_pfd = { _serv_socket, POLLIN, 0 };
@@ -82,7 +84,7 @@ void Server::init()
 
 	// Listen
 	if (listen(_serv_socket, SOMAXCONN) < 0)
-		throw std::runtime_error(strerror(errno));
+		throw std::runtime_error("\033[1;31mlisten error:\033[0m " + std::string(strerror(errno)));
 
 	std::cout << "Server listening on port " << _port.c_str() << '\n';
 }

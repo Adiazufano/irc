@@ -48,17 +48,10 @@ std::string getMsg(std::istringstream &iss)
 int	main(int argc, char **argv)
 {
 	if (argc != 3)
-	{
-		std::cout << "Usage:   " << argv[0] << " <port> <password>\n";
-		std::cout << "Example: " << argv[0] << " 6667 1234\n";
-		return (1);
-	}
+		return (std::cout << "Usage: " << argv[0] << " <port> <password>" << std::endl, 1);
 
 	if (!validate_args(argv))
-	{
-		std::cout << "error" << std::endl;
-		return 1;
-	}
+		return (std::cout << "\033[1;31merror:\033[0m Invalid argument" << std::endl, 1);
 
 	try
 	{
