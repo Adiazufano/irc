@@ -42,6 +42,9 @@
 #define RPL_ENDOFMOTD(client)                               (my_serv_name" 376 " + (client) + " :End of /MOTD command.")
 
 #define PRIVMSG(client, user, host, target, text)           (":" + (client) + "!" + (user) + "@" + (host) + " PRIVMSG " + (target) + " " + (text))
+#define MODE(channel, modestring, args)                     (my_serv_name" MODE " + (channel) + " " + (modestring) + " " + (args))
+#define RPL_CHANNELMODEIS(client, channel, modestring, args) (my_serv_name" 324 " + (client) + " " + (channel) + " " + (modestring) + " " + (args))
+#define ERR_UMODEUNKNOWNFLAG(client)                        (my_serv_name" 501 " +  (client) + " :Unkwnown MODE flag")
 
 #define QUIT_MSG(source, client, host, reason)              (":" + (source) + "!" + (client) + "@" + (host) + " QUIT :" + (reason))
 #define NICK_MSG(source, client, host, newnick)             (":" + (source) + "!" + (client) + "@" + (host) + " NICK :" + (newnick))

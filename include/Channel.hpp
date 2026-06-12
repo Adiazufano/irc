@@ -58,6 +58,7 @@ class Channel
         bool hasClient(const Client &client);
         void addMember(int fd);
         void addAdmind(int fd);
+        void removeAdmin(int fd);
         void addInvited(int fd);
         void removeClient(int fd);
 

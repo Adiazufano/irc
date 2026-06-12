@@ -73,13 +73,22 @@ std::string Channel::getChannelModes() const
 
 std::string Channel::getChannelModeArgs()
 {
-	if (isModeEnabled('l'))
+	std::string args("");
+
+	for (size_t i = 0; i < _modes.size(); ++i)
 	{
-		std::ostringstream oss;
-		oss << _limit;
-		return (oss.str());
+		if (!args.empty())
+			args.append(1, ' ');
+		if (_modes[i] == 'l')
+		{
+			std::ostringstream oss;
+			oss << _limit;
+			args.append(oss.str());
+		}
+		else if (_modes[i] == 'k')
+			args.append(_key.size(), '*');
 	}
-	return ("");
+	return (args);
 }
 
 void Channel::setChannelMode(const char modechar)
@@ -147,6 +156,18 @@ void Channel::addAdmind(int fd)
         if(_admind_fd[i] == fd)
             return;
     _admind_fd.push_back(fd);
+}
+
+void Channel::removeAdmin(int fd)
+{
+	for (std::vector<int>::iterator it = _admind_fd.begin(); it != _admind_fd.end(); ++it)
+	{
+		if (*it == fd)
+		{
+			_admind_fd.erase(it);
+			break;
+		}
+	}
 }
 
 void Channel::addInvited(int fd)
