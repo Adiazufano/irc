@@ -24,7 +24,6 @@ int validate_args(char **argv)
 			return 0;
 		index++;
 	}
-	std::cout << port << std::endl;
 	return 1;
 }
 
