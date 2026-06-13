@@ -46,7 +46,7 @@ Channel::~Channel()
 {
 }
 
-std::string Channel::getChannelName() const
+const std::string &Channel::getChannelName() const
 {
     return(_name);
 }
@@ -56,7 +56,7 @@ void Channel::setChannelName(const std::string name)
     _name = name;
 }
 
-std::string Channel::getChannelTopic() const
+const std::string &Channel::getChannelTopic() const
 {
     return(_topic);
 }
@@ -66,12 +66,12 @@ void Channel::setChannelTopic(const std::string topic)
     _topic = topic;
 }
 
-std::string Channel::getChannelModes() const
+const std::string &Channel::getChannelModes() const
 {
     return(_modes);
 }
 
-std::string Channel::getChannelModeArgs()
+std::string Channel::getChannelModeArgs() const
 {
 	std::string args("");
 
@@ -91,13 +91,13 @@ std::string Channel::getChannelModeArgs()
 	return (args);
 }
 
-void Channel::setChannelMode(const char modechar)
+void Channel::setChannelMode(char modechar)
 {
 	if (!isModeEnabled(modechar))
 		_modes.append(1, modechar);
 }
 
-void Channel::unsetChannelMode(const char modechar)
+void Channel::unsetChannelMode(char modechar)
 {
 	std::size_t pos = _modes.find(modechar);
 	if (pos != std::string::npos)
@@ -108,7 +108,7 @@ void Channel::unsetChannelMode(const char modechar)
 		_key.clear();
 }
 
-bool Channel::isModeEnabled(const char modechar)
+bool Channel::isModeEnabled(char modechar) const
 {
 	std::size_t pos = _modes.find(modechar);
 	if (pos != std::string::npos)
@@ -116,7 +116,7 @@ bool Channel::isModeEnabled(const char modechar)
 	return false;
 }
 
-int Channel::getLimit()
+const int &Channel::getLimit() const
 {
 	return _limit;
 }
@@ -126,22 +126,22 @@ void Channel::setLimit(int n)
 	_limit = n;
 }
 
-std::vector<int> Channel::getChannelAdmins()
+const std::vector<int> &Channel::getChannelAdmins() const
 {
     return(_admind_fd);
 }
 
-std::vector<int> Channel::getClientsArray()
+const std::vector<int> &Channel::getClientsArray() const
 {
     return(_members_fd);
 }
 
-std::string& Channel::getChannelKey()
+const std::string& Channel::getChannelKey() const
 {
     return(_key);
 }
 
-void Channel::setKey(std::string key)
+void Channel::setKey(const std::string key)
 {
 	_key = key;
 }
@@ -207,9 +207,9 @@ void Channel::removeClient(int fd)
     }
 }
 
-bool Channel::hasClient(const Client &client)
+bool Channel::hasClient(const Client &client) const
 {
-    std::vector<int>::iterator it;
+    std::vector<int>::const_iterator it;
 
     for (it = _members_fd.begin() ; it != _members_fd.end(); ++it)
     {
@@ -219,23 +219,23 @@ bool Channel::hasClient(const Client &client)
     return false;
 }
 
-bool Channel::isAdmin(int fd)
+bool Channel::isAdmin(int fd) const
 {
-    for(std::vector<int>::iterator it = _admind_fd.begin(); it != _admind_fd.end(); it++)
+    for(std::vector<int>::const_iterator it = _admind_fd.begin(); it != _admind_fd.end(); it++)
         if((*it) == fd)
             return true;
     return false;
 }
 
-bool Channel::isInvited(int fd)
+bool Channel::isInvited(int fd) const
 {
-    for(std::vector<int>::iterator it = _invited_fd.begin(); it != _invited_fd.end(); it++)
+    for(std::vector<int>::const_iterator it = _invited_fd.begin(); it != _invited_fd.end(); it++)
         if((*it) == fd)
             return true;
     return false;   
 }
 
-void Channel::sendMembers(std::string msg, int exclude)
+void Channel::sendMembers(std::string msg, int exclude) const
 {
 	for (size_t i = 0; i < _members_fd.size(); ++i)
 	{

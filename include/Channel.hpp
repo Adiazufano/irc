@@ -36,33 +36,33 @@ class Channel
         Channel& operator=(const Channel& other);
         ~Channel();
 
-        std::vector<int> getClientsArray();
-        std::vector<int> getChannelAdmins();
-        std::string getChannelTopic() const;
-        std::string getChannelName() const;
-        std::string getChannelModes() const;
-        std::string getChannelModeArgs();
-        std::string& getChannelKey();
-		int getLimit();
+        const std::vector<int> &getClientsArray() const;
+        const std::vector<int> &getChannelAdmins() const;
+        const std::string &getChannelTopic() const;
+        const std::string &getChannelName() const;
+        const std::string &getChannelModes() const;
+        std::string getChannelModeArgs() const;
+        const std::string& getChannelKey() const;
+		const int &getLimit() const;
 
         void setChannelName(const std::string name);
         void setChannelTopic(const std::string topic);
-        void setChannelMode(const char modechar);
-		void unsetChannelMode(const char modechar);
-		bool isModeEnabled(const char modechar);
-		void setKey(std::string key);
+        void setChannelMode(char modechar);
+		void unsetChannelMode(char modechar);
+		bool isModeEnabled(char modechar) const;
+		void setKey(const std::string key);
 		void setLimit(int n);
 
-        bool isAdmin(int fd);
-        bool isInvited(int fd);
-        bool hasClient(const Client &client);
+        bool isAdmin(int fd) const;
+        bool isInvited(int fd) const;
+        bool hasClient(const Client &client) const;
         void addMember(int fd);
         void addAdmind(int fd);
         void removeAdmin(int fd);
         void addInvited(int fd);
         void removeClient(int fd);
 
-		void sendMembers(std::string msg, int exclude = 0);
+		void sendMembers(std::string msg, int exclude = 0) const;
 
 };
 

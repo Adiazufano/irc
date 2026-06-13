@@ -31,7 +31,7 @@ class Server
 	typedef std::vector<Channel *>::iterator channel_iterator;
 
 	private:
-		std::string					_port;
+		const std::string			_port;
 		std::string					_password;
 		std::string					_hostname;
 		int							_serv_socket;
@@ -47,6 +47,8 @@ class Server
 		void						client_event(int fd);
 		void						add_clients();
 		void						disconnect_sockets();
+		Server(const Server &other);
+		Server &operator=(const Server& other);
 
 	public:
 		Server();
@@ -56,7 +58,7 @@ class Server
 		void run();
 		std::map<std::string, Channel *> &getChannels();
 		std::map<int, Client> &getClients();
-		std::string getHostname() const;
+		const std::string &getHostname() const;
 		std::map<std::string, int> &getClientsByNick();
 		std::vector<int>	&getDisconnectedSockets();
 

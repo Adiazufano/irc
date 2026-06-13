@@ -2,7 +2,7 @@
 
 Client::Client() : _fd(-1), _authenticated(false), _has_pass(false), _registered(false){}
 
-Client::Client(int fd, std::string hostname) : _fd(fd), _hostname(hostname), _authenticated(false), _has_pass(false), _registered(false) {}
+Client::Client(int fd, const std::string &hostname) : _fd(fd), _hostname(hostname), _authenticated(false), _has_pass(false), _registered(false) {}
 
 Client::Client(const Client& other) : _fd(other._fd), _nick(other._nick), _user(other._user), _realname(other._realname), _pass(other._pass), _hostname(other._hostname), _cmd(other._cmd), _authenticated(other._authenticated), _has_pass(other._has_pass), _registered(other._registered) {}
 
@@ -36,7 +36,7 @@ void Client::setNickname(const std::string& nickname)
     this -> _nick = nickname;
 }
 
-std::string Client::getNickname() const
+const std::string &Client::getNickname() const
 {
     return _nick;
 }
@@ -46,7 +46,7 @@ void Client::setUser(const std::string& user)
     this -> _user = user;
 }
 
-std::string Client::getUser() const
+const std::string &Client::getUser() const
 {
     return _user;
 }
@@ -56,7 +56,7 @@ void Client::setRealname(const std::string& realname)
     this -> _realname = realname;
 }
 
-std::string Client::getRealname() const
+const std::string &Client::getRealname() const
 {
     return _realname;
 }
@@ -96,22 +96,22 @@ void Client::setHostname(const std::string& hostname)
     _hostname = hostname;
 }
 
-std::string Client::getHostname() const
+const std::string &Client::getHostname() const
 {
-     return _hostname;
+    return _hostname;
 }
 
-std::string Client::getCliCmd() const
+const std::string &Client::getCliCmd() const
 {
     return(_cmd);
 }
 
-void Client::setCliCmd(std::string cmd)
+void Client::setCliCmd(const std::string &cmd)
 {
     _cmd = cmd;
 }
 
-std::string Client::getNickWithPrefix(Channel& ch) const
+std::string Client::getNickWithPrefix(const Channel& ch) const
 {
     if(ch.isAdmin(_fd))
         return ("@" + _nick);
@@ -119,7 +119,7 @@ std::string Client::getNickWithPrefix(Channel& ch) const
 }
 
 
-void Client::addChannel(Channel& ch)
+void Client::addChannel(const Channel& ch)
 {
     for (std::vector<std::string>::iterator it = _channels.begin(); it != _channels.end(); ++it)
     {
@@ -129,39 +129,41 @@ void Client::addChannel(Channel& ch)
     _channels.push_back(ch.getChannelName());
 }
 
-void Client::removeChannel(Channel& ch)
+void Client::removeChannel(const Channel& ch)
 {
     for(std::vector<std::string>::iterator it = _channels.begin(); it != _channels.end(); ++it)
+    {
         if((*it) == ch.getChannelName())
         {
             _channels.erase(it);
             return ;
         }
+    }
 }
 
 void Client::sendMsg(std::string msg)
 {
-	if (msg.length() > 510)
-		msg.erase(510);
-	msg += "\r\n";
+    if (msg.length() > 510)
+        msg.erase(510);
+    msg += "\r\n";
 
-	ssize_t total = 0;
-	ssize_t length = static_cast<ssize_t>(msg.size());
-	while (total < length)
-	{
-		ssize_t n_bytes = send(_fd, msg.c_str() + total, length - total, 0);
-		if (n_bytes < 0)
-			throw std::runtime_error(strerror(errno));
-		total += n_bytes;
-	}
-	/* The key distinction is whether the error is fatal (the connection is dead) or transient (try again).
-	In practice for IRC servers, almost all errors here mean the client is gone:
-	 - EPIPE / ECONNRESET — client disconnected
-	 - EBADF / ENOTSOCK — bad fd, programming error
-	 - EAGAIN / EWOULDBLOCK — only relevant if your fd is non-blocking; means the send buffer is full right now
-	For a straightforward implementation, treat all errors as fatal and mark the client for disconnection.
-	Retrying on EAGAIN requires a write buffer queue, which is a bigger architectural change — not worth it
-	unless you expect high load.*/
+    ssize_t total = 0;
+    ssize_t length = static_cast<ssize_t>(msg.size());
+    while (total < length)
+    {
+        ssize_t n_bytes = send(_fd, msg.c_str() + total, length - total, 0);
+        if (n_bytes < 0)
+            throw std::runtime_error(strerror(errno));
+        total += n_bytes;
+    }
+    /* The key distinction is whether the error is fatal (the connection is dead) or transient (try again).
+    In practice for IRC servers, almost all errors here mean the client is gone:
+     - EPIPE / ECONNRESET — client disconnected
+     - EBADF / ENOTSOCK — bad fd, programming error
+     - EAGAIN / EWOULDBLOCK — only relevant if your fd is non-blocking; means the send buffer is full right now
+    For a straightforward implementation, treat all errors as fatal and mark the client for disconnection.
+    Retrying on EAGAIN requires a write buffer queue, which is a bigger architectural change — not worth it
+    unless you expect high load.*/
 }
 
 
@@ -182,10 +184,7 @@ void Client::printVectorInt(std::vector<int> &v)
    std::cout << std::endl;
 }
 
-std::vector<std::string> Client::getChannels() const
+const std::vector<std::string> &Client::getChannels() const
 {
     return (_channels);
 }
-
-
-

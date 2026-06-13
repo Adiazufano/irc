@@ -25,6 +25,19 @@ Server::~Server()
 Server::Server(char *port, char* password) : _port(port), _password(password), _serv_socket(-1), _addr_lst(NULL)
 {}
 
+// Copy constructor (shouldn't be called)
+Server::Server(const Server &other)
+{
+	(void)other;
+}
+
+// Copy operator constructor (shouldn't be called)
+Server &Server::operator=(const Server& other)
+{
+	(void)other;
+	return (*this);
+}
+
 void sigint_handler(int signal)
 {
 	(void)signal;
@@ -46,7 +59,7 @@ std::map<int, Client> &Server::getClients()
 	return _clients;
 }
 
-std::string Server::getHostname() const
+const std::string &Server::getHostname() const
 {
     return _hostname;
 }

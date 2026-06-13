@@ -23,9 +23,9 @@ class Client
         bool _has_pass;
         bool _registered;
         
-        public:
+    public:
         Client();
-        Client(int fd, std::string hostname);
+        Client(int fd, const std::string &hostname);
         Client(const Client& other);
         Client& operator=(const Client& other);
         ~Client();
@@ -39,17 +39,17 @@ class Client
         void setAuthenticated(const bool& autheticated);
         void setRegistered(const bool& registered);
         void setHostname(const std::string& hostname);
-        void setCliCmd(std::string cmd);
-        void addChannel(Channel& ch);
-        void removeChannel(Channel& ch);
+        void setCliCmd(const std::string &cmd);
+        void addChannel(const Channel& ch);
+        void removeChannel(const Channel& ch);
         
-        std::string getNickname() const;
-        std::string getUser() const;
-        std::string getRealname() const;
-        std::string getHostname() const;
-        std::string getCliCmd() const;
-        std::string getNickWithPrefix(Channel& ch) const;
-        std::vector<std::string> getChannels() const;
+        const std::string &getNickname() const;
+        const std::string &getUser() const;
+        const std::string &getRealname() const;
+        const std::string &getHostname() const;
+        const std::string &getCliCmd() const;
+        std::string getNickWithPrefix(const Channel& ch) const;
+        const std::vector<std::string> &getChannels() const;
         bool getAuthenticated() const;
         bool getHasPass() const;
         bool getRegistered() const;
