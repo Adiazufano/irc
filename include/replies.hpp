@@ -8,7 +8,7 @@
 # define RPL_WELCOME(client)                           (my_serv_name" 001 " + (client) + " :Welcome to the IRC Network, " + (client))
 # define RPL_YOURHOST(client)                          (my_serv_name" 002 " + (client) + " :Your host is my_serv_irc, running version 1.0")
 # define RPL_CREATED(client)                           (my_serv_name" 003 " + (client) + " :This server was created May 2026")
-# define RPL_MYINFO(client)                            (my_serv_name" 004 " + (client) + " my_serv_irc 1.0 o itkl kl")
+# define RPL_MYINFO(client)                            (my_serv_name" 004 " + (client) + " " + (my_serv_name) + " 1.0 o itkol")
 # define RPL_ISUPPORT(client)                          (my_serv_name" 005 " + (client) + " CASEMAPPING=ascii CHANMODES=,o,kl,it CHANTYPES=# :are supported by this server")
 # define RPL_CHANNELMODEIS(client, chan, modstr, args) (my_serv_name" 324 " + (client) + " " + (chan) + " " + (modstr) + " " + (args))
 # define RPL_NOTOPIC(nick, alias)                      (my_serv_name" 331 " + (nick) + " " + (alias) + " :No topic is set")
@@ -46,8 +46,11 @@
 # define QUIT_MSG(source, client, host, reason)          (":" + (source) + "!" + (client) + "@" + (host) + " QUIT :" + (reason))
 # define NICK_MSG(source, client, host, newnick)         (":" + (source) + "!" + (client) + "@" + (host) + " NICK :" + (newnick))
 # define PRIVMSG(client, user, host, target, text)       (":" + (client) + "!" + (user) + "@" + (host) + " PRIVMSG " + (target) + " " + (text))
-# define NOTICE(client, user, host, target, text)        (":" + (client) + "!" + (user) + "@" + (host) + " NOTICE " + (target) + " " + (text))
 # define INVITE_MSG(source, client, host, nick, channel) (":" + (source) + "!" + (client) + "@" + (host) + " INVITE " + (nick) + " :" + (channel))
-# define PONG_MSG(token)                                 (my_serv_name" PONG my_serv_irc :" + (token))
+
+
+# define RPL_LISTSTART(client)                         (my_serv_name" 321 " + (client) + " Channel :Users  Name")
+# define RPL_LIST(client, channel, numb, topic)        (my_serv_name" 322 " + (client) + " " + (channel) + " " + (numb) + " :" + (topic))
+# define RPL_ENDLIST(client)                           (my_serv_name" 323 " + (client) + " :End of /LIST")
 
 #endif
