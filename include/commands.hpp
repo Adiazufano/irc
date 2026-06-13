@@ -14,7 +14,8 @@ void commandPass(std::istringstream &iss, Client &client, std::string pass);
 void channelTopic(Server &s, Client &client, std::string line);
 void commandUser(std::istringstream &iss, Client& client);
 void privmsg(Server &s, Client &c, std::string &line);
-void ping(Server &s, Client &c, std::string &line);
+void notice(Server &s, Client &c, std::string &line);
+void ping(Client &c, std::string &line);
 void invite(Server &s, Client &c, std::string &line);
 
 void validate_command(Server &s, const std::string& cmd, Client &client);
