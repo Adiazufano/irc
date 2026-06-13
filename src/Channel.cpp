@@ -172,6 +172,21 @@ void Channel::removeAdmin(int fd)
 			break;
 		}
 	}
+	if (_admind_fd.empty())
+	{
+		for (size_t i = 0; i < _members_fd.size(); ++i)
+		{
+			if (_members_fd[i] == fd)
+				continue;
+			if (_server->getClients().count(_members_fd[i]) > 0)
+			{
+				Client &op = _server->getClients()[_members_fd[i]];
+				addAdmind(op.getFd());
+				sendMembers(MODE(_name, "+o", op.getNickname()));
+				break;
+			}
+		}
+	}
 }
 
 void Channel::addInvited(int fd)
@@ -185,19 +200,9 @@ void Channel::addInvited(int fd)
 
 void Channel::removeClient(int fd)
 {
-    if(isAdmin(fd))
-    {
-        
-        for(std::vector<int>::iterator it =  _admind_fd.begin(); it != _admind_fd.end(); ++it)
-        {
-            if(*it == fd)
-            {
-                _admind_fd.erase(it);
-                break ;
-            }
-        }
-    }
-    for (std::vector<int>::iterator it = _members_fd.begin(); it != _members_fd.end(); ++it)
+	if(isAdmin(fd))
+		removeAdmin(fd);
+	for (std::vector<int>::iterator it = _members_fd.begin(); it != _members_fd.end(); ++it)
     {
         if (*it == fd)
         {
