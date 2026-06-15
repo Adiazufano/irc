@@ -200,6 +200,7 @@ void Server::disconnect_sockets()
 			if (_disconnected_sockets[i] == it->fd)
 			{
 				close(it->fd);
+				_clientsByNick.erase(_clients[it->fd].getNickname());
 				_clients.erase(it -> fd);
 				it = _pfd_arr.erase(it);
 				break;
