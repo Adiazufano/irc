@@ -1,17 +1,5 @@
 #include "Client.hpp"
-
-bool isValidChar(const std::string &line, const std::string &forbidden)
-{
-    for (size_t i = 0; i < line.length(); i++)
-    {
-        unsigned char c = line[i];
-        if (c < 32 || c == 127) 
-            return false;
-    }
-    if (!forbidden.empty() && line.find_first_of(forbidden) != std::string::npos)
-        return false;
-    return true;
-}
+#include "utils.hpp"
 
 void cmdNick(Server& s, Client &client, std::istringstream &iss)
 {

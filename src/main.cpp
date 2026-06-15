@@ -1,5 +1,6 @@
 #include "Server.hpp"
 #include "definitions.hpp"
+#include "utils.hpp"
 
 bool run_server = true;
 
@@ -24,23 +25,6 @@ int validate_args(char **argv)
 		index++;
 	}
 	return 1;
-}
-
-std::string getMsg(std::istringstream &iss)
-{
-	std::string resto;
-
-	std::getline(iss, resto);
-	if (!resto.empty() && resto[0] == ' ')
-        resto.erase(0, 1);
-    if (!resto.empty() && resto[0] == ':')
-        resto.erase(0, 1);
-    while (!resto.empty() && resto[0] == ' ')
-	{
-        resto.erase(0, 1);
-	}
-
-	return (resto);
 }
 
 int	main(int argc, char **argv)

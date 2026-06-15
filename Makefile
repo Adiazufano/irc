@@ -5,7 +5,7 @@ OBJ_DIR     := obj
 INC_DIR     := include
 DEP_DIR     := deps
 
-SRCS        := main.cpp Client.cpp CommandParse.cpp Server.cpp Channel.cpp \
+SRCS        := main.cpp Client.cpp CommandParse.cpp Server.cpp Channel.cpp utils.cpp \
 				commands/cap.cpp commands/join.cpp commands/nick.cpp commands/pass.cpp commands/topic.cpp commands/user.cpp \
 				commands/privmsg.cpp commands/kick.cpp commands/part.cpp commands/names.cpp commands/who.cpp commands/quit.cpp commands/list.cpp\
 				commands/invite.cpp \

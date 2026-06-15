@@ -1,6 +1,7 @@
 #include "Client.hpp"
 #include "Channel.hpp"
 #include "Server.hpp"
+#include "utils.hpp"
 
 void cmdQuit(Server &s, Client &cli, std::string line)
 {

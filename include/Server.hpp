@@ -63,6 +63,4 @@ class Server
 		std::vector<int>	&getDisconnectedSockets();
 };
 
-void ft_toupper(std::string &str);
-
 #endif

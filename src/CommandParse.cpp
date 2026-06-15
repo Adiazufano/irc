@@ -1,6 +1,7 @@
 #include "Server.hpp"
 #include "Client.hpp"
 #include "commands.hpp"
+#include "utils.hpp"
 
 #include <sstream>
 #include <iostream>
@@ -16,11 +17,7 @@
         std::cerr << "Error al enviar datos al socket " << fd_client << std::endl;
 }*/
 
-void ft_toupper(std::string &str)
-{
-    for (unsigned long  i = 0; i < str.length(); i++)
-        str[i] = toupper(str[i]);
-}
+
 
 int command_level(std::string cmd)
 {

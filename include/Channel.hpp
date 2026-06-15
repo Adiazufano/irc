@@ -52,14 +52,7 @@ class Channel
         void removeAdmin(int fd);
         void addInvited(int fd);
         void removeClient(int fd);
-
 		void sendMembers(std::string msg, int exclude = 0) const;
-
 };
-
-void cmdJoin(Server &s, Client& client, std::string line);
-void cmdTopic(Server &s, Client &client, std::string line);
-void partChannel(Server &s, Client& client, std::string line);
-void namesCommand(Server&s, Channel& ch, Client& client);
 
 #endif

@@ -1,4 +1,5 @@
 #include "Client.hpp"
+#include "utils.hpp"
 
 void cmdCap(std::istringstream &iss, Client &client)
 {
