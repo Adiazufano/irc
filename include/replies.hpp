@@ -35,6 +35,8 @@
 # define ERR_NEEDMOREPARAMS(nick, cmd)                 (my_serv_name" 461 " + (nick) + " " + (cmd) + " :Not enough parameters")
 # define ERR_ALREADYREGISTERED(client)                 (my_serv_name" 462 " + (client) + " :You may not reregister")
 # define ERR_PASSWDMISMATCH(client)                    (my_serv_name" 464 " + (client) + " :Password incorrect")
+# define ERR_CHANNELISFULL(nick, channel)              (my_serv_name" 471 " + (nick) + " " + (channel) + " : Cannot join channel (+l)")
+# define ERR_INVITEONLYCHAN(nick, channel)             (my_serv_name" 473 " + (nick) + " " + (channel) + " : Cannot join channel (+i)")
 # define ERR_BADCHANNELKEY(nick, chName)               (my_serv_name" 475 " + (nick) + " " + (chName) + " :Cannot join channel")
 # define ERR_BADCHANMASK(nick, chName)                 (my_serv_name" 476 " + (nick) + " " + (chName) + " :Bad Channel Mask")
 # define ERR_CHANOPRIVSNEEDED(nick, chname)            (my_serv_name" 482 " + (nick) + " " + (chname) + " :You're not channel operator")
@@ -53,7 +55,5 @@
 # define RPL_LIST(client, channel, numb, topic)          (my_serv_name" 322 " + (client) + " " + (channel) + " " + (numb) + " :" + (topic))
 # define RPL_ENDLIST(client)                             (my_serv_name" 323 " + (client) + " :End of /LIST")
 
-# define ERR_CHANNELISFULL(nick, channel)                (my_serv_name" 471 " + (nick) + " " + (channel) + " : Cannot join channel (+l)")
-# define ERR_INVITEONLYCHAN(nick, channel)               (my_serv_name" 473 " + (nick) + " " + (channel) + " : Cannot join channel (+i)")
 
 #endif

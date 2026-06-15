@@ -20,3 +20,19 @@ void namesCommand(Server&s, Channel& ch, Client& client)
     client.sendMsg(namesList); 
     client.sendMsg(RPL_ENDOFNAMES(nick, name));
 }
+
+void cmdNames(Server& s, Client& client, std::string& line)
+{
+    std::istringstream iss(line);
+    
+    for(std::string channel; getline(iss, channel, ',');)
+    {
+        if(channel.empty())
+            return (client.sendMsg(ERR_NEEDMOREPARAMS(client.getNickname(), client.getCliCmd())));
+        if(!s.getChannels().count(channel))
+            return (client.sendMsg(ERR_NOSUCHCHANNEL(client.getNickname(), channel)));
+        
+        Channel *ch = s.getChannels()[channel];
+        namesCommand(s, (*ch), client);
+    }
+}

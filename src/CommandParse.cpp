@@ -53,6 +53,8 @@ int command_level(std::string cmd)
 		return(14);
 	else if(cmd == "LIST")
 		return(15);
+	else if(cmd == "NAMES")
+		return(16);
 	return(0);
 }
 
@@ -91,7 +93,8 @@ void validate_command(Server &s, const std::string& cmd, Client &client)
 		case 12:	commandPass(iss, client, "");	break;
 		case 13:	quit(s, client, line);			break;
 		case 14:	notice(s, client, line);		break;
-		case 15:	commandList(s, client, line);		break;
+		case 15:	commandList(s, client, line);	break;
+		case 16:	cmdNames(s, client, line);		break;
 		default:
 			client.sendMsg(ERR_UNKNOWNCOMMAND(client.getNickname(), client.getCliCmd()));
 			break;
