@@ -129,6 +129,8 @@ void cmdMode(Server &s, Client &c, std::string &line)
 			modeTypeC(channel, modestring[i], modeset, iss, result);
 		else if (modestring[i] == 'i' || modestring[i] == 't')
 			modeTypeD(channel, modestring[i], modeset, result);
+		else if (target[0] == '#')
+			c.sendMsg(ERR_UNKNOWNMODE(c.getNickname(), modestring[i]));
 		else
 			c.sendMsg(ERR_UMODEUNKNOWNFLAG(c.getNickname()));
 	}
