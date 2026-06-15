@@ -100,7 +100,7 @@ void Server::init()
 	if (listen(_serv_socket, SOMAXCONN) < 0)
 		throw std::runtime_error(RED_BOLD "listen error: " RESET + std::string(strerror(errno)));
 
-	std::cout << "Server listening on port " << _port.c_str() << '\n';
+	std::cout << GREEN_BOLD << "Server listening on port " << _port.c_str() << RESET << '\n';
 }
 
 void Server::accept_socket()
