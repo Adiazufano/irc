@@ -1,27 +1,27 @@
 #ifndef SERVER_HPP
-#define SERVER_HPP
+# define SERVER_HPP
 
-#include "../include/Channel.hpp"
-#include "../include/Client.hpp"
-#include "commands.hpp"
-#include "replies.hpp"
+# include "Channel.hpp"
+# include "Client.hpp"
+# include "commands.hpp"
+# include "replies.hpp"
 
-#include <string>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#include <iostream>
-#include <poll.h>
-#include <unistd.h>
-#include <cstring>
-#include <vector>
-#include <map>
-#include <exception>
-#include <signal.h>
-#include <iterator>
-#include <sstream>
-#include <errno.h>
-#include <arpa/inet.h>
+# include <string>
+# include <cstring>
+# include <iostream>
+# include <sstream>
+# include <sys/types.h>
+# include <sys/socket.h>
+# include <netdb.h>
+# include <poll.h>
+# include <unistd.h>
+# include <vector>
+# include <map>
+# include <exception>
+# include <signal.h>
+# include <iterator>
+# include <errno.h>
+# include <arpa/inet.h>
 
 class Channel;
 class Client;
@@ -61,10 +61,8 @@ class Server
 		const std::string &getHostname() const;
 		std::map<std::string, int> &getClientsByNick();
 		std::vector<int>	&getDisconnectedSockets();
-
 };
 
 void ft_toupper(std::string &str);
-
 
 #endif

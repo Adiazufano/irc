@@ -1,10 +1,10 @@
 #ifndef CLIENT_HPP
-#define CLIENT_HPP
-#include <string>
-#include <iterator>
+# define CLIENT_HPP
 
-#include "../include/Channel.hpp"
-#include "../include/Server.hpp"
+# include "Channel.hpp"
+# include "Server.hpp"
+# include <string>
+# include <vector>
 
 class Channel;
 

@@ -1,18 +1,10 @@
 #ifndef CHANNEL_HPP
-#define CHANNEL_HPP
+# define CHANNEL_HPP
 
-
-#include <iostream>
-#include <vector>
-#include <iterator>
-#include <map>
-#include <sstream>
-
-#include "Client.hpp"
-#include "Server.hpp"
+# include "Server.hpp"
+# include "Client.hpp"
 
 class Server;
-
 class Client;
 
 class Channel
@@ -65,8 +57,8 @@ class Channel
 
 };
 
-void joinChannel(Server &s, Client& client, std::string line);
-void channelTopic(Server &s, Client &client, std::string line);
+void cmdJoin(Server &s, Client& client, std::string line);
+void cmdTopic(Server &s, Client &client, std::string line);
 void partChannel(Server &s, Client& client, std::string line);
 void namesCommand(Server&s, Channel& ch, Client& client);
 
