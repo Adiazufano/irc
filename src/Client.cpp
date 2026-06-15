@@ -1,4 +1,5 @@
-#include "../include/Client.hpp"
+#include "Client.hpp"
+#include "definitions.hpp"
 
 Client::Client() : _fd(-1), _authenticated(false), _has_pass(false), _registered(false){}
 
@@ -145,6 +146,7 @@ void Client::sendMsg(std::string msg)
 {
     if (msg.length() > 510)
         msg.erase(510);
+    std::cout << RED << OUTGOING << RESET << _fd << " " << RED << OUTGOING << RESET << msg << "\n";
     msg += "\r\n";
 
     ssize_t total = 0;
