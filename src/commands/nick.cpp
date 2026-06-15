@@ -1,5 +1,18 @@
 #include "Client.hpp"
 
+bool isValidChar(const std::string &line, const std::string &forbidden)
+{
+    for (size_t i = 0; i < line.length(); i++)
+    {
+        unsigned char c = line[i];
+        if (c < 32 || c == 127) 
+            return false;
+    }
+    if (!forbidden.empty() && line.find_first_of(forbidden) != std::string::npos)
+        return false;
+    return true;
+}
+
 void commandNick(std::istringstream &iss, Client &client, Server& s)
 {
     std::string nickname;
@@ -13,7 +26,7 @@ void commandNick(std::istringstream &iss, Client &client, Server& s)
     if (nickname.empty())
         return(client.sendMsg(ERR_NONICKNAMEGIVEN(oldNickname)));
 
-    if ((nickname[0] == '#' || nickname[0] == ':'))
+    if (!isValidChar(nickname, " ,:*?!@#&"))
         return(client.sendMsg(ERR_ERRONEUSNICKNAME(oldNickname, nickname)));
 
     if (s.getClientsByNick().find(nickname) != s.getClientsByNick().end())

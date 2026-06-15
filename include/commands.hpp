@@ -32,5 +32,5 @@ std::string getMsg(std::istringstream &iss);
 void mode(Server &s, Client &c, std::string &line);
 
 void commandList(Server& s, Client& client, std::string& line);
-
+bool isValidChar(const std::string& line, const std::string& forbidden  = "");
 #endif

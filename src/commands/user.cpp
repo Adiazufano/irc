@@ -13,6 +13,9 @@ void commandUser(std::istringstream &iss, Client& client)
     
     if (client.getRegistered() && client.getAuthenticated())
         return(client.sendMsg(ERR_ALREADYREGISTERED(client.getNickname())));
+    if (!isValidChar(username, " :@"))
+        return(client.sendMsg("USER :Not enough parameters"));
+
     if (!resto.empty())
     {
         size_t colon_pos = 0;

@@ -20,7 +20,7 @@ int validate_args(char **argv)
 	std::string pass(argv[2]);
 	while (index < pass.length())
 	{
-		if (isspace(pass[index]))
+		if (isspace(pass[index]) || !isValidChar(pass))
 			return 0;
 		index++;
 	}
