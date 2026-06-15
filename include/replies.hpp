@@ -53,4 +53,7 @@
 # define RPL_LIST(client, channel, numb, topic)          (my_serv_name" 322 " + (client) + " " + (channel) + " " + (numb) + " :" + (topic))
 # define RPL_ENDLIST(client)                             (my_serv_name" 323 " + (client) + " :End of /LIST")
 
+# define ERR_CHANNELISFULL(nick, channel)                (my_serv_name" 471 " + (nick) + " " + (channel) + " : Cannot join channel (+l)")
+# define ERR_INVITEONLYCHAN(nick, channel)               (my_serv_name" 473 " + (nick) + " " + (channel) + " : Cannot join channel (+i)")
+
 #endif

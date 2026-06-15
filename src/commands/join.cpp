@@ -72,14 +72,43 @@ std::map<std::string, std::string> getChData(std::string names, std::string keys
 
 bool validKey(Channel* channel, std::string key, int fd)
 {
-    if(channel->getChannelKey().empty())
-        return true;
-    else if((channel->getChannelKey() == key) || (channel->isInvited(fd)))
-        return true;
-    else
-        return false;
+    if(channel->isModeEnabled('k'))
+    {
+        if(channel->getChannelKey().empty())
+            return true;
+        else if((channel->getChannelKey() == key) || (channel->isInvited(fd)))
+            return true;
+        else
+            return false;
+    }
+    return(true);
 }
 
+bool validCapacity(Channel *channel)
+{
+    if(channel->isModeEnabled('l') && channel->getLimit() > 0)
+    {
+        if(channel->getClientsArray().size() < (size_t)channel->getLimit())
+            return(true);
+        else
+            return(false);
+    }
+    else
+        return(true);
+}
+
+bool isPrivate(Channel *channel, int fd)
+{
+    if(channel->isModeEnabled('i'))
+    {
+        if(channel->isInvited(fd))
+            return(true);
+        else
+            return(false);
+    }
+    else
+        return(true);
+}
 
 void joinChannel(Server &s, Client& client, std::string line)
 {
@@ -105,7 +134,7 @@ void joinChannel(Server &s, Client& client, std::string line)
         std::string key = it->second;
 
 
-        if (s.getChannels().count(name) && validKey(s.getChannels()[name], key , client.getFd()))
+        if (s.getChannels().count(name) && validKey(s.getChannels()[name], key , client.getFd()) && validCapacity(s.getChannels()[name]) && isPrivate(s.getChannels()[name], client.getFd()))
         {
             s.getChannels()[name]->addMember(client.getFd());
             client.addChannel(*(s.getChannels()[name]));
@@ -113,11 +142,13 @@ void joinChannel(Server &s, Client& client, std::string line)
         }
         else if (s.getChannels().count(name) && !validKey(s.getChannels()[name], key, client.getFd()))
             client.sendMsg(ERR_BADCHANNELKEY(nick, name));
+        else if (s.getChannels().count(name) && !validCapacity(s.getChannels()[name]))
+            client.sendMsg(ERR_CHANNELISFULL(nick, name));
+        else if (s.getChannels().count(name) && !isPrivate(s.getChannels()[name], client.getFd()))
+            client.sendMsg(ERR_INVITEONLYCHAN(nick, name));
         else
         {
-            Channel* ch = new Channel (name, "", "", key, client.getFd(), &s);
-            ch->addAdmind(client.getFd());
-            ch->addMember(client.getFd());
+            Channel* ch = new Channel (name, key, client.getFd(), &s);
             s.getChannels()[name] = ch;
             client.addChannel(*ch);
             joinMessages(s, client, name);

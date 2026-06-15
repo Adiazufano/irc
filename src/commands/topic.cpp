@@ -32,12 +32,17 @@ void channelTopic(Server &s, Client &client, std::string line)
         if (channel.getChannelTopic().empty())
             client.sendMsg(RPL_NOTOPIC(client.getNickname(), channelName));
         else
-            client.sendMsg(RPL_TOPIC(client.getNickname(), channelName, topic));
+            client.sendMsg(RPL_TOPIC(client.getNickname(), channelName, channel.getChannelTopic()));
     }
     else
     {
-        channel.setChannelTopic(topic);
-        std::string broadcast = ":" + client.getNickname() + "!" + client.getUser() + "@localhost" + " TOPIC " + channelName + " :" + topic + "\r\n";
-        channel.sendMembers(broadcast);
+        if((channel.isModeEnabled('t') && channel.isAdmin(client.getFd())) || !channel.isModeEnabled('t'))
+        {
+            channel.setChannelTopic(topic);
+            std::string broadcast = ":" + client.getNickname() + "!" + client.getUser() + "@localhost" + " TOPIC " + channelName + " :" + channel.getChannelTopic() + "\r\n";
+            channel.sendMembers(broadcast);
+        }
+        else
+            client.sendMsg(ERR_CHANOPRIVSNEEDED(client.getNickname(), channelName));
     }
 }

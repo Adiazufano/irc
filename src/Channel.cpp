@@ -4,17 +4,18 @@
 Channel::Channel()
 {}
 
-Channel::Channel(std::string name, std::string topic, std::string modes, std::string key, int user_fd, Server *server)
+Channel::Channel(std::string name, std::string key, int user_fd, Server *server)
 {
     _name = name;
-    _topic = topic;
-    _modes = modes;
+    _topic = "";
+    _modes = "";
     _key = key;
-    _user_fd = user_fd;
+	if(!key.empty())
+		_modes += "k";
 	_server = server;
     _limit = 0;
-	if(_members_fd.empty())
-		_members_fd.push_back(user_fd);
+	addAdmind(user_fd);
+	addMember(user_fd);
 }
 
 Channel::Channel(const Channel& copy) :
@@ -22,7 +23,6 @@ Channel::Channel(const Channel& copy) :
 	_topic(copy._topic),
 	_modes(copy._modes),
 	_key(copy._key),
-	_user_fd(copy._user_fd),
 	_server(copy._server),
 	_limit(copy._limit)
 {}
@@ -34,7 +34,6 @@ Channel& Channel::operator=(const Channel& other)
         _name = other._name;
         _topic = other._topic;
         _modes = other._modes;
-        _user_fd = other._user_fd;
 		_key = other._key;
 		_limit= other._limit;
 		_server = other._server;
