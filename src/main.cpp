@@ -1,6 +1,5 @@
-#include "../include/Server.hpp"
-#include <sstream>
-#include <iostream>
+#include "Server.hpp"
+#include "definitions.hpp"
 
 bool run_server = true;
 
@@ -44,14 +43,13 @@ std::string getMsg(std::istringstream &iss)
 	return (resto);
 }
 
-
 int	main(int argc, char **argv)
 {
 	if (argc != 3)
-		return (std::cout << "Usage: " << argv[0] << " <port> <password>" << std::endl, 1);
+		return (std::cerr << "Usage: " << argv[0] << " <port> <password>" << std::endl, 1);
 
 	if (!validate_args(argv))
-		return (std::cout << "\033[1;31merror:\033[0m Invalid argument" << std::endl, 1);
+		return (std::cerr << RED_BOLD << "error:" << RESET << " Invalid argument" << std::endl, 1);
 
 	try
 	{
