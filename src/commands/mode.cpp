@@ -5,12 +5,6 @@
 void appendModesetModechar(std::string &modestring, char modeset, char modechar)
 {
 	char active = 0;
-	//for (size_t i = 0; i < modestring.size(); ++i)
-	//{
-	//	if (modestring[i] == '+' || modestring[i] == '-')
-	//		active = modestring[i];
-	//}
-
 	size_t pos = modestring.find_last_of("+-");
 	if (pos != std::string::npos)
 		active = modestring[pos];
@@ -42,8 +36,6 @@ void modeTypeB(Server &s, Channel &channel, Client &c, char modechar, char modes
 			channel.addAdmind(target.getFd());
 		result.push_back(modearg);
 		appendModesetModechar(result[0], modeset, modechar);
-
-		// TO DO: Gestionar cuando canal se quede sin administradores!!!!!
 	}
 }
 
@@ -105,7 +97,7 @@ void modeTypeD(Channel &channel, char modechar, char modeset, std::vector<std::s
 	appendModesetModechar(result[0], modeset, modechar);
 }
 
-void mode(Server &s, Client &c, std::string &line)
+void cmdMode(Server &s, Client &c, std::string &line)
 {
 	std::istringstream	iss(line);
 	std::string			target;
@@ -148,19 +140,5 @@ void mode(Server &s, Client &c, std::string &line)
 		if (i != result.size() - 1)
 			appliedArgs.append(" ");
 	}
-	channel.sendMembers(MODE(target, result[0], appliedArgs));
-
-	// DEBUG:
-/* 	std::cout << "Mode result: ";
-	for (std::vector<std::string>::iterator str = result.begin(); str != result.end(); ++str)
-	{
-		std::cout << *str << " ";
-	}
-	std::cout << "\n";
-	std::cout << "Active modes: " << channel.getChannelModes() << "\n";
-	std::cout << "Is i enabled?" << channel.isModeEnabled('i') << "\n";
-	std::cout << "Is l enabled?" << channel.isModeEnabled('l') << "\n";
-	std::cout << "Is t enabled?" << channel.isModeEnabled('t') << "\n";
-	std::cout << "Limit: " << channel.getLimit() << "\n";
-	std::cout << "Key: " << channel.getChannelKey() << "\n"; */
+	channel.sendMembers(CMD_MODE(target, result[0], appliedArgs));
 }

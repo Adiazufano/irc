@@ -1,10 +1,11 @@
+#include "Server.hpp"
+#include "Client.hpp"
+#include "commands.hpp"
+
 #include <sstream>
-#include "../include/Client.hpp"
 #include <iostream>
 #include <unistd.h>
 #include <sys/socket.h>
-#include "../include/Server.hpp"
-#include "commands.hpp"
 
 /*void print_message(int fd_client, const std::string& message)
 {
@@ -79,21 +80,21 @@ void validate_command(Server &s, const std::string& cmd, Client &client)
 	std::istringstream iss(line);
 	switch(level)
 	{
-		case 1:		commandKick(s, client, line);	break;
-		case 2:		invite(s, client, line);		break;
-		case 3:		channelTopic(s, client, line);	break;
-		case 4:		mode(s, client, line);			break;
-		case 5:		joinChannel(s, client, line);	break;
-		case 6:		privmsg(s, client, line);		break;
-		case 7:		partChannel(s, client, line);	break;
-		case 8:		ping(client, line);				break;
-		case 9:		commandNick(iss, client, s);	break;
-		case 10:	whoCommand(s, client, line);	break;
-		case 11: 	commandUser(iss, client);		break;
-		case 12:	commandPass(iss, client, "");	break;
-		case 13:	quit(s, client, line);			break;
-		case 14:	notice(s, client, line);		break;
-		case 15:	commandList(s, client, line);	break;
+		case 1:		cmdKick(s, client, line);		break;
+		case 2:		cmdInvite(s, client, line);		break;
+		case 3:		cmdTopic(s, client, line);		break;
+		case 4:		cmdMode(s, client, line);		break;
+		case 5:		cmdJoin(s, client, line);		break;
+		case 6:		cmdPrivmsg(s, client, line);	break;
+		case 7:		cmdPart(s, client, line);		break;
+		case 8:		cmdPing(client, line);			break;
+		case 9:		cmdNick(s, client, iss);		break;
+		case 10:	cmdWho(s, client, line);		break;
+		case 11:	cmdUser(iss, client);			break;
+		case 12:	cmdPass(iss, client, "");		break;
+		case 13:	cmdQuit(s, client, line);		break;
+		case 14:	cmdNotice(s, client, line);		break;
+		case 15:	cmdList(s, client, line);		break;
 		case 16:	cmdNames(s, client, line);		break;
 		default:
 			client.sendMsg(ERR_UNKNOWNCOMMAND(client.getNickname(), client.getCliCmd()));
@@ -111,15 +112,15 @@ void commandParse(const std::string& line, Client& client, std::string pass, Ser
     iss >> command;
     ft_toupper(command);
     if (command == "PASS" && client.getHasPass() != true)
-        commandPass(iss, client, pass);
+        cmdPass(iss, client, pass);
     else if (command == "PASS" && client.getHasPass() != false)
         std::cout << "Password already validated: " << std::endl;
     else if (command == "NICK")
-        commandNick(iss, client, s);
+        cmdNick(s, client, iss);
     else if (command == "USER")
-        commandUser(iss, client);
+        cmdUser(iss, client);
     else if (command == "CAP")
-        commandCap(iss, client);
+        cmdCap(iss, client);
 	
     else
         return;

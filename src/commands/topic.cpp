@@ -4,7 +4,7 @@
 
 
 //TO DO consultar si cualquier miebro d eun canal puede cambiar el topic
-void channelTopic(Server &s, Client &client, std::string line)
+void cmdTopic(Server &s, Client &client, std::string line)
 {
     std::istringstream iss(line);
     std::string channelName;

@@ -1,6 +1,6 @@
 #include "Client.hpp"
 
-void commandUser(std::istringstream &iss, Client& client)
+void cmdUser(std::istringstream &iss, Client& client)
 {
     std::string username;
     std::string mode;

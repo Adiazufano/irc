@@ -8,7 +8,7 @@ void noticeUser(Server &s, Client &client, std::string &target, std::string &tex
 
 	// Send private message to target client
 	Client &dest = s.getClients()[s.getClientsByNick()[target]];
-	dest.sendMsg(NOTICE(client.getNickname(), client.getUser(), client.getHostname(), target, text));
+	dest.sendMsg(CMD_NOTICE(client.getNickname(), client.getUser(), client.getHostname(), target, text));
 }
 
 void noticeChannel(Server &s, Client &client, std::string &channelName, std::string &text)
@@ -22,10 +22,10 @@ void noticeChannel(Server &s, Client &client, std::string &channelName, std::str
 	if (!ch->hasClient(client))
 		return;
 
-	ch->sendMembers(NOTICE(client.getNickname(), client.getUser(), client.getHostname(), channelName, text), client.getFd());
+	ch->sendMembers(CMD_NOTICE(client.getNickname(), client.getUser(), client.getHostname(), channelName, text), client.getFd());
 }
 
-void notice(Server &s, Client &client, std::string &line)
+void cmdNotice(Server &s, Client &client, std::string &line)
 {
 	// Parse targets and text
 	std::istringstream iss1(line);

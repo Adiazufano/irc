@@ -1,6 +1,6 @@
 #include "Client.hpp"
 
-void commandPass(std::istringstream &iss, Client &client, std::string pass)
+void cmdPass(std::istringstream &iss, Client &client, std::string pass)
 {
     std::string password;
 

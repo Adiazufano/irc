@@ -6,7 +6,7 @@
 #include <sstream>
 
 
-void userMessages(Server &s, Client& client, std::string name)
+void replyUser(Server &s, Client& client, std::string name)
 {
     std::string topic = s.getChannels()[name]->getChannelTopic();
     std::string nick = client.getNickname();
@@ -29,7 +29,7 @@ void joinMessages(Server &s, Client& client, std::string name)
     // Formato mensaje IRC [ :origen CODIGO destino [parámetros] :texto final\r\n ]
     joinMsg = ":" + client.getNickname() + "!" + client.getUser() + "@" + client.getHostname()+ " " + client.getCliCmd() + " " + name;
     s.getChannels()[name]-> sendMembers(joinMsg, 0);
-    userMessages(s, client, name);
+    replyUser(s, client, name);
 }
 
 
@@ -110,7 +110,7 @@ bool isPrivate(Channel *channel, int fd)
         return(true);
 }
 
-void joinChannel(Server &s, Client& client, std::string line)
+void cmdJoin(Server &s, Client& client, std::string line)
 {
     std::istringstream str(line);
     std::string nick = client.getNickname();

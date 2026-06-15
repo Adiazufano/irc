@@ -13,14 +13,14 @@ bool isValidChar(const std::string &line, const std::string &forbidden)
     return true;
 }
 
-void commandNick(std::istringstream &iss, Client &client, Server& s)
+void cmdNick(Server& s, Client &client, std::istringstream &iss)
 {
     std::string nickname;
     std::vector<std::string> chanels = client.getChannels();
     iss >> nickname;
     
     std::string oldNickname = client.getNickname().empty() ? "*" : client.getNickname();
-    std::string nick_msg = NICK_MSG(oldNickname, client.getUser(), client.getHostname(), nickname);
+    std::string nick_msg = CMD_NICK(oldNickname, client.getUser(), client.getHostname(), nickname);
     
 
     if (nickname.empty())
@@ -38,7 +38,7 @@ void commandNick(std::istringstream &iss, Client &client, Server& s)
     client.setNickname(nickname);
     s.getClientsByNick()[nickname] = client.getFd();
 
-    client.sendMsg(NICK_MSG(oldNickname, client.getUser(), client.getHostname(), nickname));
+    client.sendMsg(CMD_NICK(oldNickname, client.getUser(), client.getHostname(), nickname));
 
     std::vector<std::string>::iterator it;
     for (it = chanels.begin(); it != chanels.end(); ++it)

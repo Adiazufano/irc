@@ -2,7 +2,7 @@
 #include "replies.hpp"
 #include <algorithm>
 
-void    commandKick(Server &s, Client &client, std::string line)
+void    cmdKick(Server &s, Client &client, std::string line)
 {
     std::istringstream iss(line);
     std::string channelName;
@@ -42,7 +42,7 @@ void    commandKick(Server &s, Client &client, std::string line)
     {
         resto = getMsg(iss);
         if (resto.empty())
-            resto = "Expulsado por un operador";
+            resto = "Expulsado por un operador"; // TO DO: What the heck is this??? ;-)
 
         std::string msgKick = ":" + client.getNickname() + "!" + client.getUser() + "@" + client.getHostname() + " KICK " + channelName + " " + nick + " :" + resto;
         channel->sendMembers(msgKick);

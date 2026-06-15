@@ -3,7 +3,7 @@
 #include "Channel.hpp"
 
 
-void commandList(Server& s, Client& client, std::string& line)
+void cmdList(Server& s, Client& client, std::string& line)
 {
     std::string nick = client.getNickname();
     std::map<std::string, Channel *>& channels = s.getChannels();

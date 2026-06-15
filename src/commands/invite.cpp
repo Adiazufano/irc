@@ -1,6 +1,6 @@
 #include "Server.hpp"
 
-void invite(Server &s, Client &client, std::string &line)
+void cmdInvite(Server &s, Client &client, std::string &line)
 {
 	// Parse nickname and channel
 	std::istringstream iss(line);
@@ -26,8 +26,9 @@ void invite(Server &s, Client &client, std::string &line)
 	if (!ch->hasClient(client))
 		return client.sendMsg(ERR_CANNOTSENDTOCHAN(client.getNickname(), channelName));
 
-	// Servers MAY reject the command with the ERR_CHANOPRIVSNEEDED numeric.
-	// In particular, they SHOULD reject it when the channel has invite-only mode set, and the user is not a channel operator.
+	// Channel has invite-only mode set and user is not a channel operator
+	if (ch->isModeEnabled('i') && !ch->isAdmin(client.getFd()))
+		return client.sendMsg(ERR_CHANOPRIVSNEEDED(client.getNickname(), channelName));
 
 	// Target is already on the channel
 	Client &target = s.getClients()[s.getClientsByNick()[nickname]];
@@ -36,5 +37,5 @@ void invite(Server &s, Client &client, std::string &line)
 
 	ch->addInvited(target.getFd());
 	client.sendMsg(RPL_INVITING(client.getNickname(), target.getNickname(), channelName));
-	target.sendMsg(INVITE_MSG(client.getNickname(), client.getUser(), client.getHostname(), target.getNickname(), channelName));
+	target.sendMsg(CMD_INVITE(client.getNickname(), client.getUser(), client.getHostname(), target.getNickname(), channelName));
 }

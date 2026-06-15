@@ -14,13 +14,14 @@ void promoteAdmin(Server& s, Channel* ch)
         ch->addAdmind(newAdminFd);
 
         std::string newAdminNick = s.getClients()[newAdminFd].getNickname();
-        std::string modeMsg = ":my_serv_irc MODE " + ch->getChannelName() + " +o " + newAdminNick;
-        ch->sendMembers(modeMsg);
+        //std::string modeMsg = ":my_serv_irc MODE " + ch->getChannelName() + " +o " + newAdminNick;
+        //ch->sendMembers(modeMsg);
+        ch->sendMembers(CMD_MODE(ch->getChannelName(), "+o", newAdminNick));
     }
 }
 
 
-void partChannel(Server &s, Client& client, std::string line)
+void cmdPart(Server &s, Client& client, std::string line)
 {
 	// Parse channel and reason
 	std::istringstream iss1(line);

@@ -1,6 +1,6 @@
 #include "Server.hpp"
 
-void broadcastUser(Server &s, Client &client, std::string &target, std::string &text)
+void privmsgUser(Server &s, Client &client, std::string &target, std::string &text)
 {
 	// Target not found
 	if (!s.getClientsByNick().count(target))
@@ -8,10 +8,10 @@ void broadcastUser(Server &s, Client &client, std::string &target, std::string &
 
 	// Send private message to target client
 	Client &dest = s.getClients()[s.getClientsByNick()[target]];
-	dest.sendMsg(PRIVMSG(client.getNickname(), client.getUser(), client.getHostname(), target, text));
+	dest.sendMsg(CMD_PRIVMSG(client.getNickname(), client.getUser(), client.getHostname(), target, text));
 }
 
-void broadcastChannel(Server &s, Client &client, std::string &channelName, std::string &text)
+void privmsgChannel(Server &s, Client &client, std::string &channelName, std::string &text)
 {
 	// Channel doesn't exist
 	if (!s.getChannels().count(channelName))
@@ -22,10 +22,10 @@ void broadcastChannel(Server &s, Client &client, std::string &channelName, std::
 	if (!ch->hasClient(client))
 		return client.sendMsg(ERR_CANNOTSENDTOCHAN(client.getNickname(), channelName));
 
-	ch->sendMembers(PRIVMSG(client.getNickname(), client.getUser(), client.getHostname(), channelName, text), client.getFd());
+	ch->sendMembers(CMD_PRIVMSG(client.getNickname(), client.getUser(), client.getHostname(), channelName, text), client.getFd());
 }
 
-void privmsg(Server &s, Client &client, std::string &line)
+void cmdPrivmsg(Server &s, Client &client, std::string &line)
 {
 	// Parse targets and text
 	std::istringstream iss1(line);
@@ -40,16 +40,15 @@ void privmsg(Server &s, Client &client, std::string &line)
 	if (text.empty())
 		return client.sendMsg(ERR_NOTEXTTOSEND(client.getNickname()));
 
-	// Iterate through comma separated targets and send message to each one
+	// Iterate through comma-separated targets and send message to each one
 	std::istringstream iss2(targets_full);
 	for (std::string target; getline(iss2, target, ',');)
 	{
-		// Target is empty
 		if (target.empty())
 			client.sendMsg(ERR_NORECIPIENT(client.getNickname(), client.getCliCmd()));
 		else if (target[0] == '#')
-			broadcastChannel(s, client, target, text);	// Target is a channel
+			privmsgChannel(s, client, target, text);
 		else
-			broadcastUser(s, client, target, text);		// Target is a user
+			privmsgUser(s, client, target, text);
 	}
 }
