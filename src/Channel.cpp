@@ -181,7 +181,7 @@ void Channel::removeAdmin(int fd)
 			{
 				Client &op = _server->getClients()[_members_fd[i]];
 				addAdmind(op.getFd());
-				sendMembers(MODE(_name, "+o", op.getNickname()));
+				sendMembers(CMD_MODE(_name, "+o", op.getNickname()));
 				break;
 			}
 		}
