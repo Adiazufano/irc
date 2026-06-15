@@ -1,7 +1,8 @@
-#include "../include/Server.hpp"
-#include "../include/Client.hpp"
-#include "../include/Channel.hpp"
+#include "Server.hpp"
+#include "Client.hpp"
+#include "Channel.hpp"
 #include "commands.hpp"
+#include "definitions.hpp"
 
 extern bool run_server;
 
@@ -76,20 +77,20 @@ void Server::init()
 
 	int gai = getaddrinfo(0, _port.data(), &hints, &_addr_lst);
 	if (gai != 0)
-		throw std::runtime_error("\033[1;31mgetaddrinfo error:\033[0m " + std::string(gai_strerror(gai)));
+		throw std::runtime_error(RED_BOLD "error: " RESET + std::string(gai_strerror(gai)));
 
 	// Server socket
 	_serv_socket = socket(_addr_lst->ai_family, _addr_lst->ai_socktype, _addr_lst->ai_protocol);
 	if (_serv_socket < 0)
-		throw std::runtime_error("\033[1;31msocket error:\033[0m " + std::string(strerror(errno)));
+		throw std::runtime_error(RED_BOLD "socket error: " RESET + std::string(strerror(errno)));
 	if (setsockopt(_serv_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
-		throw std::runtime_error("\033[1;31msetsockopt error:\033[0m " + std::string(strerror(errno)));
+		throw std::runtime_error(RED_BOLD "setsockopt error: " RESET + std::string(strerror(errno)));
 	if (bind(_serv_socket, _addr_lst->ai_addr, _addr_lst->ai_addrlen) < 0)
-		throw std::runtime_error("\033[1;31mbind error:\033[0m " + std::string(strerror(errno)));
+		throw std::runtime_error(RED_BOLD "bind error: " RESET + std::string(strerror(errno)));
 	
 	char hostname[256];
 	if (gethostname(hostname, sizeof(hostname)) < 0)
-		throw std::runtime_error("\033[1;31mgethostname error:\033[0m " + std::string(strerror(errno)));
+		throw std::runtime_error(RED_BOLD "gethostname error: " RESET + std::string(strerror(errno)));
 	_hostname = hostname;
 
 	struct pollfd serv_pfd = { _serv_socket, POLLIN, 0 };
@@ -97,7 +98,7 @@ void Server::init()
 
 	// Listen
 	if (listen(_serv_socket, SOMAXCONN) < 0)
-		throw std::runtime_error("\033[1;31mlisten error:\033[0m " + std::string(strerror(errno)));
+		throw std::runtime_error(RED_BOLD "listen error: " RESET + std::string(strerror(errno)));
 
 	std::cout << "Server listening on port " << _port.c_str() << '\n';
 }
@@ -108,7 +109,13 @@ void Server::accept_socket()
 	socklen_t client_len = sizeof(client_addr);
 
 	int fd = accept(_serv_socket, (struct sockaddr*)&client_addr, &client_len);
-	if (fd > 0)
+	if (fd < 0)
+	{
+		if (errno != EAGAIN && errno != EWOULDBLOCK)
+			std::cerr << RED_BOLD << "accept error: " << RESET << strerror(errno) << std::endl;
+		return;
+	}
+	else if (fd >= 0)
 	{
 		char ip[INET_ADDRSTRLEN];
 		inet_ntop(AF_INET, &client_addr.sin_addr, ip, sizeof(ip));
@@ -124,7 +131,7 @@ void Server::client_event(int fd)
 	ssize_t n_bytes = recv(fd, buffer, sizeof(buffer), 0);
 	if (n_bytes < 0)
 	{
-		std::cout << "recv error: " << strerror(errno) << std::endl;
+		std::cerr << RED_BOLD << "recv error: " << RESET << strerror(errno) << std::endl;
 		_disconnected_sockets.push_back(fd);
 	}
 	else if (n_bytes == 0)
@@ -144,7 +151,8 @@ void Server::client_event(int fd)
 		{
 			std::string message = buf.substr(0, pos);
 			buf.erase(0, pos + 2);
-			std::cout << "Message from socket " << cli.getFd() << ": " << message << "\n";
+			//std::cout << "Message from socket " << cli.getFd() << ": " << message << "\n";
+			std::cout << GREEN << INCOMING << RESET << cli.getFd() << " " << GREEN << INCOMING << RESET << message << "\n";
 			//parseo de comandos de autentificacion
 			if (!cli.getRegistered())
 				commandParse(message, cli, _password, *this);
@@ -235,10 +243,11 @@ void Server::run()
 		int poll_result = poll(_pfd_arr.data(), _pfd_arr.size(), -1);
 		if (poll_result < 0)
 		{
-			std::cerr << "poll error: " << strerror(errno) << std::endl;
+			if (errno != EINTR)
+				std::cerr << RED_BOLD << "poll error: " << RESET << strerror(errno) << std::endl;
 			break;
 		}
-		std::cout << poll_result << " event(s)\n";
+		//std::cout << poll_result << " event(s)\n";
 
 		for (size_t i = 0; i < _pfd_arr.size(); i++)
 		{
