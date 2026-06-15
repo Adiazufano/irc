@@ -9,7 +9,7 @@ void cmdList(Server& s, Client& client, std::string& line)
     std::map<std::string, Channel *>& channels = s.getChannels();
     
     if(!line.empty())
-    return ;
+        return ;
     client.sendMsg(RPL_LISTSTART(nick));
     for(std::map<std::string, Channel *>::iterator it = channels.begin(); it != channels.end(); ++it)
     {
