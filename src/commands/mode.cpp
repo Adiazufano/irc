@@ -105,6 +105,9 @@ void cmdMode(Server &s, Client &c, std::string &line)
 
 	iss >> target >> modestring;
 
+	if (target[0] != '#')
+		return c.sendMsg(ERR_UMODEUNKNOWNFLAG(c.getNickname()));
+
 	if (!s.getChannels().count(target))
 		return c.sendMsg(ERR_NOSUCHCHANNEL(c.getNickname(), target));
 
@@ -129,10 +132,8 @@ void cmdMode(Server &s, Client &c, std::string &line)
 			modeTypeC(channel, modestring[i], modeset, iss, result);
 		else if (modestring[i] == 'i' || modestring[i] == 't')
 			modeTypeD(channel, modestring[i], modeset, result);
-		else if (target[0] == '#')
-			c.sendMsg(ERR_UNKNOWNMODE(c.getNickname(), modestring[i]));
 		else
-			c.sendMsg(ERR_UMODEUNKNOWNFLAG(c.getNickname()));
+			c.sendMsg(ERR_UNKNOWNMODE(c.getNickname(), modestring[i]));
 	}
 
 	std::string appliedArgs;
