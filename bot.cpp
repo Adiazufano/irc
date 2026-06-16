@@ -300,6 +300,85 @@ void handleWhoReply(const std::string& line, int fd, std::set<std::string>& join
     }
 }
 
+void checkPrivmsg(std::string &line, int fd)
+{
+    try
+    {
+        std::string sender = line.substr(1, line.find('!') - 1);
+        std::string afPrivmsg = line.substr(line.find("PRIVMSG") + 8);
+        std::string target = afPrivmsg.substr(0, afPrivmsg.find(' '));
+        std::string msg = afPrivmsg.substr(afPrivmsg.find(':') + 1);
+        if(sender != BOT_NICK)
+            sendMsg(fd, handlePrivmsg(sender, target, msg));
+    }
+    catch(std::exception &e)
+    {
+        std::cerr << "Parse error: " << e.what() << std::endl;
+    }
+}
+
+bool checkInvite(std::string &line, int fd)
+{
+    try
+    {
+        std::istringstream iss(line);
+        std::string prefix;
+        std::string command;
+        std::string target;
+        std::string channel;
+        iss >> prefix >> command >> target >> channel;
+        if (!channel.empty() && channel[0] == ':')
+            channel = channel.substr(1);
+        if (target != BOT_NICK || channel.empty() || channel[0] != '#')
+            return true;
+        std::cout << "Invited to " << channel << ", joining..." << std::endl;
+        sendMsg(fd, "JOIN " + channel);
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << "INVITE parse error: " << e.what() << std::endl;
+        return true;
+    }
+    return false;
+}
+
+void executeCommand(std::string &pending, int fd, bool registered)
+{
+    bool listing = false;
+    std::map<std::string, int> whoCount;
+    std::string whoChannel;
+    std::set<std::string> channels;
+    size_t pos;                        // Es mejor usar set en este caso porque así no se almacenan nombres repetidos de canales y no necesitamos acceder por posición. 
+
+    while((pos = pending.find("\r\n")) != std::string::npos)
+    {
+        std::string line = pending.substr(0, pos);
+        pending.erase(0, pos + 2);
+        std::cout << line << std::endl;
+        if(line.substr(0, 4) == "PING")
+            sendMsg(fd, "PONG " + line.substr(5));
+        if(!registered && line.find("001") != std::string::npos)
+        {
+            sendMsg(fd, "JOIN #Omni-bot");
+            sendMsg(fd, "LIST");
+            registered = true;
+        }
+        if(registered)
+        {
+            connectToChannels(line, fd, channels, listing);
+            checkIfAlone(line, fd, channels);
+            handleWhoReply(line, fd, channels, whoCount);
+        }
+        if(line.find("PRIVMSG") != std::string::npos && line[0] == ':')
+            checkPrivmsg(line, fd);
+        if (line.find("INVITE") != std::string::npos && line[0] == ':')
+        {
+            if (checkInvite(line, fd))
+                continue;
+        }
+    }
+}
+
 int main()
 {
     int fd;
@@ -333,11 +412,6 @@ int main()
 
 
     char buffer[2048];
-    std::set<std::string> channels;                         // Es mejor usar set en este caso porque así no se almacenan nombres repetidos de canales y no necesitamos acceder por posición.
-    std::string pending;
-    bool listing = false;
-    std::map<std::string, int> whoCount;
-    std::string whoChannel;  
     while(true)
     {
         memset(buffer, 0, sizeof(buffer));
@@ -346,75 +420,9 @@ int main()
         if(bytes <= 0)
             break ;
     
-        pending += std::string(buffer, bytes);
-        size_t pos;
-        while((pos = pending.find("\r\n")) != std::string::npos)
-        {
-            std::string line = pending.substr(0, pos);
-            pending.erase(0, pos + 2);
-            std::cout << line << std::endl;
-
-            if(line.substr(0, 4) == "PING")
-                sendMsg(fd, "PONG " + line.substr(5));
-
-            if(!registered && line.find("001") != std::string::npos)
-            {
-                sendMsg(fd, "JOIN #Omni-bot");
-                sendMsg(fd, "LIST");
-                registered = true;
-            }
-
-            if(registered)
-            {
-                connectToChannels(line, fd, channels, listing);
-                checkIfAlone(line, fd, channels);
-                handleWhoReply(line, fd, channels, whoCount);
-            }
-            if(line.find("PRIVMSG") != std::string::npos && line[0] == ':')
-            {
-                try
-                {
-                    std::string sender = line.substr(1, line.find('!') - 1);
-                    std::string afPrivmsg = line.substr(line.find("PRIVMSG") + 8);
-                    std::string target = afPrivmsg.substr(0, afPrivmsg.find(' '));
-                    std::string msg = afPrivmsg.substr(afPrivmsg.find(':') + 1);
-
-                    if(sender != BOT_NICK)
-                        sendMsg(fd, handlePrivmsg(sender, target, msg));
-                }
-                catch(std::exception &e)
-                {
-                    std::cerr << "Parse error: " << e.what() << std::endl;
-                }
-            }
-            if (line.find("INVITE") != std::string::npos && line[0] == ':')
-            {
-                try
-                {
-                    std::istringstream iss(line);
-                    std::string prefix;
-                    std::string command;
-                    std::string target;
-                    std::string channel;
-
-                    iss >> prefix >> command >> target >> channel;
-
-                    if (!channel.empty() && channel[0] == ':')
-                        channel = channel.substr(1);
-
-                    if (target != BOT_NICK || channel.empty() || channel[0] != '#')
-                        continue;
-
-                    std::cout << "Invited to " << channel << ", joining..." << std::endl;
-                    sendMsg(fd, "JOIN " + channel);
-                }
-                catch (std::exception& e)
-                {
-                    std::cerr << "INVITE parse error: " << e.what() << std::endl;
-                }
-            }
-        }
-     }
+        std::string pending = std::string(buffer, bytes);
+        executeCommand(pending, fd, registered);
+    }
     close (fd);
     return (0);
 }
