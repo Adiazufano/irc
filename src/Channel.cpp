@@ -179,9 +179,9 @@ void Channel::removeAdmin(int fd)
 		{
 			if (_members_fd[i] == fd)
 				continue;
-			if (_server->getClients().count(_members_fd[i]) > 0)
+			if (_server->findClientbyFd(_members_fd[i]))
 			{
-				Client &op = _server->getClients()[_members_fd[i]];
+				Client &op = _server->getClientbyFd(_members_fd[i]);
 				addAdmind(op.getFd());
 				sendMembers(CMD_MODE(_name, "+o", op.getNickname()));
 				break;
@@ -247,9 +247,9 @@ void Channel::sendMembers(std::string msg, int exclude) const
 	{
 		if (exclude && _members_fd[i] == exclude)
 			continue;
-		if (_server->getClients().count(_members_fd[i]) > 0)
+		if (_server->findClientbyFd(_members_fd[i]))
 		{
-			Client &dest = _server->getClients()[_members_fd[i]];
+			Client &dest = _server->getClientbyFd(_members_fd[i]);
 			dest.sendMsg(msg);
 		}
 	}
