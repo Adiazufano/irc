@@ -50,7 +50,7 @@
 // Custom messages
 
 # define CMD_MODE(channel, modestring, args)             (my_serv_name" MODE " + (channel) + " " + (modestring) + " " + (args))
-# define CMD_PONG(token)                                 (my_serv_name" PONG my_serv_irc :" + (token))
+# define CMD_PONG(token)                                 (my_serv_name" PONG my_serv_irc " + (token))
 # define CMD_QUIT(source, client, host, reason)          (":" + (source) + "!" + (client) + "@" + (host) + " QUIT :" + (reason))
 # define CMD_NICK(source, client, host, newnick)         (":" + (source) + "!" + (client) + "@" + (host) + " NICK :" + (newnick))
 # define CMD_PRIVMSG(client, user, host, target, text)   (":" + (client) + "!" + (user) + "@" + (host) + " PRIVMSG " + (target) + " " + (text))
