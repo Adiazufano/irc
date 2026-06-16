@@ -58,6 +58,188 @@ PRIVMSG #mychannel :Hello you all!
 
 Type `Ctrl`+`C` to quit.
 
+## Commands
+
+### CAP
+
+This command is used during user registration for capability negotiation between a server and a client.
+
+```
+CAP * LS 302
+
+CAP END
+```
+
+
+### PASS
+
+Set a connection password.
+
+```
+PASS 1234
+```
+
+### NICK
+
+Give the client a nickname or change the previous one.
+
+```
+NICK homer89
+```
+
+
+### USER
+
+The `USER` command is used at the beginning of a connection to specify the username and realname of a new user.
+
+```
+USER homer 0 * :Homer Simpson
+```
+
+
+### PING
+
+The `PING` command is sent by either clients or servers to check the other side of the connection is still connected.
+
+```
+PING ...
+```
+
+
+### QUIT
+
+Terminate a client’s connection to the server.
+
+```
+QUIT :Gone to evaluate someone's Libft
+```
+
+
+### JOIN
+
+Join or create a channel. If the channel doesn't exist it will be created and the client will become a channel operator.
+
+You may specify more than one channel.
+
+Provide the optional key argument if the channel requires a password or the client wants to create a password-protected channel.
+
+```
+JOIN #born2code
+
+JOIN #born2code 1234
+
+JOIN #born2code,#42madrid 1234
+```
+
+
+### PART
+
+Exit from the given channels.
+
+```
+PART #born2code
+
+PART #born2code,#42madrid :Absorbed by the blackhole
+```
+
+
+### TOPIC
+
+Change or view the topic of the given channel. If the protected topic mode is set on a channel, clients must have appropriate channel permissions to modify the topic of that channel.
+
+```
+TOPIC #catmemes
+
+TOPIC #catmemes :Share your favorite cat memes
+```
+
+
+### NAMES
+
+List the nicknames joined to a channel. Channel operators are prefixed with `@`.
+
+```
+NAMES #42madrid
+```
+
+
+### LIST
+
+Get a list of channels along with some information about each channel.
+
+```
+LIST #catmemes,#born2code
+```
+
+
+### INVITE
+
+Invite a user to a channel.
+
+```
+INVITE aldiaz-u #born2code
+```
+
+
+### KICK
+
+Remove a user from a channel.
+
+```
+KICK #born2code mparra-s :Very noisy user
+```
+
+
+### PRIVMSG
+
+Send private messages between users, and send messages to channels.
+
+```
+PRIVMSG rachel-g :How you doin?
+
+PRIVMSG #born2code :Can someone please evaluate an Inception?
+```
+
+
+### NOTICE
+
+Send notices between users, and send notices to channels.
+
+> This command is very similar to `PRIVMSG` but it doesn't send automatic replies.
+
+```
+NOTICE ...
+
+NOTICE ...
+```
+
+### WHO
+
+Query a list of users from a channel.
+
+```
+WHO #42madrid
+```
+
+### MODE
+
+Set (`+`) or unset (`-`) options from a channel.
+
+- `+i`: Set channel to invite-only mode
+- `+t`: Only channel operators can modify topic
+- `+k`: Set a password to join channel
+- `+l`: Set a user limit to a channel
+- `+o`: Give operator privileges to a user
+
+```
+MODE #mychan
+
+MODE #mychan +k 1234
+
+MODE #mychan +l 100
+
+MODE #mychan +ikl-t 1234 100
+```
 
 ## (Additional sections)
 
