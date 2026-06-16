@@ -26,7 +26,7 @@ void cmdWho(Server& s, Client& client, std::string& line)
         std::string flags = "H";
         if (ch->isAdmin(*it))
             flags += "@";
-        client.sendMsg(my_serv_name" 352 " + cliReq + " " + chName + " " + member.getUser() + " " + member.getHostname() + " " + my_serv_name + " " + member.getNickname() + " " + flags + " :0 " + member.getRealname());
+        client.sendMsg(my_serv_name" 352 " + cliReq + " " + chName + " " + member.getUser() + " " + member.getHostname() + " my_serv_irc " + member.getNickname() + " " + flags + " :0 " + member.getRealname());
     }
     client.sendMsg(RPL_ENDOFWHO(cliReq, chName));
 }
