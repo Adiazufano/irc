@@ -14,11 +14,11 @@ void privmsgUser(Server &s, Client &client, std::string &target, std::string &te
 void privmsgChannel(Server &s, Client &client, std::string &channelName, std::string &text)
 {
 	// Channel doesn't exist
-	if (!s.getChannels().count(channelName))
+	if (!s.findChannelbyName(channelName))
 		return client.sendMsg(ERR_NOTONCHANNEL(client.getNickname(), channelName));
 
 	// Sender doesn't belong to channel
-	Channel *ch = s.getChannels()[channelName];
+	Channel *ch = s.getChannelbyName(channelName);
 	if (!ch->hasClient(client))
 		return client.sendMsg(ERR_CANNOTSENDTOCHAN(client.getNickname(), channelName));
 

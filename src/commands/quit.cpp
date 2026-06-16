@@ -14,7 +14,7 @@ void cmdQuit(Server &s, Client &cli, std::string line)
 
     for (it = channels.begin(); it != channels.end(); ++it)
     {
-        ch = s.getChannels()[*it];
+        ch = s.getChannelbyName(*it);
         if (ch)
             ch->removeClient(cli.getFd());
         ch->sendMembers(quit_msg);

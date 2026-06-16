@@ -17,11 +17,10 @@ void    cmdKick(Server &s, Client &client, std::string line)
     if (!checkName(channelName))
         return (client.sendMsg(ERR_NOSUCHCHANNEL(client.getNickname(), channelName)));
 
-    std::map<std::string, Channel*>& channels = s.getChannels();
-    if (!s.getChannels().count(channelName))
+    if(!s.findChannelbyName(channelName))
         return (client.sendMsg(ERR_NOSUCHCHANNEL(client.getNickname(), channelName)));
 
-    Channel *channel = channels[channelName];
+    Channel *channel = s.getChannelbyName(channelName);
     if (!channel->hasClient(client))
         return(client.sendMsg(ERR_NOTONCHANNEL(client.getNickname(), channelName)));
 

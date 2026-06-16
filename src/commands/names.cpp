@@ -29,10 +29,10 @@ void cmdNames(Server& s, Client& client, std::string& line)
     {
         if(channel.empty())
             return (client.sendMsg(ERR_NEEDMOREPARAMS(client.getNickname(), client.getCliCmd())));
-        if(!s.getChannels().count(channel))
+        if(!s.findChannelbyName(channel))
             return (client.sendMsg(ERR_NOSUCHCHANNEL(client.getNickname(), channel)));
         
-        Channel *ch = s.getChannels()[channel];
+        Channel *ch = s.getChannelbyName(channel);
         namesCommand(s, (*ch), client);
     }
 }

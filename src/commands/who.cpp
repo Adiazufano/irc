@@ -13,10 +13,10 @@ void cmdWho(Server& s, Client& client, std::string& line)
     iss >> chName;
     if (chName.empty())
         return client.sendMsg(ERR_NEEDMOREPARAMS(client.getNickname(), client.getCliCmd()));
-    if (!s.getChannels().count(chName))
+    if (!s.findChannelbyName(chName))
         return client.sendMsg(ERR_NOSUCHCHANNEL(client.getNickname(), chName));
 
-    Channel *ch = s.getChannels()[chName];
+    Channel *ch = s.getChannelbyName(chName);
     std::vector<int> members = ch->getClientsArray();
     std::string cliReq = client.getNickname();
 

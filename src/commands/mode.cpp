@@ -108,10 +108,10 @@ void cmdMode(Server &s, Client &c, std::string &line)
 	if (target[0] != '#')
 		return c.sendMsg(ERR_UMODEUNKNOWNFLAG(c.getNickname()));
 
-	if (!s.getChannels().count(target))
+	if (!s.findChannelbyName(target))
 		return c.sendMsg(ERR_NOSUCHCHANNEL(c.getNickname(), target));
 
-	Channel &channel = *(s.getChannels()[target]);
+	Channel &channel = *(s.getChannelbyName(target));
 
 	if (modestring.empty())
 		return c.sendMsg(RPL_CHANNELMODEIS(c.getNickname(), target, channel.getChannelModes(), channel.getChannelModeArgs()));

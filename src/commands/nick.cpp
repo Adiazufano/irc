@@ -17,8 +17,17 @@ void cmdNick(Server& s, Client &client, std::istringstream &iss)
     if (!isValidChar(nickname, " ,:*?!@#&"))
         return(client.sendMsg(ERR_ERRONEUSNICKNAME(oldNickname, nickname)));
 
-    if (s.getClientsByNick().find(nickname) != s.getClientsByNick().end())
-        return (client.sendMsg(ERR_NICKNAMEINUSE(oldNickname, nickname)));
+    for (std::map<std::string, int>::iterator it = s.getClientsByNick().begin(); it != s.getClientsByNick().end(); ++it)
+    {
+        std::string tester = it->first;
+        std::string fakenick = nickname;
+        ft_tolower(tester);
+        ft_tolower(fakenick);
+        if(tester == fakenick)
+            return (client.sendMsg(ERR_NICKNAMEINUSE(oldNickname, nickname)));      
+    }  
+    /*if (s.getClientsByNick().find(nickname) != s.getClientsByNick().end())
+        return (client.sendMsg(ERR_NICKNAMEINUSE(oldNickname, nickname)));*/
 
     if (!client.getNickname().empty())
         s.getClientsByNick().erase(client.getNickname());

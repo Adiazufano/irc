@@ -18,11 +18,11 @@ void cmdInvite(Server &s, Client &client, std::string &line)
 		return client.sendMsg(ERR_NOSUCHNICK(client.getNickname(), nickname));
 
 	// Channel doesn't exist
-	if (!s.getChannels().count(channelName))
+	if (!s.getChannelbyName(channelName))
 		return client.sendMsg(ERR_NOSUCHCHANNEL(client.getNickname(), channelName));
 
 	// Sender doesn't belong to channel
-	Channel *ch = s.getChannels()[channelName];
+	Channel *ch = s.getChannelbyName(channelName);
 	if (!ch->hasClient(client))
 		return client.sendMsg(ERR_CANNOTSENDTOCHAN(client.getNickname(), channelName));
 

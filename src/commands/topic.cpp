@@ -12,11 +12,9 @@ void cmdTopic(Server &s, Client &client, std::string line)
     std::string resto;
     std::string topic;
     std::getline(iss, resto);
-    std::map<std::string, Channel*>::iterator it = s.getChannels().find(channelName);
-    if (it == s.getChannels().end())  
+    if(!s.findChannelbyName(channelName))
         return(client.sendMsg(ERR_NOSUCHCHANNEL(client.getNickname(), channelName)));
-
-    Channel &channel = (*it -> second);
+    Channel &channel = *s.getChannelbyName(channelName);
     if (!channel.hasClient(client))
         return (client.sendMsg(ERR_NOTONCHANNEL(client.getNickname(), channelName)));
 

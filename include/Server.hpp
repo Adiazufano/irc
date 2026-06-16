@@ -61,6 +61,9 @@ class Server
 		const std::string &getHostname() const;
 		std::map<std::string, int> &getClientsByNick();
 		std::vector<int>	&getDisconnectedSockets();
+
+		bool findChannelbyName(std::string name);
+		Channel *getChannelbyName(std::string name);
 };
 
 #endif

@@ -39,13 +39,13 @@ void cmdPart(Server &s, Client& client, std::string line)
 		// If is empty
 		if (name.empty())
 			client.sendMsg(ERR_NEEDMOREPARAMS(client.getNickname(), client.getCliCmd()));
-        if (!s.getChannels().count(name))
+        if (!s.findChannelbyName(name))
         {
             client.sendMsg(ERR_NOSUCHCHANNEL(client.getNickname(), name));
             continue ;
         }
         
-        Channel* ch = s.getChannels()[name];
+        Channel* ch = s.getChannelbyName(name);
 
         if (!ch->hasClient(client))
         {

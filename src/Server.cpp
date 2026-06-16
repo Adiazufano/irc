@@ -3,6 +3,7 @@
 #include "Channel.hpp"
 #include "commands.hpp"
 #include "definitions.hpp"
+#include "utils.hpp"
 
 extern bool run_server;
 
@@ -50,6 +51,33 @@ std::map<std::string, Channel *> &Server::getChannels()
 	return _channels;
 }
 
+bool Server::findChannelbyName(std::string name)
+{
+    for (std::map<std::string, Channel *>::iterator it = _channels.begin(); it != _channels.end(); ++it)
+    {
+        std::string tester = it->first;
+        ft_tolower(name);
+        ft_tolower(tester);
+        if(tester == name)
+            return (true);      
+    } 
+	return(false);
+}
+
+Channel *Server::getChannelbyName(std::string name)
+{
+    for (std::map<std::string, Channel *>::iterator it = _channels.begin(); it != _channels.end(); ++it)
+    {
+        std::string tester = it->first;
+        ft_tolower(name);
+        ft_tolower(tester);
+        if(tester == name)
+            return (it->second);      
+    } 
+	return(NULL);
+}
+
+
 std::map<std::string, int> &Server::getClientsByNick()
 {
 	return _clientsByNick;
@@ -64,6 +92,7 @@ const std::string &Server::getHostname() const
 {
     return _hostname;
 }
+
 
 void Server::init()
 {

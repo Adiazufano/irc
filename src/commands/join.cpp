@@ -8,7 +8,7 @@
 
 void replyUser(Server &s, Client& client, std::string name)
 {
-    std::string topic = s.getChannels()[name]->getChannelTopic();
+    std::string topic = s.getChannelbyName(name)->getChannelTopic();
     std::string nick = client.getNickname();
     
     if(!topic.empty())      // Sólo se envía al cliente que se une al canal, no a todo el mundo.
@@ -16,7 +16,7 @@ void replyUser(Server &s, Client& client, std::string name)
     else
         client.sendMsg(RPL_NOTOPIC(nick, name));
     
-    namesCommand(s, *s.getChannels()[name], client);
+    namesCommand(s, *s.getChannelbyName(name), client);
 }
 
 
@@ -24,11 +24,11 @@ void replyUser(Server &s, Client& client, std::string name)
 void joinMessages(Server &s, Client& client, std::string name)
 {
     std::string joinMsg;
-    std::vector<int> clients = s.getChannels()[name]->getClientsArray();
+    std::vector<int> clients = s.getChannelbyName(name)->getClientsArray();
 
     // Formato mensaje IRC [ :origen CODIGO destino [parámetros] :texto final\r\n ]
     joinMsg = ":" + client.getNickname() + "!" + client.getUser() + "@" + client.getHostname()+ " " + client.getCliCmd() + " " + name;
-    s.getChannels()[name]-> sendMembers(joinMsg, 0);
+    s.getChannelbyName(name)-> sendMembers(joinMsg, 0);
     replyUser(s, client, name);
 }
 
@@ -37,6 +37,8 @@ bool checkName(std::string name)
 {
     if(name[0] != '#' && name[0] != '&')      
         return false;
+    else if (name.size() == 1)
+        return false;    
     return(true);
 }
 
@@ -123,29 +125,29 @@ void cmdJoin(Server &s, Client& client, std::string line)
     str >> _chKey;
     _chData = getChData(_chName, _chKey, client);
     if(_chData.empty())
-    {
-        errorMsg = ERR_NEEDMOREPARAMS(nick, client.getCliCmd());
-        return;
-    }
+        return client.sendMsg(ERR_NEEDMOREPARAMS(nick, client.getCliCmd()));
 
     for(std::map<std::string, std::string>::iterator it = _chData.begin(); it != _chData.end(); ++it)
     {
         std::string name = it->first;
         std::string key = it->second;
-
-
-        if (s.getChannels().count(name) && validKey(s.getChannels()[name], key , client.getFd()) && validCapacity(s.getChannels()[name]) && isPrivate(s.getChannels()[name], client.getFd()))
+        
+        if(s.findChannelbyName(name))
         {
-            s.getChannels()[name]->addMember(client.getFd());
-            client.addChannel(*(s.getChannels()[name]));
-            joinMessages(s, client, name);
+            Channel *ch = s.getChannelbyName(name);
+            if (!validKey(ch, key, client.getFd()))
+                client.sendMsg(ERR_BADCHANNELKEY(nick, name));
+            else if (!validCapacity(ch))
+                client.sendMsg(ERR_CHANNELISFULL(nick, name));
+            else if (!isPrivate(ch, client.getFd()))
+                client.sendMsg(ERR_INVITEONLYCHAN(nick, name));
+            else
+            {
+                ch->addMember(client.getFd());
+                client.addChannel(*(ch));
+                joinMessages(s, client, name);
+            }
         }
-        else if (s.getChannels().count(name) && !validKey(s.getChannels()[name], key, client.getFd()))
-            client.sendMsg(ERR_BADCHANNELKEY(nick, name));
-        else if (s.getChannels().count(name) && !validCapacity(s.getChannels()[name]))
-            client.sendMsg(ERR_CHANNELISFULL(nick, name));
-        else if (s.getChannels().count(name) && !isPrivate(s.getChannels()[name], client.getFd()))
-            client.sendMsg(ERR_INVITEONLYCHAN(nick, name));
         else
         {
             Channel* ch = new Channel (name, key, client.getFd(), &s);
