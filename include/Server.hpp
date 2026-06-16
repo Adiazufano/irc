@@ -64,6 +64,10 @@ class Server
 
 		bool findChannelbyName(std::string name);
 		Channel *getChannelbyName(std::string name);
+		bool findClientbyNick(std::string name);
+		bool findClientbyFd(int fd);
+		Client *getClientbyNickname(std::string name);
+		Client &getClientbyFd(int fd);
 };
 
 #endif

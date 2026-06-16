@@ -51,6 +51,42 @@ std::map<std::string, Channel *> &Server::getChannels()
 	return _channels;
 }
 
+bool Server::findClientbyNick(std::string name)
+{
+	for (std::map<std::string, int>::iterator it = _clientsByNick.begin(); it != _clientsByNick.end(); ++it)
+	{
+		std::string tester = it->first;
+        ft_tolower(name);
+        ft_tolower(tester);
+        if(tester == name)
+            return (true);      
+	}
+	return (false);	
+}
+
+bool Server::findClientbyFd(int fd)
+{
+	return _clients.count(fd);
+}
+Client *Server::getClientbyNickname(std::string name)
+{
+	for (std::map<std::string, int>::iterator it = _clientsByNick.begin(); it != _clientsByNick.end(); ++it)
+	{
+		std::string tester = it->first;
+        int fd = _clientsByNick[it->first];
+		ft_tolower(name);
+        ft_tolower(tester);
+        if(tester == name)
+            return (&_clients[fd]);      
+	}
+	return(NULL);		
+}
+
+Client &Server::getClientbyFd(int fd)
+{
+	return _clients[fd];
+}
+
 bool Server::findChannelbyName(std::string name)
 {
     for (std::map<std::string, Channel *>::iterator it = _channels.begin(); it != _channels.end(); ++it)
