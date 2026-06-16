@@ -37,7 +37,7 @@ void cmdTopic(Server &s, Client &client, std::string line)
         if((channel.isModeEnabled('t') && channel.isAdmin(client.getFd())) || !channel.isModeEnabled('t'))
         {
             channel.setChannelTopic(topic);
-            std::string broadcast = ":" + client.getNickname() + "!" + client.getUser() + "@localhost" + " TOPIC " + channelName + " :" + channel.getChannelTopic() + "\r\n";
+            std::string broadcast = ":" + client.getNickname() + "!" + client.getUser() + "@localhost" + " TOPIC " + channelName + " :" + channel.getChannelTopic();
             channel.sendMembers(broadcast);
         }
         else
