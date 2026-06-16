@@ -22,7 +22,7 @@ void cmdWho(Server& s, Client& client, std::string& line)
 
     for (std::vector<int>::iterator it = members.begin(); it != members.end(); ++it)
     {
-        Client &member = s.getClients()[*it];
+        Client &member = s.getClientbyFd(*it);
         std::string flags = "H";
         if (ch->isAdmin(*it))
             flags += "@";
