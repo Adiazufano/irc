@@ -14,7 +14,7 @@ void cmdInvite(Server &s, Client &client, std::string &line)
 		return client.sendMsg(ERR_NEEDMOREPARAMS(client.getNickname(), client.getCliCmd()));
 
 	// Nickname doesn't exist
-	if (!s.getClientsByNick().count(nickname))
+	if (!s.findClientbyNick(nickname))
 		return client.sendMsg(ERR_NOSUCHNICK(client.getNickname(), nickname));
 
 	// Channel doesn't exist
@@ -31,7 +31,7 @@ void cmdInvite(Server &s, Client &client, std::string &line)
 		return client.sendMsg(ERR_CHANOPRIVSNEEDED(client.getNickname(), channelName));
 
 	// Target is already on the channel
-	Client &target = s.getClients()[s.getClientsByNick()[nickname]];
+	Client &target = *(s.getClientbyNickname(nickname));
 	if (ch->hasClient(target))
 		return client.sendMsg(ERR_USERONCHANNEL(client.getNickname(), nickname, channelName));
 

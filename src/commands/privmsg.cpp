@@ -3,11 +3,11 @@
 void privmsgUser(Server &s, Client &client, std::string &target, std::string &text)
 {
 	// Target not found
-	if (!s.getClientsByNick().count(target))
+	if (!s.findClientbyNick(target))
 		return client.sendMsg(ERR_NOSUCHNICK(client.getNickname(), target));
 
 	// Send private message to target client
-	Client &dest = s.getClients()[s.getClientsByNick()[target]];
+	Client &dest = *s.getClientbyNickname(target);
 	dest.sendMsg(CMD_PRIVMSG(client.getNickname(), client.getUser(), client.getHostname(), target, text));
 }
 

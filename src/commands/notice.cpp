@@ -3,11 +3,11 @@
 void noticeUser(Server &s, Client &client, std::string &target, std::string &text)
 {
 	// Target not found
-	if (!s.getClientsByNick().count(target))
+	if (!s.findClientbyNick(target))
 		return;
 
 	// Send private message to target client
-	Client &dest = s.getClients()[s.getClientsByNick()[target]];
+	Client &dest = *s.getClientbyNickname(target);
 	dest.sendMsg(CMD_NOTICE(client.getNickname(), client.getUser(), client.getHostname(), target, text));
 }
 
