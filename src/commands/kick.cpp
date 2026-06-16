@@ -34,7 +34,7 @@ void    cmdKick(Server &s, Client &client, std::string line)
 
     int targetFd = it->second;
 
-    Client &cli = s.getClients()[targetFd];
+    Client &cli = s.getClientbyFd(targetFd);
     std::vector<int> _fd_clients = channel->getClientsArray();
     bool targetInChannel = std::find(_fd_clients.begin(), _fd_clients.end(), targetFd) != _fd_clients.end();
 
