@@ -42,7 +42,7 @@ void    cmdKick(Server &s, Client &client, std::string line)
     {
         resto = getMsg(iss);
         if (resto.empty())
-            resto = "Expulsado por un operador"; // TO DO: What the heck is this??? ;-)
+            resto = "Kicked out by an operator";
 
         std::string msgKick = ":" + client.getNickname() + "!" + client.getUser() + "@" + client.getHostname() + " KICK " + channelName + " " + nick + " :" + resto;
         channel->sendMembers(msgKick);
