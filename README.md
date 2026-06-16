@@ -102,7 +102,7 @@ USER homer 0 * :Homer Simpson
 The `PING` command is sent by either clients or servers to check the other side of the connection is still connected.
 
 ```
-PING ...
+PING LAG1781564777701
 ```
 
 
@@ -208,9 +208,9 @@ Send notices between users, and send notices to channels.
 > This command is very similar to `PRIVMSG` but it doesn't send automatic replies.
 
 ```
-NOTICE ...
+NOTICE rachel-g :How you doin?
 
-NOTICE ...
+NOTICE #born2code :Can someone please evaluate an Inception?
 ```
 
 ### WHO
@@ -237,6 +237,8 @@ MODE #mychan
 MODE #mychan +k 1234
 
 MODE #mychan +l 100
+
+MODE #mychan +o joey33
 
 MODE #mychan +ikl-t 1234 100
 ```

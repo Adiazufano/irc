@@ -105,7 +105,7 @@ void cmdMode(Server &s, Client &c, std::string &line)
 
 	iss >> target >> modestring;
 
-	if (target[0] != '#')
+	if (target[0] != '#' && !modestring.empty())
 		return c.sendMsg(ERR_UMODEUNKNOWNFLAG(c.getNickname()));
 
 	if (!s.findChannelbyName(target))
