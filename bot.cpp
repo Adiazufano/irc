@@ -7,7 +7,8 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include <curl/curl.h>
+#include <map>
+//#include <curl/curl.h>
 
 #define HOST "127.0.0.1"
 #define PORT 6667
@@ -69,7 +70,7 @@ std::string extractContent(const std::string &json)
 }
 
 
-std::string solverAI(std::string& question)
+/*std::string solverAI(std::string& question)
 {
     CURL *curl = curl_easy_init();
     if (!curl)
@@ -98,7 +99,7 @@ std::string solverAI(std::string& question)
 
     std::cout << "Groq response: " << response << std::endl; // debug
     return (extractContent(response));
-}
+}*/
 
 
 void sendMsg(int fd, std::string msg)
@@ -144,66 +145,160 @@ std::string handlePrivmsg(std::string sender, std::string target, std::string ms
 
     if(msg.substr(0, 4) == "!ask")
     {
+        std::string answer = "Soy completamente funcional";
+
+        return("PRIVMSG " + responseTarget + " :" + answer);
+    }
+
+    /*if(msg.substr(0, 4) == "!ask")
+    {
         std::string question = parseQuestion((msg.substr(5) + " Please condense your answer to 400 characters or less if possible."));
         std::string answer = solverAI(question);
         if(answer.size() > 400)
             answer = answer.substr(0, 400) + "...";
         return("PRIVMSG " + responseTarget + " :" + answer);
-    }
+    }*/
     return ("PRIVMSG " + responseTarget + " :Unknown command. Use !ask <question>");
 }
 
 
-void connectToChannels(const std::string& data, int fd, std::set<std::string>& channels, int& numberofch, int& counter, bool& listing)
+void connectToChannels(const std::string& line, int fd, std::set<std::string>& joinedChannels, bool& listingDone)
 {
-    size_t hastag;
-    std::string chName;
-    std::string rest;
+    std::istringstream iss(line);
+    std::string prefix;
+    std::string command;
 
-    if(!listing)
+    if (line.empty())
+        return;
+
+    if (line[0] == ':')
+        iss >> prefix >> command;
+    else
+        iss >> command;
+
+    if (command == "322")
     {
-        sendMsg(fd, "LIST");
-        listing = true;
+        std::string nick, channel;
+        iss >> nick >> channel;
+
+        if (channel.empty() || channel[0] != '#')
+            return;
+
+        // Avoid rejoining
+        if (joinedChannels.find(channel) != joinedChannels.end())
+            return;
+
+        std::cout << "Joining channel: " << channel << std::endl;
+
+        sendMsg(fd, "JOIN " + channel);
+
+        // Es necesario para evitar overflow de canales que evite que se conecte a alguno o de error.
+        usleep(200000);
+    }
+    else if (command == "323")
+    {
+        listingDone = true;
+        std::cout << "Finished channel listing." << std::endl;
     }
 
-    if(data.find("322") != std::string::npos)
+    else if (command == "JOIN")
     {
-        counter++;
-        hastag = data.find('#');
-        if(hastag != std::string::npos)
-        {
-            rest = data.substr(hastag);
-            chName = rest.substr(0, rest.find(' '));
-             while(!chName.empty() && (chName[chName.size() - 1] == '\r' || chName[chName.size() - 1] == '\n' || chName[chName.size() - 1] == ' '))
-                chName.erase(chName.size() - 1);
-            if(channels.find(chName) == channels.end())
-                sendMsg(fd, "JOIN " + chName);
-        }       
-    }
 
-    if(data.find("323") != std::string::npos)
-    {
-        if(counter != numberofch)
+        std::string sender = prefix.substr(1, prefix.find('!') - 1);
+
+        std::string channel;
+        iss >> channel;
+
+        if (channel.empty())
+            return;
+        if (channel[0] == ':')
+            channel = channel.substr(1);
+        if (sender == BOT_NICK)
         {
-            numberofch = counter;
+            joinedChannels.insert(channel);
+            std::cout << "Confirmed join: " << channel << std::endl;
+        }
+    }
+    else if (command == "471" || command == "473" || command == "474" || command == "475")
+        std::cout << "JOIN failed: " << line << std::endl;
+}
+
+
+void checkIfAlone(const std::string& line, int fd, std::set<std::string>& joinedChannels)
+{
+    std::istringstream iss(line);
+    std::string prefix, command;
+
+    if (line.empty())
+        return;
+
+    if (line[0] == ':')
+        iss >> prefix >> command;
+    else
+        iss >> command;
+
+    // Someone left a channel — send WHO to check if bot is alone
+    if (command == "PART" || command == "KICK" || command == "QUIT")
+    {
+        std::string channel;
+        if (command == "KICK")
+        {
+            std::string dummy;
+            iss >> channel >> dummy; // KICK #channel nick
         }
         else
-            listing = false;
-        counter = 0;
-    }
+            iss >> channel;
 
-    if(data.find("JOIN") != std::string::npos && data.find(BOT_NICK) != std::string::npos)
-    {
-        hastag = data.find('#');
-        if(hastag != std::string::npos)
-        {
-            rest = data.substr(hastag);
-            chName = rest.substr(0, rest.find(' '));
-            channels.insert(chName);
-        }
+        if (channel.empty() || channel[0] != '#')
+            return;
+
+        // Only check channels the bot is in
+        if (joinedChannels.find(channel) == joinedChannels.end())
+            return;
+
+        std::cout << "Someone left " << channel << ", checking if bot is alone..." << std::endl;
+        sendMsg(fd, "WHO " + channel);
     }
 }
 
+
+void handleWhoReply(const std::string& line, int fd, std::set<std::string>& joinedChannels,
+                    std::map<std::string, int>& whoCount)
+{
+    std::istringstream iss(line);
+    std::string prefix, command;
+
+    if (line[0] == ':')
+        iss >> prefix >> command;
+    else
+        iss >> command;
+
+    // 352 — one user in WHO response
+    if (command == "352")
+    {
+        std::string requester, channel;
+        iss >> requester >> channel;
+        whoCount[channel]++;
+    }
+
+    // 315 — end of WHO list
+    if (command == "315")
+    {
+        std::string requester, channel;
+        iss >> requester >> channel;
+
+        std::cout << "WHO finished for " << channel << ": " << whoCount[channel] << " users" << std::endl;
+
+        // Bot is alone if only 1 user (itself)
+        if (whoCount[channel] <= 1)
+        {
+            std::cout << "Bot is alone in " << channel << ", leaving..." << std::endl;
+            sendMsg(fd, "PART " + channel + " :I am alone here, leaving.");
+            joinedChannels.erase(channel);
+        }
+        whoCount[channel] = 0; // reset for next WHO
+    }
+}
 
 int main()
 {
@@ -239,9 +334,10 @@ int main()
 
     char buffer[2048];
     std::set<std::string> channels;                         // Es mejor usar set en este caso porque así no se almacenan nombres repetidos de canales y no necesitamos acceder por posición.
-    int numberofch = 0;
-    int counter = 0;
-    bool listing = false; 
+    std::string pending;
+    bool listing = false;
+    std::map<std::string, int> whoCount;
+    std::string whoChannel;  
     while(true)
     {
         memset(buffer, 0, sizeof(buffer));
@@ -249,40 +345,76 @@ int main()
         int bytes = recv(fd, buffer, sizeof(buffer) - 1, 0);
         if(bytes <= 0)
             break ;
-
-        std::string data(buffer);
-        std::cout << data << std::endl;
-
-        if(data.substr(0, 4) == "PING")
-            sendMsg(fd, "PONG " + data.substr(5));
-
-        if(!registered && data.find("001") != std::string::npos)
+    
+        pending += std::string(buffer, bytes);
+        size_t pos;
+        while((pos = pending.find("\r\n")) != std::string::npos)
         {
-            sendMsg(fd, "JOIN #Omni-bot");
-            registered = true;
-        }
+            std::string line = pending.substr(0, pos);
+            pending.erase(0, pos + 2);
+            std::cout << line << std::endl;
 
-        if(registered)
-            connectToChannels(data, fd, channels, numberofch, counter, listing);
+            if(line.substr(0, 4) == "PING")
+                sendMsg(fd, "PONG " + line.substr(5));
 
-        if(data.find("PRIVMSG") != std::string::npos && data[0] == ':')
-        {
-            try
+            if(!registered && line.find("001") != std::string::npos)
             {
-                std::string sender = data.substr(1, data.find('!') - 1);
-                std::string afPrivmsg = data.substr(data.find("PRIVMSG") + 8);
-                std::string target = afPrivmsg.substr(0, afPrivmsg.find(' '));
-                std::string msg = afPrivmsg.substr(afPrivmsg.find(':') + 1);
-
-                if(sender != BOT_NICK)
-                    sendMsg(fd, handlePrivmsg(sender, target, msg));
+                sendMsg(fd, "JOIN #Omni-bot");
+                sendMsg(fd, "LIST");
+                registered = true;
             }
-            catch(std::exception &e)
+
+            if(registered)
             {
-                std::cerr << "Parse error: " << e.what() << std::endl;
+                connectToChannels(line, fd, channels, listing);
+                checkIfAlone(line, fd, channels);
+                handleWhoReply(line, fd, channels, whoCount);
+            }
+            if(line.find("PRIVMSG") != std::string::npos && line[0] == ':')
+            {
+                try
+                {
+                    std::string sender = line.substr(1, line.find('!') - 1);
+                    std::string afPrivmsg = line.substr(line.find("PRIVMSG") + 8);
+                    std::string target = afPrivmsg.substr(0, afPrivmsg.find(' '));
+                    std::string msg = afPrivmsg.substr(afPrivmsg.find(':') + 1);
+
+                    if(sender != BOT_NICK)
+                        sendMsg(fd, handlePrivmsg(sender, target, msg));
+                }
+                catch(std::exception &e)
+                {
+                    std::cerr << "Parse error: " << e.what() << std::endl;
+                }
+            }
+            if (line.find("INVITE") != std::string::npos && line[0] == ':')
+            {
+                try
+                {
+                    std::istringstream iss(line);
+                    std::string prefix;
+                    std::string command;
+                    std::string target;
+                    std::string channel;
+
+                    iss >> prefix >> command >> target >> channel;
+
+                    if (!channel.empty() && channel[0] == ':')
+                        channel = channel.substr(1);
+
+                    if (target != BOT_NICK || channel.empty() || channel[0] != '#')
+                        continue;
+
+                    std::cout << "Invited to " << channel << ", joining..." << std::endl;
+                    sendMsg(fd, "JOIN " + channel);
+                }
+                catch (std::exception& e)
+                {
+                    std::cerr << "INVITE parse error: " << e.what() << std::endl;
+                }
             }
         }
-    }
+     }
     close (fd);
     return (0);
 }
