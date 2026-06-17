@@ -13,6 +13,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <map>
+#include <cstdlib>
 #include <curl/curl.h>
 
 struct Config
@@ -20,6 +21,10 @@ struct Config
     std::string groq_key;
     std::string groq_url;
     std::string groq_model;
+    std::string host;
+    std::string port;
+    std::string password;
+    std::string bot_nick;
 };
 
 Config loadEnv(const std::string& path);
