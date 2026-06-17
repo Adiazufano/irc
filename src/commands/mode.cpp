@@ -141,5 +141,6 @@ void cmdMode(Server &s, Client &c, std::string &line)
         if (i != result.size() - 1)
             appliedArgs.append(" ");
     }
-    channel.sendMembers(CMD_MODE(target, result[0], appliedArgs));
+    if (!result[0].empty())
+        channel.sendMembers(CMD_MODE(target, result[0], appliedArgs));
 }
