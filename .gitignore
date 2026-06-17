@@ -4,3 +4,4 @@ deps
 obj
 bot
 bot-compiled
+.env

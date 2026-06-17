@@ -1,22 +1,32 @@
-#include <iostream>
-#include <string>
-#include <sstream>
-#include <cstring>
-#include <set>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <map>
-//#include <curl/curl.h>
+
+#include "bot.hpp"
 
 #define HOST "127.0.0.1"
 #define PORT 6667
 #define PASSWORD "1234"
 #define BOT_NICK "Omni-bot"
-#define GROQ_URL "https://api.groq.com/openai/v1/chat/completions"
-#define GROQ_KEY "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"
-#define GROQ_MODEL "llama-3.1-8b-instant"
+
+Config loadEnv(const std::string& path)
+{
+    Config cfg;
+    std::ifstream file(path.c_str());
+    std::string line;
+
+    while (std::getline(file, line))
+    {
+        if (line.empty() || line[0] == '#')
+            continue;
+        std::size_t pos = line.find('=');
+        if (pos == std::string::npos)
+            continue;
+        std::string key   = line.substr(0, pos);
+        std::string value = line.substr(pos + 1);
+        if (key == "GROQ_KEY")   cfg.groq_key   = value;
+        if (key == "GROQ_URL")   cfg.groq_url   = value;
+        if (key == "GROQ_MODEL") cfg.groq_model = value;
+    }
+    return cfg;
+}
 
 
 size_t writeAnswer(void *contents, size_t size, size_t nmemb, std::string *output)
@@ -70,20 +80,20 @@ std::string extractContent(const std::string &json)
 }
 
 
-/*std::string solverAI(std::string& question)
+std::string solverAI(std::string& question, Config cfg)
 {
     CURL *curl = curl_easy_init();
     if (!curl)
         return ("Error initializing curl");
 
     std::string response;
-    std::string jsonBody = "{\"model\":\"" + std::string(GROQ_MODEL) + "\"," + "\"messages\":[{\"role\":\"user\",\"content\":\"" + question + "\"}]}";
+    std::string jsonBody = "{\"model\":\"" + std::string(cfg.groq_model) + "\"," + "\"messages\":[{\"role\":\"user\",\"content\":\"" + question + "\"}]}";
 
     struct curl_slist *headers = NULL;
     headers = curl_slist_append(headers, "Content-Type: application/json");
-    headers = curl_slist_append(headers, ("Authorization: Bearer " + std::string(GROQ_KEY)).c_str());
+    headers = curl_slist_append(headers, ("Authorization: Bearer " + std::string(cfg.groq_key)).c_str());
 
-    curl_easy_setopt(curl, CURLOPT_URL, GROQ_URL);
+    curl_easy_setopt(curl, CURLOPT_URL, cfg.groq_url.c_str());
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, jsonBody.c_str());
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeAnswer);
@@ -99,7 +109,7 @@ std::string extractContent(const std::string &json)
 
     std::cout << "Groq response: " << response << std::endl; // debug
     return (extractContent(response));
-}*/
+}
 
 
 void sendMsg(int fd, std::string msg)
@@ -130,7 +140,7 @@ std::string parseQuestion(const std::string& question)
 }
 
 
-std::string handlePrivmsg(std::string sender, std::string target, std::string msg)
+std::string handlePrivmsg(std::string sender, std::string target, std::string msg, Config cfg)
 {
     std::string responseTarget;
 
@@ -143,21 +153,21 @@ std::string handlePrivmsg(std::string sender, std::string target, std::string ms
     while(!msg.empty() && (msg[msg.size() - 1] == '\r' || msg[msg.size() - 1] == '\n' || msg[msg.size() - 1] == ' '))
         msg.erase(msg.size() - 1);
 
-    if(msg.substr(0, 4) == "!ask")
+    /*if(msg.substr(0, 4) == "!ask")
     {
         std::string answer = "Soy completamente funcional";
 
         return("PRIVMSG " + responseTarget + " :" + answer);
-    }
+    }*/
 
-    /*if(msg.substr(0, 4) == "!ask")
+    if(msg.substr(0, 4) == "!ask")
     {
         std::string question = parseQuestion((msg.substr(5) + " Please condense your answer to 400 characters or less if possible."));
-        std::string answer = solverAI(question);
+        std::string answer = solverAI(question, cfg);
         if(answer.size() > 400)
             answer = answer.substr(0, 400) + "...";
         return("PRIVMSG " + responseTarget + " :" + answer);
-    }*/
+    }
     return ("PRIVMSG " + responseTarget + " :Unknown command. Use !ask <question>");
 }
 
@@ -300,7 +310,7 @@ void handleWhoReply(const std::string& line, int fd, std::set<std::string>& join
     }
 }
 
-void checkPrivmsg(std::string &line, int fd)
+void checkPrivmsg(std::string &line, int fd, Config cfg)
 {
     try
     {
@@ -309,7 +319,7 @@ void checkPrivmsg(std::string &line, int fd)
         std::string target = afPrivmsg.substr(0, afPrivmsg.find(' '));
         std::string msg = afPrivmsg.substr(afPrivmsg.find(':') + 1);
         if(sender != BOT_NICK)
-            sendMsg(fd, handlePrivmsg(sender, target, msg));
+            sendMsg(fd, handlePrivmsg(sender, target, msg, cfg));
     }
     catch(std::exception &e)
     {
@@ -342,12 +352,10 @@ bool checkInvite(std::string &line, int fd)
     return false;
 }
 
-void executeCommand(std::string &pending, int fd, bool registered)
+void executeCommand(std::string &pending, int fd, std::map<std::string, int> whoCount, std::set<std::string> channels, bool& registered, Config cfg)
 {
     bool listing = false;
-    std::map<std::string, int> whoCount;
     std::string whoChannel;
-    std::set<std::string> channels;
     size_t pos;                        // Es mejor usar set en este caso porque así no se almacenan nombres repetidos de canales y no necesitamos acceder por posición. 
 
     while((pos = pending.find("\r\n")) != std::string::npos)
@@ -370,7 +378,7 @@ void executeCommand(std::string &pending, int fd, bool registered)
             handleWhoReply(line, fd, channels, whoCount);
         }
         if(line.find("PRIVMSG") != std::string::npos && line[0] == ':')
-            checkPrivmsg(line, fd);
+            checkPrivmsg(line, fd, cfg);
         if (line.find("INVITE") != std::string::npos && line[0] == ':')
         {
             if (checkInvite(line, fd))
@@ -391,6 +399,8 @@ int main()
         return 1;
     }
 
+    Config cfg = loadEnv(".env");
+
     std::memset(&addr, 0, sizeof(addr));
     addr.sin_family = AF_INET;			// IPv4
 	addr.sin_port = htons(PORT);
@@ -404,14 +414,16 @@ int main()
     }
 
     bool registered = false;
-
+    
     sendMsg(fd, "PASS " + std::string(PASSWORD));
     sendMsg(fd, "NICK " + std::string(BOT_NICK));
     sendMsg(fd, "USER Omni-bot 0 * :Omni-bot");
     sendMsg(fd, "CAP END");
-
-
+    
+    
     char buffer[2048];
+    std::map<std::string, int> whoCount;
+    std::set<std::string> channels;
     while(true)
     {
         memset(buffer, 0, sizeof(buffer));
@@ -421,7 +433,7 @@ int main()
             break ;
     
         std::string pending = std::string(buffer, bytes);
-        executeCommand(pending, fd, registered);
+        executeCommand(pending, fd, whoCount, channels, registered, cfg);
     }
     close (fd);
     return (0);
