@@ -28,13 +28,13 @@ When a client disconnects it sends an `EOF` message, the server reads a message 
      ↓                 |
    listen              |
      ↓                 ↓
-   accept ←-------- connect
+   accept <-------- connect
      ↓                 ↓
-    recv ←---------- send
+    recv <---------- send
      ↓                 ↓
-    send ----------→ recv
+    send ----------> recv
      ↓                 ↓
-    recv ←---------- close
+    recv <---------- close
      ↓
    close
 ```
