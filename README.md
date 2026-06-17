@@ -6,13 +6,13 @@
 
 <!-- Clearly presents the project, including its goal and a brief overview. -->
 
-This project is an IRC server written in C++98 using **Linux sockets** and **non-blocking I/O**. Any client should be able to connect and communicate following standard IRC protocols.
+This project is an IRC server written in C++98 using **Linux sockets** and **non-blocking I/O**. Any client should be able to connect and communicate with it following standard IRC protocols.
 
 ### The Linux socket API
 
 > Adapted from [The Linux socket API explained](https://www.youtube.com/watch?v=XXfdzwEsxFk) by Chris Kanich.
 
-Both server and clients perform similar system calls before any connection attempt. When the server is listening the client a request connection with a `connect()` call and the server accepts it by calling `accept()`. Once server and client are connected through a socket, they can both send and receive data from each other using `recv` and `send`.
+Both server and clients perform similar system calls before any connection attempt. When the server is listening, a client first requests a connection with `connect()`  and the server accepts it by calling `accept()`. Once server and client are connected through a socket, they can both send and receive data from each other using `recv` and `send`.
 
 When a client disconnects it sends an `EOF` message, the server reads a message of 0 bytes length and then closes the connection.
 
@@ -34,7 +34,7 @@ When a client disconnects it sends an `EOF` message, the server reads a message 
      ↓                 ↓
     send ----------> recv
      ↓                 ↓
-    recv <---------- close
+    recv <-- EOF --- close
      ↓
    close
 ```
@@ -97,7 +97,7 @@ Type `Ctrl`+`C` to quit.
 
 [HexChat](https://hexchat.github.io/) is an open source IRC client. It provides a friendly interface to interact with.
 
-When using HexChat you should prefix every command with `/`, (i.e. `/join #42madrid`).
+When using HexChat you must prefix every command with `/`, (i.e. `/join #42madrid`).
 
 - Open HexChat, fill in **Nick name** and **User name**.
 - Press **Add** to add a new network and then press **Edit...**.
@@ -136,7 +136,7 @@ Use `JOIN` to join an existing channel or create a new one. If the specified cha
 
 You may specify a list of comma-separated channels.
 
-If the channel requires a password or you want to create a password-protected channel provide the optional key argument.
+Provide a password argument if the channel requires it or if you want to create a password-protected channel.
 
 ```
 JOIN #born2code
