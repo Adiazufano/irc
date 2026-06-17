@@ -95,6 +95,29 @@ void modeTypeD(Channel &channel, char modechar, char modeset, std::vector<std::s
     appendModesetModechar(result[0], modeset, modechar);
 }
 
+std::string computeModestring(std::string modestring)
+{
+    char modeset = '+';
+    std::string str("");
+    for (size_t i = 0; i < modestring.length(); ++i)
+    {
+        if (modestring[i] == '+' || modestring[i] == '-')
+            modeset = modestring[i];
+        else
+        {
+            size_t pos = str.find(modestring[i]);
+            if (pos == std::string::npos)
+            {
+                str.append(1, modeset);
+                str.append(1, modestring[i]);
+            }
+            else
+                str[pos - 1] = modeset;
+        }
+    }
+    return (str);
+}
+
 void cmdMode(Server &s, Client &c, std::string &line)
 {
     std::istringstream  iss(line);
@@ -120,6 +143,10 @@ void cmdMode(Server &s, Client &c, std::string &line)
     char modeset = '+';
     std::vector<std::string> result;
     result.push_back("");
+
+    std::string temp = computeModestring(modestring);
+    modestring = temp;
+
     for (size_t i = 0; i < modestring.length(); ++i)
     {
         if (modestring[i] == '+' || modestring[i] == '-')
