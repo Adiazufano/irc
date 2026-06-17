@@ -55,6 +55,11 @@ std::map<std::string, std::string> getChData(std::string names, std::string keys
     {
         if(!std::getline(streamKeys, chKeys, ','))
             chKeys = "";
+        if(chName[0] == '#' && chName.size() == 1)
+        {
+            client.sendMsg(ERR_NEEDMOREPARAMS(nick, client.getCliCmd()));
+            return std::map<std::string, std::string> ();
+        }
         if(checkName(chName) == 0)
         {
             client.sendMsg(ERR_BADCHANMASK(nick, chName));
@@ -123,8 +128,8 @@ void cmdJoin(Server &s, Client& client, std::string line)
     str >> _chName;
     str >> _chKey;
     _chData = getChData(_chName, _chKey, client);
-    if(_chData.empty())
-        return client.sendMsg(ERR_NEEDMOREPARAMS(nick, client.getCliCmd()));
+    //if(_chData.empty())
+    //    return client.sendMsg(ERR_NEEDMOREPARAMS(nick, client.getCliCmd()));
 
     for(std::map<std::string, std::string>::iterator it = _chData.begin(); it != _chData.end(); ++it)
     {
