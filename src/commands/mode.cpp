@@ -26,6 +26,8 @@ void modeTypeB(Server &s, Channel &channel, Client &c, char modechar, char modes
         if (!s.findClientbyNick(modearg))
             return c.sendMsg(ERR_NOSUCHNICK(c.getNickname(), modearg));
         Client &target = *s.getClientbyNickname(modearg);
+        if (!channel.hasClient(target))
+            return c.sendMsg(ERR_USERNOTINCHANNEL(c.getNickname(), channel.getChannelName()));
         bool isAdmin = channel.isAdmin(target.getFd());
         if ((modeset == '-' && !isAdmin) || (modeset == '+' && isAdmin))
             return;
