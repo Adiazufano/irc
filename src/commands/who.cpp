@@ -2,8 +2,6 @@
 #include "Channel.hpp"
 #include "Client.hpp"
 #include "replies.hpp"
-#include "commands.hpp"
-
 
 void cmdWho(Server& s, Client& client, std::string& line)
 {

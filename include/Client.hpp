@@ -3,35 +3,33 @@
 
 # include "Channel.hpp"
 # include "Server.hpp"
-# include <string>
-# include <vector>
 
 class Channel;
 
 class Client
 {
     private:
-        int _fd;
-        std::string _nick;
-        std::string _user;
-        std::string _realname;
-        std::string _pass;
-        std::string _hostname;
-        std::string _cmd;
-        std::vector<std::string> _channels;
-        bool _authenticated;
-        bool _has_pass;
-        bool _registered;
-        
+        int                         _fd;
+        std::string                 _nick;
+        std::string                 _user;
+        std::string                 _realname;
+        std::string                 _pass;
+        std::string                 _hostname;
+        std::string                 _cmd;
+        std::vector<std::string>    _channels;
+        bool                        _authenticated;
+        bool                        _has_pass;
+        bool                        _registered;
+
     public:
         Client();
         Client(int fd, const std::string &hostname);
         Client(const Client& other);
         Client& operator=(const Client& other);
         ~Client();
-        
-        std::string buffer; 
-        
+
+        std::string buffer;
+        void sendMsg(std::string msg);
         void setNickname(const std::string& nick);
         void setUser(const std::string& user);
         void setRealname(const std::string& realname);
@@ -42,7 +40,6 @@ class Client
         void setCliCmd(const std::string &cmd);
         void addChannel(const Channel& ch);
         void removeChannel(const Channel& ch);
-        
         const std::string &getNickname() const;
         const std::string &getUser() const;
         const std::string &getRealname() const;
@@ -54,11 +51,6 @@ class Client
         bool getHasPass() const;
         bool getRegistered() const;
         int getFd() const;
-
-		void sendMsg(std::string msg);
-
-        void printChannels();
-        void printVectorInt(std::vector<int> &v);
 };
 
 #endif

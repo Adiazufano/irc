@@ -4,7 +4,6 @@
 # include "Server.hpp"
 # include "Channel.hpp"
 # include "Client.hpp"
-# include <sstream>
 
 class Client;
 class Channel;

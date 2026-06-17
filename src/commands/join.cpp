@@ -10,8 +10,8 @@ void replyUser(Server &s, Client& client, std::string name)
 {
     std::string topic = s.getChannelbyName(name)->getChannelTopic();
     std::string nick = client.getNickname();
-    
-    if(!topic.empty())      // Sólo se envía al cliente que se une al canal, no a todo el mundo.
+
+    if(!topic.empty())
         client.sendMsg(RPL_TOPIC(nick, name, topic));
     else
         client.sendMsg(RPL_NOTOPIC(nick, name));
@@ -26,7 +26,6 @@ void joinMessages(Server &s, Client& client, std::string name)
     std::string joinMsg;
     std::vector<int> clients = s.getChannelbyName(name)->getClientsArray();
 
-    // Formato mensaje IRC [ :origen CODIGO destino [parámetros] :texto final\r\n ]
     joinMsg = ":" + client.getNickname() + "!" + client.getUser() + "@" + client.getHostname()+ " " + client.getCliCmd() + " " + name;
     s.getChannelbyName(name)-> sendMembers(joinMsg, 0);
     replyUser(s, client, name);
@@ -35,10 +34,10 @@ void joinMessages(Server &s, Client& client, std::string name)
 
 bool checkName(std::string name)
 {
-    if(name[0] != '#' && name[0] != '&')      
+    if(name[0] != '#' && name[0] != '&')
         return false;
     else if (name.size() == 1)
-        return false;    
+        return false;
     return(true);
 }
 
@@ -58,8 +57,8 @@ std::map<std::string, std::string> getChData(std::string names, std::string keys
             chKeys = "";
         if(checkName(chName) == 0)
         {
-            client.sendMsg(ERR_BADCHANMASK(nick, chName));         
-            return std::map<std::string, std::string> ();  // Devolvemos un vector vacío           
+            client.sendMsg(ERR_BADCHANMASK(nick, chName));
+            return std::map<std::string, std::string> ();
         }
         chData[chName] = chKeys;
     }

@@ -10,15 +10,15 @@ class Client;
 class Channel
 {
     private:
-        std::string _name;
-        std::string _topic;
-        std::string _modes;
-        std::string _key;
-		Server		*_server;
-		int			_limit;
-        std::vector<int> _admind_fd;
-        std::vector<int> _members_fd;
-        std::vector<int> _invited_fd;
+        std::string         _name;
+        std::string         _topic;
+        std::string         _modes;
+        std::string         _key;
+        Server              *_server;
+        int                 _limit;
+        std::vector<int>    _admins_fd;
+        std::vector<int>    _members_fd;
+        std::vector<int>    _invited_fd;
     
     public:
         Channel();
@@ -34,25 +34,23 @@ class Channel
         const std::string &getChannelModes() const;
         std::string getChannelModeArgs() const;
         const std::string& getChannelKey() const;
-		const int &getLimit() const;
-
+        const int &getLimit() const;
         void setChannelName(const std::string name);
         void setChannelTopic(const std::string topic);
         void setChannelMode(char modechar);
-		void unsetChannelMode(char modechar);
-		bool isModeEnabled(char modechar) const;
-		void setKey(const std::string key);
-		void setLimit(int n);
-
+        void unsetChannelMode(char modechar);
+        bool isModeEnabled(char modechar) const;
+        void setKey(const std::string key);
+        void setLimit(int n);
         bool isAdmin(int fd) const;
         bool isInvited(int fd) const;
         bool hasClient(const Client &client) const;
         void addMember(int fd);
-        void addAdmind(int fd);
+        void addAdmin(int fd);
         void removeAdmin(int fd);
         void addInvited(int fd);
         void removeClient(int fd);
-		void sendMembers(std::string msg, int exclude = 0) const;
+        void sendMembers(std::string msg, int exclude = 0) const;
 };
 
 #endif

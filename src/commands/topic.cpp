@@ -2,8 +2,6 @@
 #include "../include/Server.hpp"
 #include "../include/Client.hpp"
 
-
-//TO DO consultar si cualquier miebro d eun canal puede cambiar el topic
 void cmdTopic(Server &s, Client &client, std::string line)
 {
     std::istringstream iss(line);

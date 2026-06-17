@@ -2,8 +2,8 @@
 
 void cmdPing(Client &client, std::string &line)
 {
-	if (line.empty())
-		return client.sendMsg(ERR_NEEDMOREPARAMS(client.getNickname(), client.getCliCmd()));
+    if (line.empty())
+        return client.sendMsg(ERR_NEEDMOREPARAMS(client.getNickname(), client.getCliCmd()));
 
-	client.sendMsg(CMD_PONG(line));
+    client.sendMsg(CMD_PONG(line));
 }

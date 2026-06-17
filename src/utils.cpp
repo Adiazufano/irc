@@ -2,19 +2,19 @@
 
 std::string getMsg(std::istringstream &iss)
 {
-	std::string resto;
+    std::string resto;
 
-	std::getline(iss, resto);
-	if (!resto.empty() && resto[0] == ' ')
+    std::getline(iss, resto);
+    if (!resto.empty() && resto[0] == ' ')
         resto.erase(0, 1);
     if (!resto.empty() && resto[0] == ':')
         resto.erase(0, 1);
     while (!resto.empty() && resto[0] == ' ')
-	{
+    {
         resto.erase(0, 1);
-	}
+    }
 
-	return (resto);
+    return (resto);
 }
 
 void ft_toupper(std::string &str)
@@ -34,7 +34,7 @@ bool isValidChar(const std::string &line, const std::string &forbidden)
     for (size_t i = 0; i < line.length(); i++)
     {
         unsigned char c = line[i];
-        if (c < 32 || c == 127) 
+        if (c < 32 || c == 127)
             return false;
     }
     if (!forbidden.empty() && line.find_first_of(forbidden) != std::string::npos)

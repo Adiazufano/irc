@@ -11,7 +11,7 @@ void promoteAdmin(Server& s, Channel* ch)
     if (admins.empty() && !members.empty())
     {
         int newAdminFd = members[0];
-        ch->addAdmind(newAdminFd);
+        ch->addAdmin(newAdminFd);
 
         std::string newAdminNick = s.getClients()[newAdminFd].getNickname();
         //std::string modeMsg = ":my_serv_irc MODE " + ch->getChannelName() + " +o " + newAdminNick;
@@ -23,22 +23,22 @@ void promoteAdmin(Server& s, Channel* ch)
 
 void cmdPart(Server &s, Client& client, std::string line)
 {
-	// Parse channel and reason
-	std::istringstream iss1(line);
-	std::string text;
-	std::string targets_full;
-	std::vector<std::string> channels;
+    // Parse channel and reason
+    std::istringstream iss1(line);
+    std::string text;
+    std::string targets_full;
+    std::vector<std::string> channels;
 
-	getline(iss1 >> std::ws, targets_full, ' ');
-	getline(iss1 >> std::ws, text);
+    getline(iss1 >> std::ws, targets_full, ' ');
+    getline(iss1 >> std::ws, text);
 
-	// Iterate through comma-separated channels and sending the reason of leaving to each member
-	std::istringstream iss2(targets_full);
-	for (std::string name; getline(iss2, name, ',');)
-	{
-		// If is empty
-		if (name.empty())
-			client.sendMsg(ERR_NEEDMOREPARAMS(client.getNickname(), client.getCliCmd()));
+    // Iterate through comma-separated channels and sending the reason of leaving to each member
+    std::istringstream iss2(targets_full);
+    for (std::string name; getline(iss2, name, ',');)
+    {
+        // If is empty
+        if (name.empty())
+            client.sendMsg(ERR_NEEDMOREPARAMS(client.getNickname(), client.getCliCmd()));
         if (!s.findChannelbyName(name))
         {
             client.sendMsg(ERR_NOSUCHCHANNEL(client.getNickname(), name));
@@ -59,6 +59,6 @@ void cmdPart(Server &s, Client& client, std::string line)
         ch->sendMembers(msg);
         ch->removeClient(client.getFd());
         client.removeChannel(*ch);
-        promoteAdmin(s, ch);        
+        promoteAdmin(s, ch);
     }
 }

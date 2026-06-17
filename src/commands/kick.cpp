@@ -1,7 +1,6 @@
 #include "Server.hpp"
 #include "replies.hpp"
 #include "utils.hpp"
-#include <algorithm>
 
 void    cmdKick(Server &s, Client &client, std::string line)
 {

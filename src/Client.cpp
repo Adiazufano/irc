@@ -1,26 +1,50 @@
 #include "Client.hpp"
 #include "definitions.hpp"
 
-Client::Client() : _fd(-1), _authenticated(false), _has_pass(false), _registered(false){}
+Client::Client() :
+    _fd(-1),
+    _authenticated(false),
+    _has_pass(false),
+    _registered(false)
+{}
 
-Client::Client(int fd, const std::string &hostname) : _fd(fd), _hostname(hostname), _authenticated(false), _has_pass(false), _registered(false) {}
+Client::Client(int fd, const std::string &hostname) :
+    _fd(fd),
+    _hostname(hostname),
+    _authenticated(false),
+    _has_pass(false),
+    _registered(false)
+{}
 
-Client::Client(const Client& other) : _fd(other._fd), _nick(other._nick), _user(other._user), _realname(other._realname), _pass(other._pass), _hostname(other._hostname), _cmd(other._cmd), _authenticated(other._authenticated), _has_pass(other._has_pass), _registered(other._registered) {}
+Client::Client(const Client& other) :
+    _fd(other._fd),
+    _nick(other._nick),
+    _user(other._user),
+    _realname(other._realname),
+    _pass(other._pass),
+    _hostname(other._hostname),
+    _cmd(other._cmd),
+    _channels(other._channels),
+    _authenticated(other._authenticated),
+    _has_pass(other._has_pass),
+    _registered(other._registered)
+{}
 
 Client& Client::operator=(const Client& other)
 {
     if (this != &other)
     {
         this -> _fd = other._fd;
-        this -> _authenticated = other._authenticated;
         this -> _nick = other._nick;
         this -> _user = other._user;
+        this -> _realname = other._realname;
+        this -> _pass = other._pass;
+        this -> _hostname = other._hostname;
         this -> _cmd = other._cmd;
         this -> _channels = other._channels;
-        this -> _realname = other._realname;
+        this -> _authenticated = other._authenticated;
         this -> _has_pass = other._has_pass;
         this -> _registered = other._registered;
-        this -> _hostname = other._hostname;
     }
     return (*this);
 }
@@ -119,7 +143,6 @@ std::string Client::getNickWithPrefix(const Channel& ch) const
     return(_nick);
 }
 
-
 void Client::addChannel(const Channel& ch)
 {
     for (std::vector<std::string>::iterator it = _channels.begin(); it != _channels.end(); ++it)
@@ -128,6 +151,11 @@ void Client::addChannel(const Channel& ch)
             return;
     }
     _channels.push_back(ch.getChannelName());
+}
+
+const std::vector<std::string> &Client::getChannels() const
+{
+    return (_channels);
 }
 
 void Client::removeChannel(const Channel& ch)
@@ -158,35 +186,4 @@ void Client::sendMsg(std::string msg)
             throw std::runtime_error(strerror(errno));
         total += n_bytes;
     }
-    /* The key distinction is whether the error is fatal (the connection is dead) or transient (try again).
-    In practice for IRC servers, almost all errors here mean the client is gone:
-     - EPIPE / ECONNRESET — client disconnected
-     - EBADF / ENOTSOCK — bad fd, programming error
-     - EAGAIN / EWOULDBLOCK — only relevant if your fd is non-blocking; means the send buffer is full right now
-    For a straightforward implementation, treat all errors as fatal and mark the client for disconnection.
-    Retrying on EAGAIN requires a write buffer queue, which is a bigger architectural change — not worth it
-    unless you expect high load.*/
-}
-
-
-void Client::printChannels()
-{
-   for(std::vector<std::string>::iterator it = _channels.begin(); it != _channels.end(); ++it)
-   {
-        std::cout << *it << std::endl;
-   } 
-}
-
-void Client::printVectorInt(std::vector<int> &v)
-{
-   for(std::vector<int>::iterator it = v.begin(); it != v.end(); ++it)
-   {
-        std::cout << *it << " ";
-   }
-   std::cout << std::endl;
-}
-
-const std::vector<std::string> &Client::getChannels() const
-{
-    return (_channels);
 }

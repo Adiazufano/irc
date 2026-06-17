@@ -1,25 +1,25 @@
-NAME        := ircserv
+NAME		:= ircserv
 
-SRC_DIR     := src
-OBJ_DIR     := obj
-INC_DIR     := include
-DEP_DIR     := deps
+SRC_DIR		:= src
+OBJ_DIR		:= obj
+INC_DIR		:= include
+DEP_DIR		:= deps
 
-SRCS        := main.cpp Client.cpp CommandParse.cpp Server.cpp Channel.cpp utils.cpp \
-				commands/cap.cpp commands/join.cpp commands/nick.cpp commands/pass.cpp commands/topic.cpp commands/user.cpp \
-				commands/privmsg.cpp commands/kick.cpp commands/part.cpp commands/names.cpp commands/who.cpp commands/quit.cpp commands/list.cpp\
-				commands/invite.cpp \
-				commands/ping.cpp \
-				commands/mode.cpp \
-				commands/notice.cpp
-SRCS        := $(addprefix $(SRC_DIR)/, $(SRCS))
-OBJS        := $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
-DEPS        := $(SRCS:$(SRC_DIR)/%.cpp=$(DEP_DIR)/%.d)
+SRCS		:= main.cpp Client.cpp CommandParse.cpp Server.cpp Channel.cpp \
+				utils.cpp commands/cap.cpp commands/join.cpp commands/nick.cpp \
+				commands/pass.cpp commands/topic.cpp commands/user.cpp \
+				commands/privmsg.cpp commands/kick.cpp commands/part.cpp \
+				commands/names.cpp commands/who.cpp commands/quit.cpp \
+				commands/list.cpp commands/invite.cpp commands/ping.cpp \
+				commands/mode.cpp commands/notice.cpp
+SRCS		:= $(addprefix $(SRC_DIR)/, $(SRCS))
+OBJS		:= $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
+DEPS		:= $(SRCS:$(SRC_DIR)/%.cpp=$(DEP_DIR)/%.d)
 
-CXX         := c++
-CXXFLAGS    := -Wall -Wextra -Werror -std=c++98 -I$(INC_DIR)
-DEBUG       := -pedantic -Wshadow -g2 -O0
-SANITIZE    := -fsanitize=address,undefined -fno-omit-frame-pointer
+CXX			:= c++
+CXXFLAGS	:= -Wall -Wextra -Werror -std=c++98 -I$(INC_DIR)
+DEBUG		:= -pedantic -Wshadow -g2 -O0
+SANITIZE	:= -fsanitize=address,undefined -fno-omit-frame-pointer
 
 all: $(NAME)
 
