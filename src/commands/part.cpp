@@ -14,8 +14,6 @@ void promoteAdmin(Server& s, Channel* ch)
         ch->addAdmin(newAdminFd);
 
         std::string newAdminNick = s.getClients()[newAdminFd].getNickname();
-        //std::string modeMsg = ":my_serv_irc MODE " + ch->getChannelName() + " +o " + newAdminNick;
-        //ch->sendMembers(modeMsg);
         ch->sendMembers(CMD_MODE(ch->getChannelName(), "+o", newAdminNick));
     }
 }

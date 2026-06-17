@@ -40,7 +40,7 @@ void cmdNotice(Server &s, Client &client, std::string &line)
     if (text.empty())
         return;
 
-    // Iterate through comma separated targets and send message to each one
+    // Iterate through comma-separated targets and send message to each one
     std::istringstream iss2(targets_full);
     for (std::string target; getline(iss2, target, ',');)
     {
