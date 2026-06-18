@@ -21,7 +21,6 @@ void promoteAdmin(Server& s, Channel* ch)
 
 void cmdPart(Server &s, Client& client, std::string line)
 {
-    // Parse channel and reason
     std::istringstream iss1(line);
     std::string text;
     std::string targets_full;
@@ -30,11 +29,9 @@ void cmdPart(Server &s, Client& client, std::string line)
     getline(iss1 >> std::ws, targets_full, ' ');
     getline(iss1 >> std::ws, text);
 
-    // Iterate through comma-separated channels and sending the reason of leaving to each member
     std::istringstream iss2(targets_full);
     for (std::string name; getline(iss2, name, ',');)
     {
-        // If is empty
         if (name.empty())
             client.sendMsg(ERR_NEEDMOREPARAMS(client.getNickname(), client.getCliCmd()));
         if (!s.findChannelbyName(name))
@@ -51,7 +48,7 @@ void cmdPart(Server &s, Client& client, std::string line)
             continue;
         }
         std::string msg = ":" + client.getNickname() + "!" + client.getUser() + "@" + client.getHostname()
-                        + " " + client.getCliCmd() + " " + name + " " + text;
+                        + " PART " + name + " " + text;
 
         std::vector<int> clients = ch->getClientsArray();
         ch->sendMembers(msg);
