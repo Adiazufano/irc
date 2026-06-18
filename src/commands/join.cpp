@@ -26,7 +26,7 @@ void joinMessages(Server &s, Client& client, std::string name)
     std::string joinMsg;
     std::vector<int> clients = s.getChannelbyName(name)->getClientsArray();
 
-    joinMsg = ":" + client.getNickname() + "!" + client.getUser() + "@" + client.getHostname()+ " JOIN " + " " + name;
+    joinMsg = ":" + client.getNickname() + "!" + client.getUser() + "@" + client.getHostname()+ " JOIN " +  name;
     s.getChannelbyName(name)-> sendMembers(joinMsg, 0);
     replyUser(s, client, name);
 }
