@@ -48,6 +48,7 @@ class Server
         void                                client_event(int fd);
         void                                add_clients();
         void                                disconnect_sockets();
+        void                                broadcastQuit(int fd);
 
     public:
         Server();

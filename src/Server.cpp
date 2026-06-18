@@ -256,6 +256,20 @@ std::vector<int> &Server::getDisconnectedSockets()
     return (_disconnected_sockets);
 }
 
+void Server::broadcastQuit(int fd)
+{
+    Client &client = _clients[fd];
+    for (std::vector<std::string>::const_iterator it = client.getChannels().begin(); it != client.getChannels().end(); ++it)
+    {
+        Channel *ch = getChannelbyName(*it);
+        if (ch != NULL)
+        {
+            ch->sendMembers(CMD_QUIT(client.getNickname(), client.getUser(), client.getHostname(), "Connection reset by peer"), fd);
+            ch->removeClient(fd);
+        }
+    }
+}
+
 void Server::disconnect_sockets()
 {
     for (size_t i = 0; i < _disconnected_sockets.size(); i++)
@@ -265,6 +279,7 @@ void Server::disconnect_sockets()
         {
             if (_disconnected_sockets[i] == it->fd)
             {
+                broadcastQuit(it->fd);
                 close(it->fd);
                 _clientsByNick.erase(_clients[it->fd].getNickname());
                 _clients.erase(it -> fd);
