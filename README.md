@@ -122,7 +122,7 @@ Clients can send the following commands to the IRC server:
 | `PART` | Exit from the given channels. | `PART #born2code,#42madrid :Absorbed by the blackhole` | [PART](https://modern.ircdocs.horse/#part-message) |
 | `TOPIC` | Change or view the topic of the given channel. <sup>[*(notes)*](#topic)</sup> | `TOPIC #catmemes :Share your favorite cat memes` | [TOPIC](https://modern.ircdocs.horse/#topic-message) |
 | `NAMES` | List the nicknames joined to a channel. Channel operators are prefixed with `@`. | `NAMES #42madrid` | [NAMES](https://modern.ircdocs.horse/#names-message) |
-| `LIST` | Get a list of channels along with some information about each channel. | `LIST #catmemes,#born2code` | [LIST](https://modern.ircdocs.horse/#list-message) |
+| `LIST` | Get a list of channels along with some information about each channel. | `LIST` | [LIST](https://modern.ircdocs.horse/#list-message) |
 | `INVITE` | Invite a user to a channel. | `INVITE aldiaz-u #born2code` | [INVITE](https://modern.ircdocs.horse/#invite-message) |
 | `KICK` | Remove a user from a channel. | `KICK #born2code danielji :Very noisy user` | [KICK](https://modern.ircdocs.horse/#kick-message) |
 | `PRIVMSG` | Send private messages between users or to members of channels. | `PRIVMSG rachel-g :How you doin?` | [PRIVMSG](https://modern.ircdocs.horse/#privmsg-message) |
