@@ -50,6 +50,7 @@ class Channel
         void removeAdmin(int fd);
         void addInvited(int fd);
         void removeClient(int fd);
+        void removeInvit(int fd);
         void sendMembers(std::string msg, int exclude = 0) const;
 };
 

@@ -83,7 +83,11 @@ bool validKey(Channel* channel, std::string key, int fd)
         if(channel->getChannelKey().empty())
             return true;
         else if((channel->getChannelKey() == key) || (channel->isInvited(fd)))
+        {
+            if(channel->isInvited(fd))
+                channel->removeInvit(fd);
             return true;
+        }
         else
             return false;
     }

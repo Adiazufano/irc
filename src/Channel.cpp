@@ -217,6 +217,18 @@ void Channel::removeClient(int fd)
     }
 }
 
+void Channel::removeInvit(int fd)
+{
+    for (std::vector<int>::iterator it = _invited_fd.begin(); it != _invited_fd.end(); ++it)
+    {
+        if (*it == fd)
+        {
+            _invited_fd.erase(it);
+            return;
+        }
+    }    
+}
+
 bool Channel::hasClient(const Client &client) const
 {
     std::vector<int>::const_iterator it;
