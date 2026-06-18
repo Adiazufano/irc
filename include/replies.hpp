@@ -11,7 +11,7 @@
 # define RPL_MYINFO(client)                            (my_serv_name" 004 " + (client) + " my_serv_irc 1.0 o itkl kl")
 # define RPL_ISUPPORT(client)                          (my_serv_name" 005 " + (client) + " CASEMAPPING=ascii CHANMODES=,o,kl,it CHANTYPES=# :are supported by this server")
 # define RPL_ENDOFWHO(client, mask)                    (my_serv_name" 315 " + (client) + " " + (mask) + " :End of WHO list")
-# define RPL_LISTSTART(client)                         (my_serv_name" 321 " + (client) + " Channel :Users  Name")
+# define RPL_LISTSTART(client)                         (my_serv_name" 321 " + (client) + " Channel :Users Name")
 # define RPL_LIST(client, channel, numb, topic)        (my_serv_name" 322 " + (client) + " " + (channel) + " " + (numb) + " :" + (topic))
 # define RPL_ENDLIST(client)                           (my_serv_name" 323 " + (client) + " :End of /LIST")
 # define RPL_CHANNELMODEIS(client, chan, modstr, args) (my_serv_name" 324 " + (client) + " " + (chan) + " " + (modstr) + " " + (args))
