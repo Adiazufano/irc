@@ -291,6 +291,16 @@ void Server::disconnect_sockets()
     }
 }
 
+void Server::eraseChannel(Channel* channel)
+{
+    if(channel->getClientsArray().size() == 0)
+    {
+        std::cout << "Removing empty channel: "<< channel->getChannelName() << '\n';
+        _channels.erase(channel->getChannelName());
+        delete channel;
+    }
+}
+
 void Server::run()
 {
     signal(SIGINT, sigint_handler);

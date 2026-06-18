@@ -2,6 +2,7 @@
 #include "replies.hpp"
 #include "utils.hpp"
 
+
 void    cmdKick(Server &s, Client &client, std::string line)
 {
     std::istringstream iss(line);
@@ -47,6 +48,7 @@ void    cmdKick(Server &s, Client &client, std::string line)
         channel->sendMembers(msgKick);
         channel->removeClient(cli.getFd());
         cli.removeChannel(*channel);
+        s.eraseChannel(channel);
     }
     else
     {

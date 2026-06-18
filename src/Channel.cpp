@@ -258,3 +258,4 @@ void Channel::sendMembers(std::string msg, int exclude) const
         }
     }
 }
+

@@ -66,6 +66,7 @@ class Server
         Channel *getChannelbyName(std::string name);
         bool findClientbyNick(std::string name);
         bool findClientbyFd(int fd);
+        void eraseChannel(Channel* channel);
         Client *getClientbyNickname(std::string name);
         Client &getClientbyFd(int fd);
 };

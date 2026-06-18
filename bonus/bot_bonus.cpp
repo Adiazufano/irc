@@ -1,4 +1,3 @@
-
 #include "bot_bonus.hpp"
 
 Config loadEnv(const std::string& path)
@@ -327,7 +326,7 @@ bool checkInvite(std::string &line, int fd, Config cfg)
     return false;
 }
 
-void executeCommand(std::string &pending, int fd, std::map<std::string, int> whoCount, std::set<std::string> channels, bool& registered, Config cfg)
+void executeCommand(std::string &pending, int fd, std::map<std::string, int>& whoCount, std::set<std::string>& channels, bool& registered, Config cfg)
 {
     bool listing = false;
     std::string whoChannel;

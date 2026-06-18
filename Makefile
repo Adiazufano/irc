@@ -38,7 +38,7 @@ $(NAME): $(OBJS)
 bonus: $(NAME_BONUS)
 
 $(NAME_BONUS): $(OBJS_BONUS)
-	$(CXX) $(OBJS_BONUS) -o $@ $(SANITIZE)
+	$(CXX) $(CXXFLAGS) -lcurl $(OBJS_BONUS) -o $@ $(SANITIZE) 
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR) $(DEP_DIR)
 	mkdir -p $(dir $@) $(DEP_DIR)/$(dir $*)

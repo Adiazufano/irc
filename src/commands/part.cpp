@@ -58,5 +58,6 @@ void cmdPart(Server &s, Client& client, std::string line)
         ch->removeClient(client.getFd());
         client.removeChannel(*ch);
         promoteAdmin(s, ch);
+        s.eraseChannel(ch);
     }
 }
