@@ -27,26 +27,24 @@ DEPS_BONUS  := $(BONUS_SRCS:$(BONUS_DIR)/%.cpp=$(DEP_DIR)/bonus/%.d)
 
 CXX         := c++
 CXXFLAGS    := -Wall -Wextra -Werror -std=c++98 -I$(INC_DIR)
-DEBUG       := -pedantic -Wshadow -g2 -O0
-SANITIZE    := -fsanitize=address,undefined -fno-omit-frame-pointer
 
 all: $(NAME)
 
 $(NAME): $(OBJS)
-	$(CXX) $(OBJS) -o $@ $(SANITIZE)
+	$(CXX) $(OBJS) -o $@
 
 bonus: $(NAME_BONUS)
 
 $(NAME_BONUS): $(OBJS_BONUS)
-	$(CXX) $(CXXFLAGS) -lcurl $(OBJS_BONUS) -o $@ $(SANITIZE) 
+	$(CXX) $(CXXFLAGS) $(OBJS_BONUS) -lcurl -o $@ 
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR) $(DEP_DIR)
 	mkdir -p $(dir $@) $(DEP_DIR)/$(dir $*)
-	$(CXX) $(CXXFLAGS) $(DEBUG) $(SANITIZE) -MMD -MF $(DEP_DIR)/$*.d -c $< -o $@
+	$(CXX) $(CXXFLAGS) -MMD -MF $(DEP_DIR)/$*.d -c $< -o $@
 
 $(OBJ_DIR)/bonus/%.o: $(BONUS_DIR)/%.cpp | $(OBJ_DIR) $(DEP_DIR)
 	mkdir -p $(dir $@) $(DEP_DIR)/bonus
-	$(CXX) $(CXXFLAGS) $(DEBUG) $(SANITIZE) -MMD -MF $(DEP_DIR)/bonus/$*.d -c $< -o $@
+	$(CXX) $(CXXFLAGS) -MMD -MF $(DEP_DIR)/bonus/$*.d -c $< -o $@
 
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
@@ -66,9 +64,6 @@ re: fclean all
 run: all
 	./$(NAME) 6667 1234
 
-run_bonus: bonus
-	./$(NAME_BONUS)
-
 -include $(DEPS) $(DEPS_BONUS)
 
-.PHONY: all bonus clean fclean re run run_bonus
+.PHONY: all bonus clean fclean re run

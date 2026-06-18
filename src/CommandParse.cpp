@@ -2,10 +2,6 @@
 #include "Client.hpp"
 #include "commands.hpp"
 #include "utils.hpp"
-// #include <sstream>
-// #include <iostream>
-// #include <unistd.h>
-// #include <sys/socket.h>
 
 int command_level(std::string cmd)
 {

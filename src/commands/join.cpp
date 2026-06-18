@@ -128,8 +128,6 @@ void cmdJoin(Server &s, Client& client, std::string line)
     str >> _chName;
     str >> _chKey;
     _chData = getChData(_chName, _chKey, client);
-    //if(_chData.empty())
-    //    return client.sendMsg(ERR_NEEDMOREPARAMS(nick, client.getCliCmd()));
 
     for(std::map<std::string, std::string>::iterator it = _chData.begin(); it != _chData.end(); ++it)
     {

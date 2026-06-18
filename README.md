@@ -50,7 +50,6 @@ This IRC server relies on `poll` to achieve non-blocking I/O operations. `poll` 
 <!-- Contains any relevant information about compilation, installation, and/or execution. -->
 
 ```sh
-
 # Compile:
 $ make
 
