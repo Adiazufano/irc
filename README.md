@@ -56,8 +56,14 @@ $ git clone xxxxxx
 # Compile:
 $ make
 
+# Compile bot:
+$ make bonus
+
 # Run:
 $ ./ircserv <port> <password>
+
+# Run bot:
+$ ./ircserv_bonus
 
 # For example:
 $ ./ircserv 6667 1234
@@ -177,6 +183,16 @@ MODE #mychan +o joey33
 
 MODE #mychan +ikl-t 1234 100
 ```
+
+### BOT
+
+Run the bot in a different terminal from the server. The bot will join every
+public channel available and also create its own `#Omni-bot` channel.
+
+The bot acts as an AI assistant that connects to a public API to answer any
+question users ask. Use the `!ask` command followed by your question and the
+bot will reply in the same channel, with a response of up to 400 characters.
+
 
 ## Resources
 <!-- Classic references related to the topic (documentation, articles, tutorials, etc.),
